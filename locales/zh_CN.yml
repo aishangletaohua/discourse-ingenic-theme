@@ -182,6 +182,7 @@ zh_CN:
       apply: "申请"
       buy: "立即购买"
       documentation: "文档"
+      kind_filter: "类型"
       kind_board: "开发板"
       kind_sample: "样片"
       chip_filter: "芯片型号"

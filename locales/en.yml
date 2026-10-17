@@ -182,6 +182,7 @@ en:
       apply: "Apply"
       buy: "Buy now"
       documentation: "Documentation"
+      kind_filter: "Type"
       kind_board: "Development boards"
       kind_sample: "Sample chips"
       chip_filter: "Chip"

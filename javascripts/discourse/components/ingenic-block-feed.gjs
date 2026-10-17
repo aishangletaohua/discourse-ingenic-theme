@@ -124,7 +124,10 @@ export default class IngenicBlockFeed extends Component {
 
               <div class="ingenic-feed__meta">
                 {{#if row.category}}
-                  <span class="ingenic-feed__category">
+                  <span
+                    class="ingenic-feed__category"
+                    style="--ingenic-category: #{{row.category.color}}"
+                  >
                     <span
                       class="ingenic-feed__dot"
                       style="background-color: #{{row.category.color}}"

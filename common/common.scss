@@ -54,10 +54,41 @@
   // page — notices, the developer-information prompt, the documentation
   // control strip, the frame around a picture that has not loaded.
   --ingenic-surface-tint: var(--ingenic-sky-50);
-  --ingenic-surface-border: var(--ingenic-sky-200);
+  // Borders are read before they are looked at: a hairline two shades off the
+  // surface disappears on a bright screen, and every surface then runs into
+  // the next. This is the one border colour the whole theme and the core
+  // surfaces it re-points below are drawn with.
+  --ingenic-surface-border: #a9c6dc;
+  // A step lighter, for the line between two rows inside one card. Every
+  // border is visible; not every border should be as loud as the card's edge.
+  --ingenic-divider: color-mix(
+    in srgb,
+    var(--ingenic-surface-border) 62%,
+    var(--secondary)
+  );
 
   --ingenic-radius: 8px;
-  --ingenic-panel-border: var(--primary-low);
+  --ingenic-panel-border: var(--ingenic-surface-border);
+
+  // Core's own frames — the sidebar, the topic list, every table and input —
+  // read these, so recolouring them here reaches the whole forum rather than
+  // only the theme's components.
+  --d-sidebar-border-color: var(--ingenic-surface-border);
+  --d-sidebar-section-border-color: var(--ingenic-surface-border);
+  --content-border-color: var(--ingenic-surface-border);
+  --table-border-color: var(--ingenic-surface-border);
+  --input-border-color: var(--ingenic-surface-border);
+
+  // The sidebar's rows. A little taller and a little further apart than core's
+  // 2.2em: at this width the navigation is a column of destinations, not a
+  // toolbar, and the extra air is what separates one from the next.
+  --d-sidebar-row-height: 2.4em;
+  --d-sidebar-vertical-gap: 0.35rem;
+
+  // The seam between the navigation and the page. Core's `--space-8` is 2rem;
+  // a quarter more separates the two columns without pushing the content off
+  // the page.
+  --d-main-content-gap: 2.5rem;
 
   // Meta's page is narrower than the window, with the same margin on both
   // sides; a full-bleed forum reads as a dashboard rather than as a page. The
@@ -65,10 +96,10 @@
   //
   // Core adds the sidebar width to this value when it sizes `.wrap`, so the
   // subtraction is what makes the whole page — sidebar, content and rail —
-  // end at this width rather than the sidebar being extra. 1400 rather than
-  // 1280 keeps the same page shape on a laptop while giving the blocks and the
-  // feed noticeably more room, which is what the margins were taking up.
-  --d-max-width: calc(1400px - var(--d-sidebar-width));
+  // end at this width rather than the sidebar being extra. 1680 uses the room
+  // a wide screen has without stretching the reading column: the feed stays
+  // near its comfortable measure and the rail keeps its fixed floor.
+  --d-max-width: calc(1680px - var(--d-sidebar-width));
 
   // Capped as well as configured: this setting shipped at 272px, and a theme
   // update keeps the stored value, so the default alone would leave an
@@ -79,6 +110,40 @@
   @include viewport.until(lg) {
     --d-sidebar-width: #{$d-sidebar-narrow-width};
   }
+}
+
+// The header gives back a little of its height and draws its own edge. Core's
+// white strip otherwise ends in a shadow, which is the one horizontal line on
+// the page that does not read as a border.
+.d-header {
+  height: 3.66em;
+  border-bottom: 1px solid var(--ingenic-surface-border);
+
+  @include viewport.from(sm) {
+    height: 3.85em;
+  }
+}
+
+// The gap over the page and between the sidebar and the content. Core runs the
+// two columns together; a reader moving from the navigation to the page wants a
+// seam between them, not a single surface.
+#main-outlet {
+  --main-outlet-padding-top: var(--space-5);
+}
+
+// Section names and topic titles across the native lists, not only the front
+// page's cards: the same headings should carry the same weight wherever they
+// appear. Six hundred is a step up from body text without turning a list into
+// a wall of bold.
+.badge-category__name,
+.category-name {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.topic-list .main-link .title,
+.topic-list .title {
+  color: var(--primary);
 }
 
 // The state icons Discourse sets beside a topic title — unread, tracking,
@@ -204,7 +269,7 @@ html.ingenic-nav-first .sidebar-sections {
 }
 
 .ingenic-homepage {
-  max-width: 1400px;
+  max-width: 1680px;
   margin: 0 auto 2.5rem;
 
   // The welcome band. Meta's front page opens with a centred greeting and a
@@ -280,15 +345,18 @@ html.ingenic-nav-first .sidebar-sections {
   &__blocks {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 1.5rem;
+    gap: 1.75rem 1.5rem;
 
     // The discussion feed down the left and the shorter lists in a rail. The
     // feed spans the two rows the rail's cards occupy, so the pair reads as
     // one block rather than as a card with a hole under it. The rail keeps a
     // fixed floor: the extra page width goes to the feed, not to a wider rail.
+    // Its cards are separate surfaces with the page between them, so the row
+    // gap is the same as the gap under the hero.
     &--with-rail {
       grid-template-columns: minmax(0, 1.65fr) minmax(18rem, 0.6fr);
-      column-gap: 1.35rem;
+      row-gap: 1.75rem;
+      column-gap: 1.5rem;
     }
   }
 
@@ -310,6 +378,13 @@ html.ingenic-nav-first .sidebar-sections {
     > .ingenic-section {
       height: 100%;
       margin-bottom: 0;
+    }
+
+    // Each rail block is its own card, not a row in one long panel. A shallow
+    // shadow does the separating at a glance; the row gap above gives the page
+    // room to show between them.
+    &--side > .ingenic-section {
+      box-shadow: 0 1px 2px rgb(18 38 58 / 6%);
     }
   }
 
@@ -334,7 +409,7 @@ html.ingenic-nav-first .sidebar-sections {
     justify-content: space-between;
     gap: 1rem;
     margin-bottom: 0.9rem;
-    border-bottom: 1px solid var(--primary-very-low);
+    border-bottom: 1px solid var(--ingenic-divider);
 
     h2 {
       margin: 0 0 0.8rem;
@@ -433,8 +508,11 @@ html.ingenic-nav-first .sidebar-sections {
     width: 2rem;
     height: 2rem;
     border-radius: 0.5rem;
-    background: color-mix(in srgb, var(--ingenic-category) 14%, var(--secondary));
-    color: var(--ingenic-category);
+    background: color-mix(in srgb, var(--ingenic-category) 16%, var(--secondary));
+    // The category colour itself is chosen to sit on white as a dot; as a
+    // glyph on its own tint it can wash out. Mixing it towards the navy keeps
+    // the hue and gives the shape an edge.
+    color: color-mix(in srgb, var(--ingenic-category) 70%, var(--ingenic-navy));
     overflow: hidden;
   }
 
@@ -455,8 +533,9 @@ html.ingenic-nav-first .sidebar-sections {
     display: flex;
     align-items: center;
     gap: 0.4rem;
+    color: var(--primary);
     font-size: var(--font-0);
-    font-weight: 700;
+    font-weight: 600;
   }
 
   // One line at most. The card is an entrance, not a description of the
@@ -491,7 +570,7 @@ html.ingenic-nav-first .sidebar-sections {
     flex-direction: column;
     gap: 0.25rem;
     padding: 0.8rem 0;
-    border-bottom: 1px solid var(--primary-very-low);
+    border-bottom: 1px solid var(--ingenic-divider);
 
     &:last-child {
       border-bottom: 0;
@@ -536,10 +615,17 @@ html.ingenic-nav-first .sidebar-sections {
     padding-left: 1.75rem;
   }
 
+  // The section's own colour, carried by the words as well as the dot: the
+  // metadata line is where a reader finds out where a topic lives, and a grey
+  // label made every section look the same.
   &__category {
+    --ingenic-category: var(--primary-medium);
+
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
+    color: color-mix(in srgb, var(--ingenic-category) 78%, var(--ingenic-navy));
+    font-weight: 500;
   }
 
   &__dot {
@@ -565,7 +651,7 @@ html.ingenic-nav-first .sidebar-sections {
 .ingenic-search__input {
   width: 100%;
   padding: 0.7rem 1rem;
-  border: 1px solid var(--primary-low);
+  border: 1px solid var(--ingenic-surface-border);
   border-radius: var(--ingenic-radius);
   background: var(--secondary);
 }
@@ -642,7 +728,7 @@ html.ingenic-nav-first .sidebar-sections {
     justify-content: space-between;
     gap: 1rem;
     padding: 0.6rem 0;
-    border-bottom: 1px solid var(--primary-very-low);
+    border-bottom: 1px solid var(--ingenic-divider);
     font-size: var(--font-down-1);
   }
 }
@@ -957,7 +1043,7 @@ html.ingenic-nav-first .sidebar-sections {
     align-items: center;
     gap: 0.85rem;
     padding: 0.7rem 0;
-    border-bottom: 1px solid var(--primary-very-low);
+    border-bottom: 1px solid var(--ingenic-divider);
 
     &:last-child {
       border-bottom: 0;
@@ -1036,7 +1122,7 @@ html.ingenic-nav-first .sidebar-sections {
     align-items: center;
     gap: 0.55rem;
     padding: 0.5rem 0;
-    border-bottom: 1px solid var(--primary-very-low);
+    border-bottom: 1px solid var(--ingenic-divider);
     font-size: var(--font-down-1);
 
     &:last-child {
@@ -1105,7 +1191,7 @@ html.ingenic-nav-first .sidebar-sections {
     justify-content: space-between;
     gap: 1rem;
     padding: 0.75rem 0;
-    border-bottom: 1px solid var(--primary-very-low);
+    border-bottom: 1px solid var(--ingenic-divider);
 
     &:last-child {
       border-bottom: 0;
@@ -1141,7 +1227,7 @@ html.ingenic-nav-first .sidebar-sections {
 
 .ingenic-card {
   padding: 1rem;
-  border: 1px solid var(--primary-low);
+  border: 1px solid var(--ingenic-surface-border);
   border-radius: var(--ingenic-radius);
 
   &__title {
@@ -1222,74 +1308,14 @@ html.ingenic-nav-first .sidebar-sections {
   }
 }
 
-// The catalogue's two filters and the control that undoes them. The first is
-// drawn as a segmented pair of buttons rather than a select: it is a choice
-// between two named things, and both names should be readable without opening
-// anything. The second is a select because the product tree can be long.
+// The catalogue's two filters. They borrow the download centre's rows — the
+// same label column, the same words-as-options — because the two pages ask the
+// same kind of question and should not look like two different sites. Only the
+// number of rows differs: a board is either a board or a sample, and then it
+// has a chip.
 .ingenic-boards {
   &__filters {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: end;
-    gap: 0.75rem 1.25rem;
     margin-bottom: 1.35rem;
-
-    // The clear control is a button in a row of controls, so it is aligned
-    // with them rather than with their labels.
-    .btn {
-      flex: 0 0 auto;
-    }
-
-    // A native select sizes itself to its options, so the wrapper gives it the
-    // column's width instead.
-    select {
-      width: 100%;
-    }
-  }
-
-  &__kinds {
-    display: inline-flex;
-    gap: 0.25rem;
-    padding: 0.2rem;
-    border: 1px solid var(--ingenic-surface-border);
-    border-radius: 999px;
-    background: var(--ingenic-surface-tint);
-  }
-
-  &__kind {
-    padding: 0.4rem 1rem;
-    border: 0;
-    border-radius: 999px;
-    background: none;
-    color: var(--primary-high);
-    font-size: var(--font-0);
-    font-weight: 600;
-    line-height: 1.4;
-    cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
-
-    &:hover {
-      color: var(--ingenic-link);
-    }
-
-    &.is-current {
-      background: var(--ingenic-navy);
-      color: #fff;
-    }
-  }
-
-  &__chip {
-    display: flex;
-    flex: 0 1 18rem;
-    flex-direction: column;
-    gap: 0.25rem;
-    min-width: 12rem;
-
-    > span {
-      color: var(--primary-medium);
-      font-size: var(--font-down-1);
-      font-weight: 700;
-    }
   }
 }
 
@@ -1301,7 +1327,7 @@ html.ingenic-nav-first .sidebar-sections {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid var(--primary-low);
+  border: 1px solid var(--ingenic-surface-border);
   border-radius: calc(var(--ingenic-radius) + 2px);
   background: var(--secondary);
   cursor: pointer;
@@ -1320,7 +1346,7 @@ html.ingenic-nav-first .sidebar-sections {
     place-items: center;
     aspect-ratio: 4 / 3;
     padding: 1.1rem;
-    border-bottom: 1px solid var(--primary-very-low);
+    border-bottom: 1px solid var(--ingenic-surface-border);
     background: var(--ingenic-sky-50);
   }
 
@@ -1374,7 +1400,9 @@ html.ingenic-nav-first .sidebar-sections {
   }
 
   &__actions {
-    display: flex;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
     gap: 0.5rem;
     margin-top: auto;
     padding: 0.85rem 1.15rem 1.15rem;
@@ -1388,7 +1416,7 @@ html.ingenic-nav-first .sidebar-sections {
     }
 
     .btn {
-      flex: 1 1 0;
+      width: 100%;
       justify-content: center;
     }
   }
@@ -1501,10 +1529,12 @@ html.ingenic-nav-first .sidebar-sections {
   }
 
   &__actions {
-    display: flex;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
     gap: 0.75rem;
     padding: 1rem 1.6rem;
-    border-top: 1px solid var(--primary-very-low);
+    border-top: 1px solid var(--ingenic-surface-border);
     background: var(--secondary);
 
     .btn:not(.btn-primary) {
@@ -1514,7 +1544,7 @@ html.ingenic-nav-first .sidebar-sections {
     }
 
     .btn {
-      flex: 1 1 0;
+      width: 100%;
       justify-content: center;
     }
   }
@@ -1797,7 +1827,7 @@ html.ingenic-nav-first .sidebar-sections {
     gap: 1rem;
     margin-top: 3rem;
     padding-top: 1rem;
-    border-top: 1px solid var(--primary-low);
+    border-top: 1px solid var(--ingenic-divider);
   }
 
   &__step {
@@ -2141,7 +2171,7 @@ html.ingenic-nav-first .sidebar-sections {
     align-items: center;
     gap: 0.5rem;
     padding: 0.45rem 0.7rem;
-    border: 1px solid var(--primary-low);
+    border: 1px solid var(--ingenic-surface-border);
     border-radius: 999px;
     background: var(--secondary);
     color: var(--primary);
@@ -2271,14 +2301,6 @@ html.ingenic-nav-first .sidebar-sections {
 
     &__body {
       padding: 1.25rem;
-    }
-  }
-
-  .ingenic-boards {
-    // One column, for the same reason as the download filters: two selects
-    // side by side would each be narrower than the names they have to show.
-    &__filters {
-      grid-template-columns: minmax(0, 1fr);
     }
   }
 
@@ -2434,29 +2456,34 @@ html.ingenic-nav-first .sidebar-sections {
   }
 
   &__halo {
-    fill: var(--ingenic-surface-tint);
+    fill: #ffe9b8;
   }
 
   &__line {
-    stroke: var(--ingenic-navy);
+    stroke: #f5a623;
     stroke-width: 2.5;
     stroke-linecap: round;
   }
 
   &__antenna {
-    fill: var(--tertiary);
+    fill: #ffb020;
     stroke: var(--ingenic-navy);
     stroke-width: 2;
   }
 
   &__ear {
-    fill: var(--ingenic-navy);
+    fill: #1b9fd8;
   }
 
+  // The head's gradient is set on the element itself: a fragment-only `url()`
+  // in an external stylesheet resolves against the stylesheet, not the page.
   &__head {
-    fill: var(--secondary);
     stroke: var(--ingenic-navy);
     stroke-width: 2.5;
+  }
+
+  &__cheek {
+    fill: #ff8fa3;
   }
 
   &__eye {

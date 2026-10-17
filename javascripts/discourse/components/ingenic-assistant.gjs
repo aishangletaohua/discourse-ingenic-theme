@@ -126,12 +126,28 @@ export default class IngenicAssistant extends Component {
             aria-hidden="true"
             focusable="false"
           >
+            <defs>
+              <linearGradient id="ingenic-mascot-head" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#8fd8f8" />
+                <stop offset="1" stop-color="#2fc1ff" />
+              </linearGradient>
+            </defs>
             <circle class="ingenic-assistant__halo" cx="32" cy="32" r="30" />
             <line class="ingenic-assistant__line" x1="32" y1="17" x2="32" y2="12" />
             <circle class="ingenic-assistant__antenna" cx="32" cy="9" r="3" />
             <rect class="ingenic-assistant__ear" x="9" y="28" width="5" height="11" rx="2.5" />
             <rect class="ingenic-assistant__ear" x="50" y="28" width="5" height="11" rx="2.5" />
-            <rect class="ingenic-assistant__head" x="15" y="19" width="34" height="28" rx="10" />
+            <rect
+              class="ingenic-assistant__head"
+              x="15"
+              y="19"
+              width="34"
+              height="28"
+              rx="10"
+              fill="url(#ingenic-mascot-head)"
+            />
+            <circle class="ingenic-assistant__cheek" cx="21.5" cy="36.5" r="2.2" />
+            <circle class="ingenic-assistant__cheek" cx="42.5" cy="36.5" r="2.2" />
             <circle class="ingenic-assistant__eye" cx="25" cy="31" r="3" />
             <circle class="ingenic-assistant__eye" cx="39" cy="31" r="3" />
             <path class="ingenic-assistant__smile" d="M26 40c2.4 2.6 9.6 2.6 12 0" />

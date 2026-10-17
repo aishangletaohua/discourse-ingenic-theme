@@ -8,7 +8,6 @@ import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import getURL from "discourse/lib/get-url";
-import DNativeSelect from "discourse/ui-kit/d-native-select";
 
 const ENDPOINT = "/ingenic/boards";
 
@@ -18,11 +17,11 @@ const ENDPOINT = "/ingenic/boards";
  * These are applied for or bought from the Ingenic team, so this page sells
  * nothing and takes no orders: every card ends in a link that leaves the forum.
  *
- * The filters are two levels. The first chooses the kind of thing — a board or
- * a sample — and is drawn as two buttons rather than a select, because it is a
- * choice between two named things and a closed select would hide the second
- * until it was opened. The second chooses the chip, and is a select because
- * there are as many chips as the product tree holds.
+ * The filters are two levels and two rows, drawn like the download centre's:
+ * the first chooses the kind of thing — a board or a sample — and the second
+ * chooses the chip. Words rather than selects, because both rows are short
+ * enough to read at once and a visitor should see what the catalogue holds
+ * before choosing anything.
  *
  * A card is a shop window: picture, name, a short introduction, and the two
  * links. Everything longer — the full description and the specifications —
@@ -54,13 +53,6 @@ export default class IngenicBoards extends Component {
       label: i18n(themePrefix(`ingenic.boards.kind_${kind}`)),
       active: kind === this.kind,
     }));
-  }
-
-  // Every chip, each labelled with the series it belongs to: without a series
-  // filter on this page, "T33" on its own is not enough context to choose
-  // from.
-  get chipOptions() {
-    return this.filters.chips;
   }
 
   // Worked out here so the template stays a description of the layout. The
@@ -145,13 +137,6 @@ export default class IngenicBoards extends Component {
   }
 
   @action
-  clear(event) {
-    event.preventDefault();
-    this.chip = "";
-    return this.load();
-  }
-
-  @action
   chipLabel(chip) {
     return chip.series_name
       ? `${chip.series_name} › ${chip.name}`
@@ -208,41 +193,50 @@ export default class IngenicBoards extends Component {
       </header>
 
       <div class="ingenic-boards__filters">
-        <div class="ingenic-boards__kinds" role="tablist">
-          {{#each this.kindTabs as |tab|}}
-            <button
-              class="ingenic-boards__kind {{if tab.active 'is-current'}}"
-              type="button"
-              role="tab"
-              aria-selected={{tab.active}}
-              {{on "click" (fn this.pickKind tab.kind)}}
-            >
-              {{tab.label}}
-            </button>
-          {{/each}}
+        <div class="ingenic-downloads__filter">
+          <span class="ingenic-downloads__filter-label">
+            {{i18n (themePrefix "ingenic.boards.kind_filter")}}
+          </span>
+          <div class="ingenic-downloads__options">
+            {{#each this.kindTabs as |tab|}}
+              <button
+                class="ingenic-downloads__option {{if tab.active 'is-current'}}"
+                type="button"
+                aria-pressed={{tab.active}}
+                {{on "click" (fn this.pickKind tab.kind)}}
+              >
+                {{tab.label}}
+              </button>
+            {{/each}}
+          </div>
         </div>
 
-        <label class="ingenic-docs__field ingenic-boards__chip">
-          <span>{{i18n (themePrefix "ingenic.boards.chip_filter")}}</span>
-          <DNativeSelect
-            @value={{this.chip}}
-            @nonePlaceholder={{i18n (themePrefix "ingenic.boards.all_chips")}}
-            @onChange={{this.pickChip}}
-            as |select|
-          >
-            {{#each this.chipOptions as |item|}}
-              <select.Option @value={{item.slug}}>
-                {{this.chipLabel item}}
-              </select.Option>
-            {{/each}}
-          </DNativeSelect>
-        </label>
+        <div class="ingenic-downloads__filter">
+          <span class="ingenic-downloads__filter-label">
+            {{i18n (themePrefix "ingenic.boards.chip_filter")}}
+          </span>
+          <div class="ingenic-downloads__options">
+            <button
+              class="ingenic-downloads__option {{unless this.chip 'is-current'}}"
+              type="button"
+              aria-pressed={{if this.chip "false" "true"}}
+              {{on "click" (fn this.pickChip "")}}
+            >
+              {{i18n (themePrefix "ingenic.boards.all_chips")}}
+            </button>
 
-        {{#if this.filtered}}
-          <button class="btn btn-default" type="button" {{on "click" this.clear}}>
-            {{i18n (themePrefix "ingenic.boards.clear_filters")}}
-          </button>
-        {{/if}}
+            {{#each this.filters.chips as |item|}}
+              <button
+                class="ingenic-downloads__option {{if (eq item.slug this.chip) 'is-current'}}"
+                type="button"
+                aria-pressed={{eq item.slug this.chip}}
+                {{on "click" (fn this.pickChip item.slug)}}
+              >
+                {{this.chipLabel item}}
+              </button>
+            {{/each}}
+          </div>
+        </div>
       </div>
 
       {{#if this.boards.length}}

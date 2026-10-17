@@ -4,6 +4,30 @@ import { service } from "@ember/service";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 
+// A category only carries an icon when an administrator sets one, and most
+// forums do not bother. The five sections this forum ships with are the ones a
+// visitor sees on the front page, so they get a glyph of their own here rather
+// than an empty tinted square.
+const CATEGORY_ICONS = {
+  "technical-discussions": "comments",
+  "official-announcements": "bullhorn",
+  "site-feedback": "comment-dots",
+  "open-source": "code",
+  general: "comments",
+};
+
+// Category colours in Discourse are often all one hue, because an administrator
+// picks one palette for the whole forum. On a front-page card the icon is the
+// only thing distinguishing one section from another, so the five sections this
+// theme knows get a hue each. A card with its own colour still wins.
+const CATEGORY_TINTS = {
+  "technical-discussions": "#1b8fd4",
+  "official-announcements": "#ef8a2b",
+  "site-feedback": "#d6539a",
+  "open-source": "#7b61d6",
+  general: "#25aae2",
+};
+
 /**
  * The forum's sections, as the home page's way into the forum.
  *
@@ -65,7 +89,7 @@ export default class IngenicBlockCategories extends Component {
       description: i18n(themePrefix("ingenic.home.sections.docs_hint")),
       icon: "book",
       count: null,
-      style: "--ingenic-category: var(--tertiary)",
+      style: "--ingenic-category: #2f9e63",
     };
 
     // Documentation sits between the two forum sections, which is where a
@@ -106,14 +130,19 @@ export default class IngenicBlockCategories extends Component {
       return null;
     }
 
-    const color = overlay.color || category.color;
+    const color =
+      overlay.color || CATEGORY_TINTS[category.slug] || category.color;
 
     return {
       key: `category-${category.id}`,
       href: category.url,
       label: overlay.label || category.name,
       description: overlay.description || category.description_text,
-      icon: overlay.icon || category.icon,
+      icon:
+        overlay.icon ||
+        category.icon ||
+        CATEGORY_ICONS[category.slug] ||
+        "comments",
       image_url: overlay.image_url,
       count: category.topic_count,
       style: color ? `--ingenic-category: #${color.replace(/^#/, "")}` : null,
