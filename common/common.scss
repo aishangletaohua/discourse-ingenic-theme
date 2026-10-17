@@ -1409,7 +1409,7 @@ html.ingenic-nav-first .sidebar-sections {
 
     // Core's plain button is transparent on white, which reads as a bare word
     // rather than the second of two choices. Give it an outline of its own.
-    .btn:not(.btn-primary) {
+    .btn:not(.btn-primary):not(.ingenic-sold-out) {
       border-color: var(--ingenic-surface-border);
       background: var(--secondary);
       color: var(--ingenic-navy);
@@ -1420,6 +1420,25 @@ html.ingenic-nav-first .sidebar-sections {
       justify-content: center;
     }
   }
+}
+
+// Neither an application link nor a purchase link: the item is listed but
+// there is nothing to do with it. It keeps the buttons' shape and gives up
+// their colour, so the card reads as unavailable rather than as broken. The
+// disabled selector matches core's own `.btn:disabled` rule, which would
+// otherwise win and paint the button back to white.
+.ingenic-sold-out:disabled,
+.btn.ingenic-sold-out:disabled {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border-color: #d5dbe1;
+  background: #edf0f3;
+  color: #7a8794;
+  font-weight: 600;
+  cursor: not-allowed;
+  opacity: 1;
 }
 
 // The card's detail page, drawn over the catalogue. A dialog rather than a
@@ -1537,7 +1556,7 @@ html.ingenic-nav-first .sidebar-sections {
     border-top: 1px solid var(--ingenic-surface-border);
     background: var(--secondary);
 
-    .btn:not(.btn-primary) {
+    .btn:not(.btn-primary):not(.ingenic-sold-out) {
       border-color: var(--ingenic-surface-border);
       background: var(--secondary);
       color: var(--ingenic-navy);

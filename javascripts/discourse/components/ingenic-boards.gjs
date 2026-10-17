@@ -69,7 +69,18 @@ export default class IngenicBoards extends Component {
         .map((line) => line.trim())
         .filter(Boolean),
       applyClass: board.purchase_url ? "btn" : "btn btn-primary",
+      // Neither link means there is nothing to do with this item: it is shown
+      // for reference, with a sold-out control in place of the two buttons.
+      soldOut: !board.application_url && !board.purchase_url,
     }));
+  }
+
+  get selectedSoldOut() {
+    return Boolean(
+      this.selected &&
+        !this.selected.application_url &&
+        !this.selected.purchase_url
+    );
   }
 
   get filtered() {
@@ -282,28 +293,34 @@ export default class IngenicBoards extends Component {
               </div>
 
               <div class="ingenic-product-card__actions">
-                {{#if board.application_url}}
-                  <a
-                    class={{board.applyClass}}
-                    href={{board.application_url}}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    {{on "click" this.stop}}
-                  >
-                    {{i18n (themePrefix "ingenic.boards.apply")}}
-                  </a>
-                {{/if}}
+                {{#if board.soldOut}}
+                  <button class="btn ingenic-sold-out" type="button" disabled>
+                    {{i18n (themePrefix "ingenic.boards.sold_out")}}
+                  </button>
+                {{else}}
+                  {{#if board.application_url}}
+                    <a
+                      class={{board.applyClass}}
+                      href={{board.application_url}}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      {{on "click" this.stop}}
+                    >
+                      {{i18n (themePrefix "ingenic.boards.apply")}}
+                    </a>
+                  {{/if}}
 
-                {{#if board.purchase_url}}
-                  <a
-                    class="btn btn-primary"
-                    href={{board.purchase_url}}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    {{on "click" this.stop}}
-                  >
-                    {{i18n (themePrefix "ingenic.boards.buy")}}
-                  </a>
+                  {{#if board.purchase_url}}
+                    <a
+                      class="btn btn-primary"
+                      href={{board.purchase_url}}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      {{on "click" this.stop}}
+                    >
+                      {{i18n (themePrefix "ingenic.boards.buy")}}
+                    </a>
+                  {{/if}}
                 {{/if}}
               </div>
             </article>
@@ -384,26 +401,32 @@ export default class IngenicBoards extends Component {
             </div>
 
             <div class="ingenic-board-dialog__actions">
-              {{#if this.selected.application_url}}
-                <a
-                  class="btn"
-                  href={{this.selected.application_url}}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {{i18n (themePrefix "ingenic.boards.apply")}}
-                </a>
-              {{/if}}
+              {{#if this.selectedSoldOut}}
+                <button class="btn ingenic-sold-out" type="button" disabled>
+                  {{i18n (themePrefix "ingenic.boards.sold_out")}}
+                </button>
+              {{else}}
+                {{#if this.selected.application_url}}
+                  <a
+                    class="btn"
+                    href={{this.selected.application_url}}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {{i18n (themePrefix "ingenic.boards.apply")}}
+                  </a>
+                {{/if}}
 
-              {{#if this.selected.purchase_url}}
-                <a
-                  class="btn btn-primary"
-                  href={{this.selected.purchase_url}}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {{i18n (themePrefix "ingenic.boards.buy")}}
-                </a>
+                {{#if this.selected.purchase_url}}
+                  <a
+                    class="btn btn-primary"
+                    href={{this.selected.purchase_url}}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {{i18n (themePrefix "ingenic.boards.buy")}}
+                  </a>
+                {{/if}}
               {{/if}}
             </div>
           </div>

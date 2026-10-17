@@ -181,6 +181,7 @@ en:
       subtitle: "Development boards and sample chips for evaluating and building on Ingenic silicon. Apply for one or buy it from the Ingenic team."
       apply: "Apply"
       buy: "Buy now"
+      sold_out: "Sold out"
       documentation: "Documentation"
       kind_filter: "Type"
       kind_board: "Development boards"
