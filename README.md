@@ -7,6 +7,11 @@ data this theme renders.
 It is deliberately **not** a copy of any existing Discourse theme. The layout is
 built from Discourse's public theme APIs so it keeps working across upgrades.
 
+For how the finished forum is used — member features, the admin screens and the
+settings behind them — see the plugin's usage guide:
+[English](https://github.com/aishangletaohua/discourse-ingenic-plugin/blob/main/docs/usage.md)
+· [中文](https://github.com/aishangletaohua/discourse-ingenic-plugin/blob/main/docs/usage.zh-CN.md).
+
 ## What it provides
 
 - the sidebar's Ingenic navigation, in three groups: the forum at the top
