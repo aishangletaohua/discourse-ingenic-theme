@@ -1,10 +1,14 @@
 import { apiInitializer } from "discourse/lib/api";
+import IngenicAssistant from "../components/ingenic-assistant";
 import IngenicBounty from "../components/ingenic-bounty";
 import IngenicFooter from "../components/ingenic-footer";
 import IngenicHeaderLinks from "../components/ingenic-header-links";
 import IngenicLocaleSwitcher from "../components/ingenic-locale-switcher";
 import { applyIngenicLayout } from "../ingenic/layout";
-import { registerIngenicSidebarSections } from "../ingenic/sidebar-section";
+import {
+  registerIngenicCommunityLinks,
+  registerIngenicSidebarSections,
+} from "../ingenic/sidebar-section";
 
 /**
  * Wires the Ingenic layout into Discourse.
@@ -35,6 +39,7 @@ import { registerIngenicSidebarSections } from "../ingenic/sidebar-section";
 export default apiInitializer((api) => {
   applyIngenicLayout();
   registerIngenicSidebarSections(api);
+  registerIngenicCommunityLinks(api);
 
   api.headerIcons.add("ingenic-locale", IngenicLocaleSwitcher, {
     before: "user-menu",
@@ -48,4 +53,10 @@ export default apiInitializer((api) => {
 
   api.renderInOutlet("topic-above-posts", IngenicBounty);
   api.renderInOutlet("above-footer", IngenicFooter);
+
+  // The assistant floats over whatever is being read, so it goes in an outlet
+  // that exists on every page rather than one owned by a particular route.
+  // `after-main-outlet` sits outside the content column and is not conditional
+  // on the footer, which is what a fixed-position element needs.
+  api.renderInOutlet("after-main-outlet", IngenicAssistant);
 });

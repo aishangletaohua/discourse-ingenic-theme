@@ -20,6 +20,10 @@ built from Discourse's public theme APIs so it keeps working across upgrades.
   state and active-link handling that core already implements — and sit inside
   the sidebar rather than beside it. Discourse's own categories, tags and
   visitor-made sections are left exactly as they are.
+- three community links that sit between the forum list and Discourse's own
+  **More** drawer: **MCP** (only while `mcp_server_enabled` is on), **Site
+  Feedback** and **All Categories**. They are community-section links, so they
+  share that group's collapse state and active highlighting.
 - admin-configurable navigation items (label, icon, target, group, order,
   visibility)
 - a sidebar that can be moved to either side and resized from theme settings
@@ -40,7 +44,17 @@ built from Discourse's public theme APIs so it keeps working across upgrades.
   itself the same feature is a banner above the posts — the standing offer, with
   a way to withdraw it for whoever may, or, once an answer has been accepted,
   what was paid and to whom
-- English strings today, structured so more locales can be added later
+- an **MCP server** page at `/ingenic/mcp`: the endpoint to add to an AI client,
+  the three steps of connecting one, ready-made snippets for Claude Code, VS Code
+  and anything else that speaks remote MCP, and what an approved client can see.
+  It reads `mcp_server_enabled` and shows a "not enabled yet" notice while the
+  server is off; the link in the sidebar is hidden at the same time
+- a **floating assistant** in the bottom-right corner: a robot launcher that opens
+  a short panel explaining what the assistant is for and leading into the AI bot's
+  conversations. It appears only while `ai_bot_enabled` is on, and for a
+  signed-out reader the button becomes a sign-in link that returns to the
+  assistant afterwards
+- English and Chinese strings, structured so more locales can be added later
 
 ## Installation
 
@@ -54,7 +68,7 @@ rails c
 
 ```ruby
 Theme.create_from_git_url(
-  url: "https://github.com/<org>/discourse-ingenic-theme.git",
+  url: "https://github.com/aishangletaohua/discourse-ingenic-theme.git",
   branch: "main"
 )
 ```
@@ -64,6 +78,15 @@ repository**.
 
 After installing, set it as the default theme and select the **Ingenic Light**
 color scheme.
+
+Two core features are optional and read straight from site settings:
+
+- **MCP** — the `/ingenic/mcp` page and its sidebar link require
+  `mcp_server_enabled` (Admin → Settings → MCP). With it off, the page explains
+  that the server is not enabled and the link is hidden.
+- **Assistant** — the floating launcher requires `ai_bot_enabled` from the
+  `discourse-ai` plugin. It links into that plugin's conversations page; without
+  the plugin it stays hidden rather than pointing at a missing page.
 
 ## Theme settings
 

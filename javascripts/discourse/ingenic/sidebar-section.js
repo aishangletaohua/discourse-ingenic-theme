@@ -25,6 +25,10 @@ import { hrefFor, resolveNavItems } from "./nav-items";
  * box). Where this block sits relative to those is therefore the stylesheet's
  * decision, not a matter of registration order — see `ingenic_nav_order`.
  *
+ * The links that browse the community itself are not a section: they are added
+ * to core's community section through `addCommunitySectionLink`, which puts
+ * them under Topics and above the More drawer, in registration order.
+ *
  * A section with `hideSectionHeader` is always drawn expanded: core returns
  * true from `displaySectionContent` for it, whatever the collapse state says.
  */
@@ -53,18 +57,96 @@ const GROUPS = [
     titled: false,
     textKey: "ingenic.nav.sections.member",
   },
-  // Site Feedback and All categories used to be drawn by core's Categories
-  // section. That section repeated the forum's name above the same three links
-  // and pushed the lists below it down, so it is hidden and the two links are
-  // drawn directly under Topics instead — same order, no heading. Core offers
-  // no API for removing a link from its own section, hence the stylesheet.
+];
+
+// The links that browse the community itself — MCP, Site Feedback and All
+// categories — belong in the community section rather than in a section of
+// their own, because that is where core draws Topics and the More drawer. The
+// public API appends them to the section's primary links, so they render
+// directly under Topics and above More in the order registered here. Core's
+// own Categories section, which used to hold two of them behind a repeated
+// forum heading, is hidden by the stylesheet.
+const communityLinks = [
   {
-    name: "ingenic-topic-links",
-    section: "topic-links",
-    titled: false,
-    textKey: "ingenic.nav.sections.topics",
+    key: "mcp",
+    icon: "robot",
+    labelKey: "ingenic.nav.mcp",
+    href: "/ingenic/mcp",
+    // The MCP server is core's and is off by default. A link to a page about
+    // an endpoint that is not listening would explain something that cannot
+    // be used, so the row follows the setting.
+    enabled: (siteSettings) => siteSettings.mcp_server_enabled,
+  },
+  {
+    key: "site-feedback",
+    icon: "comments",
+    labelKey: "ingenic.nav.site_feedback",
+    category: "site-feedback",
+    enabled: () => true,
+  },
+  {
+    key: "all-categories",
+    icon: "list",
+    labelKey: "ingenic.nav.all_categories",
+    href: "/categories",
+    enabled: () => true,
   },
 ];
+
+/**
+ * Registers the community links. Separate from the sections above so the
+ * initializer reads as what it is: three groups of the developer navigation,
+ * plus the three links that browse the forum.
+ */
+export function registerIngenicCommunityLinks(api) {
+  for (const link of communityLinks) {
+    api.addCommunitySectionLink((BaseCommunitySectionLink) => {
+      return class extends BaseCommunitySectionLink {
+        @service site;
+
+        get name() {
+          return link.key;
+        }
+
+        get text() {
+          return i18n(themePrefix(link.labelKey));
+        }
+
+        get title() {
+          return this.text;
+        }
+
+        get href() {
+          const target = link.category
+            ? hrefFor({ category: link.category }, this.site)
+            : link.href;
+
+          return getURL(target);
+        }
+
+        get prefixValue() {
+          return link.icon;
+        }
+
+        get shouldDisplay() {
+          return link.enabled(this.siteSettings);
+        }
+
+        // These are plain hrefs with no route behind them, so core has no
+        // route to compare against. Match the address instead, with the
+        // subtree rule the developer links use: /mcp/something is still MCP.
+        get currentWhen() {
+          const current = (this.router.currentURL ?? "").split("?")[0];
+          const target = link.category
+            ? hrefFor({ category: link.category }, this.site)
+            : link.href;
+
+          return current === target || current.startsWith(`${target}/`);
+        }
+      };
+    });
+  }
+}
 
 /**
  * One row of the navigation. Core hands the base class to each registration
@@ -165,48 +247,8 @@ export function registerIngenicSidebarSections(api) {
           }
 
           get links() {
-            if (group.section === "topic-links") {
-              return this.topicLinks;
-            }
-
             return resolveNavItems(this.site, group.section).map(
               (item) => new IngenicSectionLink({ item, router: this.router }),
-            );
-          }
-
-          // Written out here rather than in the navigation defaults because
-          // the configured `ingenic_nav_items` setting replaces the shipped
-          // list wholesale. These two links are not tools an editor chose to
-          // show; they are how the site is browsed, and hiding core's
-          // Categories section without them would leave no way to browse it at
-          // all. Site Feedback's id is read from the site, the same way an
-          // entry naming a category resolves one.
-          get topicLinks() {
-            const items = [
-              {
-                key: "site-feedback",
-                icon: "comments",
-                label: i18n(themePrefix("ingenic.nav.site_feedback")),
-                href: hrefFor({ category: "site-feedback" }, this.site),
-              },
-              {
-                key: "all-categories",
-                icon: "list",
-                label: i18n(themePrefix("ingenic.nav.all_categories")),
-                href: "/categories",
-              },
-            ];
-
-            return items.map(
-              (item) =>
-                new IngenicSectionLink({
-                  item: {
-                    ...item,
-                    url: getURL(item.href),
-                    external: false,
-                  },
-                  router: this.router,
-                }),
             );
           }
 

@@ -132,20 +132,12 @@ html.ingenic-nav-first .sidebar-sections {
   }
 
   // Core's Categories section held General, Site Feedback and All categories.
-  // The forum list above it already names the forum, and the two links that
-  // matter are drawn in `ingenic-topic-links`, directly under Topics. The
+  // The forum list above it already names the forum, and the links that matter
+  // are now added to the community section itself, directly under Topics. The
   // section is not collapsed but removed: leaving it as an empty triangle
   // would make the sidebar look broken.
   > .sidebar-section-wrapper[data-section-name="categories"] {
     display: none;
-  }
-
-  // Same specificity as the rule above and later, so this section sits at the
-  // default order — below core's Topics, which is where the user asked for the
-  // two links to go — instead of above the whole forum list with the Ingenic
-  // sections.
-  > .sidebar-section-wrapper[data-section-name="ingenic-topic-links"] {
-    order: 0;
   }
 }
 
@@ -690,6 +682,119 @@ html.ingenic-nav-first .sidebar-sections {
   margin: 0;
   color: var(--primary-medium);
   font-size: var(--font-down-1);
+}
+
+// The MCP page. It is mostly prose, so the page's own furniture is kept to the
+// three things a reader needs to act: the endpoint as one selectable line, the
+// connection steps as a numbered list, and the client examples as their own
+// blocks of code. Everything else is the same text scale as the rest of the
+// forum — this is a page an engineer reads, not a landing page.
+.ingenic-mcp {
+  &__intro {
+    max-width: 46rem;
+    margin-top: 0;
+    color: var(--primary-high);
+  }
+
+  &__endpoint {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin: 1.1rem 0 1.5rem;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--ingenic-surface-border);
+    border-radius: var(--ingenic-radius);
+    background: var(--ingenic-surface-tint);
+  }
+
+  &__endpoint-label {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__endpoint-url {
+    flex: 1 1 20rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ingenic-navy);
+    font-size: var(--font-up-1);
+    font-family: var(--d-font-family--monospace);
+  }
+
+  &__copy {
+    flex: 0 0 auto;
+  }
+
+  &__steps {
+    max-width: 46rem;
+    margin: 0 0 1.5rem;
+    padding-left: 1.25rem;
+
+    li {
+      margin-bottom: 0.8rem;
+    }
+
+    p {
+      margin: 0.2rem 0 0;
+      color: var(--primary-medium);
+    }
+  }
+
+  &__clients {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+
+  &__client {
+    min-width: 0;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: var(--ingenic-radius);
+    background: var(--secondary);
+
+    h3 {
+      margin: 0 0 0.5rem;
+      font-size: var(--font-up-1);
+    }
+
+    p {
+      margin: 0;
+      color: var(--primary-medium);
+      font-size: var(--font-down-1);
+    }
+
+    pre {
+      margin: 0;
+      padding: 0.6rem 0.7rem;
+      border-radius: calc(var(--ingenic-radius) - 2px);
+      background: var(--primary-very-low);
+      font-size: var(--font-down-1);
+      line-height: 1.5;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    code {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      white-space: inherit;
+    }
+  }
+
+  &__note {
+    margin: 1.25rem 0 0;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
 }
 
 // 高分悬赏. The banner sits over the question, so it is drawn as one strip
@@ -2280,4 +2385,184 @@ html.ingenic-nav-first .sidebar-sections {
 .ingenic-locale__option.--selected button {
   font-weight: bold;
   color: var(--ingenic-link);
+}
+
+// The floating assistant. A fixed button in the corner rather than a header
+// icon: it is a way into a conversation, and a conversation needs a door that
+// stays visible while the reader scrolls. The panel is drawn above the button,
+// not as a modal, because it explains the assistant and then hands over to
+// Discourse AI's own page — there is nothing to fill in here.
+.ingenic-assistant {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+
+  &__launcher {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.75rem;
+    height: 3.75rem;
+    padding: 0;
+    border: 1px solid var(--ingenic-surface-border);
+    border-radius: 50%;
+    background: var(--secondary);
+    box-shadow: 0 6px 20px rgba(20, 57, 94, 0.18);
+    cursor: pointer;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 26px rgba(20, 57, 94, 0.24);
+    }
+  }
+
+  // The mascot bobs rather than the button: an animation on the button would
+  // outrank the hover lift above and the two would fight.
+  &__mascot {
+    width: 3rem;
+    height: 3rem;
+    animation: ingenic-assistant-bob 4.5s ease-in-out infinite;
+  }
+
+  &__halo {
+    fill: var(--ingenic-surface-tint);
+  }
+
+  &__line {
+    stroke: var(--ingenic-navy);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+
+  &__antenna {
+    fill: var(--tertiary);
+    stroke: var(--ingenic-navy);
+    stroke-width: 2;
+  }
+
+  &__ear {
+    fill: var(--ingenic-navy);
+  }
+
+  &__head {
+    fill: var(--secondary);
+    stroke: var(--ingenic-navy);
+    stroke-width: 2.5;
+  }
+
+  &__eye {
+    fill: var(--ingenic-navy);
+  }
+
+  &__smile {
+    fill: none;
+    stroke: var(--ingenic-navy);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+
+  &__panel {
+    width: min(20rem, calc(100vw - 3rem));
+    padding: 1rem 1.1rem 0.9rem;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: var(--ingenic-radius);
+    background: var(--secondary);
+    box-shadow: 0 12px 32px rgba(20, 57, 94, 0.2);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: var(--font-up-2);
+    color: var(--ingenic-navy);
+  }
+
+  &__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--primary-medium);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background: var(--primary-very-low);
+      color: var(--primary);
+    }
+  }
+
+  &__intro {
+    margin: 0 0 0.9rem;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    line-height: 1.55;
+  }
+
+  &__action {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+  }
+
+  &__note {
+    margin: 0.65rem 0 0;
+    color: var(--primary-medium);
+    font-size: var(--font-down-2);
+  }
+}
+
+@keyframes ingenic-assistant-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ingenic-assistant__mascot {
+    animation: none;
+  }
+}
+
+@media (max-width: 550px) {
+  .ingenic-assistant {
+    right: 1rem;
+    bottom: 1rem;
+
+    &__launcher {
+      width: 3.25rem;
+      height: 3.25rem;
+    }
+
+    &__mascot {
+      width: 2.6rem;
+      height: 2.6rem;
+    }
+  }
 }
