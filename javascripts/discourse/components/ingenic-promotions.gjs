@@ -2,6 +2,7 @@ import { themePrefix } from "virtual:theme";
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { i18n } from "discourse-i18n";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { loadSiteContent } from "../ingenic/site-content";
 
 /**
@@ -55,7 +56,10 @@ export default class IngenicPromotions extends Component {
     {{#if this.promotions.length}}
       <section class="ingenic-section ingenic-promotions">
         <header class="ingenic-section__header">
-          <h2>{{this.title}}</h2>
+          <h2>
+            <span class="ingenic-section__icon">{{dIcon "bullhorn"}}</span>
+            {{this.title}}
+          </h2>
         </header>
 
         <div class="ingenic-promotions__grid">

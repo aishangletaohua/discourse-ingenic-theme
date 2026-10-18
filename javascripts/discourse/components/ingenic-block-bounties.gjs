@@ -90,7 +90,10 @@ export default class IngenicBlockBounties extends Component {
   <template>
     <section class="ingenic-section ingenic-bounties">
       <header class="ingenic-section__header">
-        <h2><a href={{this.boardPath}}>{{this.title}}</a></h2>
+        <h2>
+          <span class="ingenic-section__icon">{{dIcon "gift"}}</span>
+          <a href={{this.boardPath}}>{{this.title}}</a>
+        </h2>
         <a class="ingenic-section__more" href={{this.boardPath}}>
           {{i18n (themePrefix "ingenic.bounties.all")}}
         </a>

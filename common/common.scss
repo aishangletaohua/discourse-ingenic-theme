@@ -421,7 +421,10 @@ html.ingenic-nav-first .sidebar-sections {
     // gap is the same as the gap under the hero.
     &--with-rail {
       grid-template-columns: minmax(0, 1.65fr) minmax(18rem, 0.6fr);
-      row-gap: 1.75rem;
+      // Wider than the gap under the hero: the rail's cards are read one after
+      // another, and at the old gap the four of them ran together into a single
+      // column.
+      row-gap: 2.25rem;
       column-gap: 1.5rem;
     }
   }
@@ -446,11 +449,11 @@ html.ingenic-nav-first .sidebar-sections {
       margin-bottom: 0;
     }
 
-    // Each rail block is its own card, not a row in one long panel. A shallow
-    // shadow does the separating at a glance; the row gap above gives the page
-    // room to show between them.
+    // Each rail block is its own card, not a row in one long panel. The shadow
+    // lifts each card off the page; the row gap above gives the page room to
+    // show between them.
     &--side > .ingenic-section {
-      box-shadow: 0 1px 2px rgb(18 38 58 / 6%);
+      box-shadow: 0 6px 18px rgb(18 38 58 / 8%);
     }
   }
 
@@ -464,6 +467,11 @@ html.ingenic-nav-first .sidebar-sections {
 
 .ingenic-section {
   margin-bottom: 1.5rem;
+  // The rail's cards are sized as `height: 100%` of their grid row. Without
+  // this the padding and border would be added on top of that height, each
+  // card would hang past its row, and the gap between the cards would close
+  // up under the overlap.
+  box-sizing: border-box;
   padding: 1.25rem 1.4rem;
   border: 1px solid var(--ingenic-panel-border);
   border-radius: var(--ingenic-radius);
@@ -478,9 +486,20 @@ html.ingenic-nav-first .sidebar-sections {
     border-bottom: 1px solid var(--ingenic-divider);
 
     h2 {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
       margin: 0 0 0.8rem;
       font-size: var(--font-up-1);
     }
+  }
+
+  // The coloured mark beside a home page card's name, the same device the
+  // sidebar uses for its modules. The colour belongs to the card, not to the
+  // icon, so the four rail cards can be told apart before the titles are read.
+  &__icon {
+    display: inline-flex;
+    flex: none;
   }
 
   &__subtitle {
@@ -498,6 +517,28 @@ html.ingenic-nav-first .sidebar-sections {
     white-space: nowrap;
     font-size: var(--font-down-1);
   }
+}
+
+// One colour per home page card, matching the sidebar's module colours so the
+// two navigations describe the same things in the same way.
+.ingenic-promotions .ingenic-section__icon {
+  color: #c05621;
+}
+
+.ingenic-feed:not(.ingenic-feed--hot) .ingenic-section__icon {
+  color: #2b6cb0;
+}
+
+.ingenic-feed--hot .ingenic-section__icon {
+  color: #c53030;
+}
+
+.ingenic-bounties .ingenic-section__icon {
+  color: #b83280;
+}
+
+.ingenic-leaderboard .ingenic-section__icon {
+  color: #975a16;
 }
 
 // The forum's sections on the front page. Meta draws these as a row of wide

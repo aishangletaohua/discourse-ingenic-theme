@@ -5,6 +5,7 @@ import { action } from "@ember/object";
 import { service } from "@ember/service";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import dFormatDate from "discourse/ui-kit/helpers/d-format-date";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 
 /**
@@ -45,6 +46,12 @@ export default class IngenicBlockFeed extends Component {
 
   get limit() {
     return this.args.block?.limit || (this.isHot ? 5 : 8);
+  }
+
+  // The two feeds read the same at a glance — the icon is what tells "what was
+  // just said" from "what people kept reading" before the title is read.
+  get icon() {
+    return this.isHot ? "fire" : "clock";
   }
 
   get title() {
@@ -108,7 +115,10 @@ export default class IngenicBlockFeed extends Component {
       {{didInsert this.load}}
     >
       <header class="ingenic-section__header">
-        <h2>{{this.title}}</h2>
+        <h2>
+          <span class="ingenic-section__icon">{{dIcon this.icon}}</span>
+          {{this.title}}
+        </h2>
       </header>
 
       {{#if this.rows.length}}

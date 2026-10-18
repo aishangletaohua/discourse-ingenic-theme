@@ -2,6 +2,7 @@ import { themePrefix } from "virtual:theme";
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import getURL from "discourse/lib/get-url";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 
 const ENDPOINT = "/ingenic/leaderboard";
@@ -80,7 +81,10 @@ export default class IngenicBlockLeaderboard extends Component {
   <template>
     <section class="ingenic-section ingenic-leaderboard">
       <header class="ingenic-section__header">
-        <h2>{{this.title}}</h2>
+        <h2>
+          <span class="ingenic-section__icon">{{dIcon "trophy"}}</span>
+          {{this.title}}
+        </h2>
       </header>
 
       {{#if this.rows.length}}
