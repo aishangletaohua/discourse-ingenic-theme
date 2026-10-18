@@ -165,8 +165,15 @@ function makeLinkClass(BaseCustomSidebarSectionLink) {
       return this.item.key;
     }
 
+    // The key goes on the row so the stylesheet can give each module an icon
+    // colour of its own; the class does not depend on the label, which an
+    // administrator may change.
     get classNames() {
-      return "ingenic-sidebar-link";
+      // A configured key is usually a slug, but nothing stops an administrator
+      // from typing spaces or punctuation into one.
+      const key = String(this.item.key ?? "").replace(/[^a-z0-9_-]/gi, "-");
+
+      return `ingenic-sidebar-link ingenic-sidebar-link--${key}`;
     }
 
     get text() {

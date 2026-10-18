@@ -25,12 +25,17 @@ export default class IngenicBlockBoards extends Component {
   }
 
   // The same two-call-to-action card the catalogue draws, including which of the
-  // two leads. Kept in step with ingenic-boards rather than left to the markup,
-  // because the two are the same card at two lengths.
+  // two leads and which is grayed out. Kept in step with ingenic-boards rather
+  // than left to the markup, because the two are the same card at two lengths.
   get cards() {
     return this.boards.map((board) => ({
       ...board,
       applyClass: board.purchase_url ? "btn" : "btn btn-primary",
+      applyDisabled: board.sold_out || !board.application_url,
+      buyDisabled: board.sold_out || !board.purchase_url,
+      // The tree's name for the chip, falling back to the older free-text
+      // column, so a board filed before the tree existed still names its chip.
+      chipLabel: board.chip_name || board.chip || "",
     }));
   }
 
@@ -65,7 +70,13 @@ export default class IngenicBlockBoards extends Component {
       {{#if this.boards.length}}
         <div class="ingenic-card-grid">
           {{#each this.cards as |board|}}
-            <article class="ingenic-card">
+            <article class="ingenic-card ingenic-card--board">
+              {{#if board.sold_out}}
+                <span class="ingenic-stamp">
+                  {{i18n (themePrefix "ingenic.boards.sold_out")}}
+                </span>
+              {{/if}}
+
               {{#if board.image_url}}
                 <img
                   class="ingenic-card__image"
@@ -75,22 +86,15 @@ export default class IngenicBlockBoards extends Component {
                 />
               {{/if}}
               <div class="ingenic-card__title">{{board.name}}</div>
-              {{#if board.chip}}
-                <div class="ingenic-card__meta">{{board.chip}}</div>
+              {{#if board.chipLabel}}
+                <div class="ingenic-card__meta">{{board.chipLabel}}</div>
               {{/if}}
               <div class="ingenic-card__actions">
-                {{#if board.purchase_url}}
-                  <a
-                    class="btn btn-primary"
-                    href={{board.purchase_url}}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {{i18n (themePrefix "ingenic.boards.buy")}}
-                  </a>
-                {{/if}}
-
-                {{#if board.application_url}}
+                {{#if board.applyDisabled}}
+                  <button class={{board.applyClass}} type="button" disabled>
+                    {{i18n (themePrefix "ingenic.boards.apply")}}
+                  </button>
+                {{else}}
                   <a
                     class={{board.applyClass}}
                     href={{board.application_url}}
@@ -101,14 +105,18 @@ export default class IngenicBlockBoards extends Component {
                   </a>
                 {{/if}}
 
-                {{#if board.documentation_url}}
+                {{#if board.buyDisabled}}
+                  <button class="btn btn-primary" type="button" disabled>
+                    {{i18n (themePrefix "ingenic.boards.buy")}}
+                  </button>
+                {{else}}
                   <a
-                    class="btn"
-                    href={{board.documentation_url}}
+                    class="btn btn-primary"
+                    href={{board.purchase_url}}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {{i18n (themePrefix "ingenic.boards.documentation")}}
+                    {{i18n (themePrefix "ingenic.boards.buy")}}
                   </a>
                 {{/if}}
               </div>

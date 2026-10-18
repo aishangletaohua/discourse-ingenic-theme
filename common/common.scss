@@ -206,6 +206,72 @@ html.ingenic-nav-first .sidebar-sections {
   }
 }
 
+// A module is a name to read, not a line of blue links: the label is near-black
+// and semibold, and the icon keeps a colour of its own so the same module is
+// recognisable before the words are read. A configured key may not have a rule
+// here; it then keeps the accent colour rather than going colourless.
+.sidebar-section-link.ingenic-sidebar-link {
+  color: var(--primary);
+  font-weight: 600;
+
+  &:hover,
+  &:focus {
+    color: var(--primary);
+  }
+
+  .d-icon {
+    color: var(--ingenic-link);
+  }
+
+  &--new-post .d-icon {
+    color: #2f855a;
+  }
+
+  &--home .d-icon {
+    color: #2b6cb0;
+  }
+
+  &--announcements .d-icon {
+    color: #c05621;
+  }
+
+  &--discussions .d-icon {
+    color: #2c7a7b;
+  }
+
+  &--docs .d-icon {
+    color: #4c51bf;
+  }
+
+  &--open-source .d-icon {
+    color: #6b46c1;
+  }
+
+  &--downloads .d-icon {
+    color: #0e7490;
+  }
+
+  &--boards .d-icon {
+    color: #b7791f;
+  }
+
+  &--bounties .d-icon {
+    color: #b83280;
+  }
+
+  &--points .d-icon {
+    color: #975a16;
+  }
+}
+
+// The heading over the developer resources: the same near-black and weight as
+// the module names below it, so the group and its rows read as one column.
+.sidebar-section-wrapper[data-section-name="ingenic-resources"]
+  .sidebar-section-header {
+  color: var(--primary);
+  font-weight: 600;
+}
+
 // The header buttons live in the outlet between the logo and the right-hand
 // cluster. That outlet is a plain flex child; it starts its contents at the
 // logo so the row reads as part of the brand rather than as a floating group.
@@ -1276,12 +1342,30 @@ html.ingenic-nav-first .sidebar-sections {
   // reasoning applies as for downloads: the buttons line up along the bottom
   // of the row rather than following the longest list on each card.
   &--board {
+    position: relative;
     display: flex;
     flex-direction: column;
 
+    // The homepage draws the catalogue card's two buttons, including the gray
+    // one, so the row is laid out the same way as in the catalogue.
     .ingenic-card__actions {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 1fr);
+      gap: 0.5rem;
       margin-top: auto;
       padding-top: 0.8rem;
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .btn:not(.btn-primary) {
+        border-color: var(--ingenic-surface-border);
+        background: var(--secondary);
+        color: var(--ingenic-navy);
+      }
     }
   }
 
@@ -1342,6 +1426,7 @@ html.ingenic-nav-first .sidebar-sections {
   }
 
   &__media {
+    position: relative;
     display: grid;
     place-items: center;
     aspect-ratio: 4 / 3;
@@ -1409,7 +1494,7 @@ html.ingenic-nav-first .sidebar-sections {
 
     // Core's plain button is transparent on white, which reads as a bare word
     // rather than the second of two choices. Give it an outline of its own.
-    .btn:not(.btn-primary):not(.ingenic-sold-out) {
+    .btn:not(.btn-primary) {
       border-color: var(--ingenic-surface-border);
       background: var(--secondary);
       color: var(--ingenic-navy);
@@ -1422,23 +1507,64 @@ html.ingenic-nav-first .sidebar-sections {
   }
 }
 
-// Neither an application link nor a purchase link: the item is listed but
-// there is nothing to do with it. It keeps the buttons' shape and gives up
-// their colour, so the card reads as unavailable rather than as broken. The
-// disabled selector matches core's own `.btn:disabled` rule, which would
-// otherwise win and paint the button back to white.
-.ingenic-sold-out:disabled,
-.btn.ingenic-sold-out:disabled {
+// A stamp, not a badge: a rectangle ruled twice, turned a few degrees, in worn
+// gray-black ink, the way a stock stamp lands on a box. The mask is fractal
+// noise, so the ink thins unevenly instead of printing as a crisp border. It
+// never takes a click; the card underneath still opens the detail dialog.
+.ingenic-stamp {
+  position: absolute;
+  z-index: 2;
+  top: 0.7rem;
+  left: 0.7rem;
+  padding: 0.16rem 0.6rem 0.12rem;
+  border: 2px solid currentcolor;
+  border-radius: 2px;
+  outline: 1px solid currentcolor;
+  outline-offset: 3px;
+  color: #54595f;
+  font-size: var(--font-down-1);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  transform: rotate(-9deg);
+  pointer-events: none;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='64'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.09' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 .42'/%3E%3C/filter%3E%3Crect width='180' height='64' filter='url(%23s)'/%3E%3C/svg%3E");
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='64'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.09' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 .42'/%3E%3C/filter%3E%3Crect width='180' height='64' filter='url(%23s)'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+}
+
+// A button is grayed out when its address is missing, or when the board is
+// sold out; it keeps its size and place, so a card does not change shape with
+// stock. The rule is more specific than core's `.btn:disabled`, which would
+// otherwise paint the button back to white, and it clears core's fade so the
+// gray reads as deliberate rather than as a broken control.
+.ingenic-product-card__actions .btn:disabled,
+.ingenic-board-dialog__actions .btn:disabled,
+.ingenic-card--board .ingenic-card__actions .btn:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
   border-color: #d5dbe1;
   background: #edf0f3;
   color: #7a8794;
-  font-weight: 600;
   cursor: not-allowed;
   opacity: 1;
+}
+
+// The home page card has no picture frame to stamp — its top-left corner is the
+// board's name — so the stamp sits in the flow above the name instead of over
+// it. The catalogue card keeps the absolute stamp, which lands on the picture.
+.ingenic-card--board > .ingenic-stamp {
+  position: static;
+  display: inline-block;
+  align-self: flex-start;
+  flex: none;
+  width: auto;
+  margin: 0 0 0.55rem 0.15rem;
 }
 
 // The card's detail page, drawn over the catalogue. A dialog rather than a
@@ -1495,6 +1621,15 @@ html.ingenic-nav-first .sidebar-sections {
     padding: 1.5rem 1.6rem 1.1rem;
   }
 
+  // In the dialog the stamp sits in the flow above the title rather than over
+  // it: an absolutely placed corner mark would cover the first line of a long
+  // board name. It still reads as a stamp on the top-left of the page.
+  &__stamp {
+    position: static;
+    display: inline-block;
+    margin: 0 0 0.9rem 0.35rem;
+  }
+
   &__media {
     display: grid;
     place-items: center;
@@ -1522,14 +1657,57 @@ html.ingenic-nav-first .sidebar-sections {
     font-size: var(--font-down-1);
   }
 
-  // Written by an administrator as plain text, so the line breaks they typed
-  // are kept.
+  // The long description is Markdown cooked by the server, so it arrives as
+  // HTML: links, images, lists and tables are all part of what an administrator
+  // may write there. These rules give the cooked elements the dialog's own type
+  // and spacing rather than the page's.
   &__details {
     margin: 0 0 1rem;
     color: var(--primary-high);
     font-size: var(--font-0);
     line-height: 1.65;
-    white-space: pre-wrap;
+
+    p {
+      margin: 0 0 0.75rem;
+    }
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 0.75rem;
+      padding-left: 1.25rem;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: var(--ingenic-radius);
+    }
+
+    a {
+      color: var(--ingenic-link);
+      text-decoration: underline;
+    }
+
+    table {
+      width: 100%;
+      margin: 0 0 0.85rem;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 0.4rem 0.6rem;
+      border: 1px solid var(--ingenic-surface-border);
+      text-align: left;
+    }
+
+    th {
+      background: var(--ingenic-sky-50);
+    }
   }
 
   &__specs {
@@ -1538,13 +1716,6 @@ html.ingenic-nav-first .sidebar-sections {
     color: var(--primary-high);
     font-size: var(--font-0);
     line-height: 1.65;
-  }
-
-  &__documentation {
-    display: inline-block;
-    margin-bottom: 0.35rem;
-    font-size: var(--font-down-1);
-    font-weight: 600;
   }
 
   &__actions {
@@ -1556,7 +1727,7 @@ html.ingenic-nav-first .sidebar-sections {
     border-top: 1px solid var(--ingenic-surface-border);
     background: var(--secondary);
 
-    .btn:not(.btn-primary):not(.ingenic-sold-out) {
+    .btn:not(.btn-primary) {
       border-color: var(--ingenic-surface-border);
       background: var(--secondary);
       color: var(--ingenic-navy);
@@ -2447,8 +2618,8 @@ html.ingenic-nav-first .sidebar-sections {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 3.75rem;
-    height: 3.75rem;
+    width: 4.25rem;
+    height: 4.25rem;
     padding: 0;
     border: 1px solid var(--ingenic-surface-border);
     border-radius: 50%;
@@ -2469,8 +2640,8 @@ html.ingenic-nav-first .sidebar-sections {
   // The mascot bobs rather than the button: an animation on the button would
   // outrank the hover lift above and the two would fight.
   &__mascot {
-    width: 3rem;
-    height: 3rem;
+    width: 3.5rem;
+    height: 3.5rem;
     animation: ingenic-assistant-bob 4.5s ease-in-out infinite;
   }
 
