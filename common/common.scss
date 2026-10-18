@@ -963,6 +963,16 @@ body:has(.ingenic-homepage) {
     line-height: 1.35;
   }
 
+  // The same pills the topic list draws, on the row that carries the title, so
+  // a reader can tell a camera question from an SDK one before opening it.
+  &__tags {
+    margin: 0.1rem 0;
+  }
+
+  &--hot &__tags {
+    padding-left: 1.75rem;
+  }
+
   &__meta {
     display: flex;
     flex-wrap: wrap;

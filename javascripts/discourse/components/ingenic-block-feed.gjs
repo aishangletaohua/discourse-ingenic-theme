@@ -100,6 +100,19 @@ export default class IngenicBlockFeed extends Component {
       lastPostedAt: topic.last_posted_at,
       category: categoryFor(topic),
       categoryUrl: categoryFor(topic)?.url,
+      tags: (topic.tags ?? []).map((tag) =>
+        typeof tag === "string"
+          ? {
+              name: tag,
+              key: tag.toLowerCase(),
+              url: getURL(`/tag/${tag.toLowerCase()}`),
+            }
+          : {
+              name: tag.name,
+              key: (tag.name ?? "").toLowerCase(),
+              url: getURL(`/tag/${tag.slug}/${tag.id}`),
+            },
+      ),
     }));
   }
 
@@ -152,6 +165,18 @@ export default class IngenicBlockFeed extends Component {
                 {{/if}}
                 <a class="ingenic-feed__title" href={{row.url}}>{{row.title}}</a>
               </div>
+
+              {{#if row.tags.length}}
+                <div class="ingenic-feed__tags discourse-tags">
+                  {{#each row.tags as |tag|}}
+                    <a
+                      class="discourse-tag simple"
+                      href={{tag.url}}
+                      data-tag-name={{tag.key}}
+                    >{{tag.name}}</a>
+                  {{/each}}
+                </div>
+              {{/if}}
 
               <div class="ingenic-feed__meta">
                 {{#if row.category}}
