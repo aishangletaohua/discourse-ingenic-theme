@@ -51,8 +51,11 @@ export default class IngenicBlockFeed extends Component {
 
   // The two feeds read the same at a glance — the icon is what tells "what was
   // just said" from "what people kept reading" before the title is read.
+  // Discourse's icon set has no `fire`, and an unknown name draws an empty
+  // <use>, which is why this row looked unmarked; `chart-line` carries the
+  // same "what is trending" reading.
   get icon() {
-    return this.isHot ? "fire" : "clock";
+    return this.isHot ? "chart-line" : "clock";
   }
 
   get title() {

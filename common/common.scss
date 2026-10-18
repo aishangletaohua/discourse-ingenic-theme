@@ -499,10 +499,10 @@ body:has(.ingenic-homepage) {
     // gap is the same as the gap under the hero.
     &--with-rail {
       grid-template-columns: minmax(0, 1.65fr) minmax(18rem, 0.6fr);
-      // Wider than the gap under the hero: the rail's cards are read one after
-      // another, and at the old gap the four of them ran together into a single
-      // column.
-      row-gap: 2.25rem;
+      // The cards are separate surfaces, so the page shows between them, but
+      // only enough to part them: the tinted page does most of the work now,
+      // and a wider gap made the column read as four islands.
+      row-gap: 1.25rem;
       column-gap: 1.5rem;
     }
   }
