@@ -59,6 +59,7 @@ en:
       quick_links: "Ingenic quick links"
       search_placeholder: "Search the forum"
       search: "Search"
+      show_all: "Show all"
       empty: "Nothing here yet."
       topics:
         latest: "Latest discussions"

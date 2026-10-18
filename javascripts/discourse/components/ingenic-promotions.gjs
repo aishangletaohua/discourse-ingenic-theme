@@ -1,9 +1,23 @@
 import { themePrefix } from "virtual:theme";
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
+import getURL from "discourse/lib/get-url";
 import { i18n } from "discourse-i18n";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { loadSiteContent } from "../ingenic/site-content";
+
+// The date chip asks Intl for the month and the day separately, because the
+// chip stacks them. The forum's own language decides the spelling, so "Sep"
+// stays "9月" without the component carrying a table of month names.
+function dateParts(value) {
+  const date = new Date(value);
+  const locale = document.documentElement.lang || undefined;
+
+  return {
+    month: date.toLocaleDateString(locale, { month: "short" }),
+    day: date.toLocaleDateString(locale, { day: "numeric" }),
+  };
+}
 
 /**
  * The promotion slots on the homepage.
@@ -40,11 +54,23 @@ export default class IngenicPromotions extends Component {
   }
 
   get slots() {
-    return this.promotions.map((promotion) => ({
-      ...promotion,
-      target: promotion.external ? "_blank" : "_self",
-      rel: promotion.external ? "noopener noreferrer" : null,
-    }));
+    return this.promotions.map((promotion) => {
+      // A campaign's date is its window; a slot with no window has been up
+      // since it was written, so the day it was created is the honest date.
+      const when = promotion.starts_at || promotion.ends_at || promotion.created_at;
+
+      return {
+        ...promotion,
+        target: promotion.external ? "_blank" : "_self",
+        rel: promotion.external ? "noopener noreferrer" : null,
+        date: when ? dateParts(when) : null,
+        iso: when || null,
+      };
+    });
+  }
+
+  get allPath() {
+    return getURL("/latest");
   }
 
   async #load() {
@@ -79,7 +105,16 @@ export default class IngenicPromotions extends Component {
                   <span class="ingenic-promotion__corner">{{slot.corner_label}}</span>
                 {{/if}}
 
-                <h3 class="ingenic-promotion__title">{{slot.title}}</h3>
+                <div class="ingenic-promotion__headline">
+                  {{#if slot.date}}
+                    <time class="ingenic-promotion__date" datetime={{slot.iso}}>
+                      <span class="ingenic-promotion__month">{{slot.date.month}}</span>
+                      <span class="ingenic-promotion__day">{{slot.date.day}}</span>
+                    </time>
+                  {{/if}}
+
+                  <h3 class="ingenic-promotion__title">{{slot.title}}</h3>
+                </div>
 
                 {{#if slot.description}}
                   <p class="ingenic-promotion__body">{{slot.description}}</p>
@@ -103,6 +138,11 @@ export default class IngenicPromotions extends Component {
             </article>
           {{/each}}
         </div>
+
+        <a class="ingenic-section__footer" href={{this.allPath}}>
+          {{i18n (themePrefix "ingenic.home.show_all")}}
+          {{dIcon "arrow-right"}}
+        </a>
       </section>
     {{/if}}
   </template>

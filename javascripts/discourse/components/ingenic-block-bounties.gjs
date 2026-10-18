@@ -94,9 +94,6 @@ export default class IngenicBlockBounties extends Component {
           <span class="ingenic-section__icon">{{dIcon "gift"}}</span>
           <a href={{this.boardPath}}>{{this.title}}</a>
         </h2>
-        <a class="ingenic-section__more" href={{this.boardPath}}>
-          {{i18n (themePrefix "ingenic.bounties.all")}}
-        </a>
       </header>
 
       {{#if this.rows.length}}
@@ -128,6 +125,11 @@ export default class IngenicBlockBounties extends Component {
           {{i18n (themePrefix "ingenic.bounties.empty")}}
         </p>
       {{/if}}
+
+      <a class="ingenic-section__footer" href={{this.boardPath}}>
+        {{i18n (themePrefix "ingenic.home.show_all")}}
+        {{dIcon "arrow-right"}}
+      </a>
     </section>
   </template>
 }

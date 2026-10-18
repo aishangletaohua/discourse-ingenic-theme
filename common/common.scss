@@ -526,6 +526,33 @@ body:has(.ingenic-homepage) {
     white-space: nowrap;
     font-size: var(--font-down-1);
   }
+
+  // The way out of a card, at the bottom where a reader who has finished the
+  // list is already looking. The divider separates it from the rows; the arrow
+  // says the list continues on another page.
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 1rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--ingenic-divider);
+    color: var(--ingenic-link);
+    font-size: var(--font-down-1);
+    font-weight: 600;
+    text-decoration: none;
+
+    .d-icon {
+      width: 0.9em;
+      height: 0.9em;
+    }
+
+    &:hover {
+      color: var(--ingenic-link);
+      text-decoration: underline;
+    }
+  }
 }
 
 // One colour per home page card, matching the sidebar's module colours so the
@@ -2331,6 +2358,42 @@ body:has(.ingenic-homepage) {
     position: relative;
     z-index: 1;
     width: 100%;
+  }
+
+  // The name and its date share a row, the way the reference layout puts the
+  // calendar leaf beside the event it belongs to.
+  &__headline {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+  }
+
+  // Month above day, like a leaf torn off a calendar. The forum's language
+  // decides the month's spelling; see the component for that.
+  &__date {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    min-width: 2.9rem;
+    padding: 0.25rem 0.45rem 0.3rem;
+    border: 1px solid var(--ingenic-surface-border);
+    border-radius: calc(var(--ingenic-radius) - 1px);
+    background: var(--secondary);
+    line-height: 1.15;
+  }
+
+  &__month {
+    color: var(--danger);
+    font-size: var(--font-down-3);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  &__day {
+    font-size: var(--font-up-1);
+    font-weight: 700;
   }
 
   &__corner {

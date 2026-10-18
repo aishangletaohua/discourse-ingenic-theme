@@ -43,6 +43,12 @@ export default class IngenicBlockLeaderboard extends Component {
     );
   }
 
+  // The native user directory, filtered to the same week the card counts, is
+  // where "all contributors" already lives.
+  get allPath() {
+    return getURL("/u?period=weekly");
+  }
+
   get rows() {
     return this.entries.slice(0, this.limit).map((entry) => ({
       ...entry,
@@ -128,6 +134,11 @@ export default class IngenicBlockLeaderboard extends Component {
           {{i18n (themePrefix "ingenic.leaderboard.loading")}}
         </p>
       {{/if}}
+
+      <a class="ingenic-section__footer" href={{this.allPath}}>
+        {{i18n (themePrefix "ingenic.home.show_all")}}
+        {{dIcon "arrow-right"}}
+      </a>
     </section>
   </template>
 }

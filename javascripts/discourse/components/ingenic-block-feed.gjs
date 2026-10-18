@@ -4,6 +4,7 @@ import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
+import getURL from "discourse/lib/get-url";
 import dFormatDate from "discourse/ui-kit/helpers/d-format-date";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
@@ -63,6 +64,10 @@ export default class IngenicBlockFeed extends Component {
         ),
       )
     );
+  }
+
+  get allPath() {
+    return getURL("/hot");
   }
 
   // Topic keeps the payload's own names — `category_id`, `posts_count`,
@@ -163,6 +168,13 @@ export default class IngenicBlockFeed extends Component {
         <p class="ingenic-section__subtitle">
           {{i18n (themePrefix "ingenic.home.empty")}}
         </p>
+      {{/if}}
+
+      {{#if this.isHot}}
+        <a class="ingenic-section__footer" href={{this.allPath}}>
+          {{i18n (themePrefix "ingenic.home.show_all")}}
+          {{dIcon "arrow-right"}}
+        </a>
       {{/if}}
     </section>
   </template>
