@@ -72,13 +72,19 @@
 
   // Tags. Core gives a tag no colour of its own, so the four families below
   // are this theme's classification of the forum's own vocabulary. Each is a
-  // tint to sit on, a hairline and an ink dark enough to read on that tint;
-  // the rule set further down matches them by tag name. A tag nobody has
-  // classified falls back to the sky, so a new one is coloured from the day
-  // it is created rather than waiting for an edit here.
-  --ingenic-tag-tint: var(--ingenic-sky-100);
-  --ingenic-tag-border: #a8dcf4;
-  --ingenic-tag-ink: #0a6288;
+  // tint to sit on, a hairline and an ink dark enough to read on that tint.
+  // The rules further down match the common tags by name as a starting point;
+  // an administrator's assignments on the Tag colours screen arrive with the
+  // site payload and are injected afterwards, so they win over these. A tag
+  // nobody has classified falls back to the sky, so a new one is coloured from
+  // the day it is created rather than waiting for an edit here.
+  --ingenic-tag-sky-tint: var(--ingenic-sky-100);
+  --ingenic-tag-sky-border: #a8dcf4;
+  --ingenic-tag-sky-ink: #0a6288;
+
+  --ingenic-tag-tint: var(--ingenic-tag-sky-tint);
+  --ingenic-tag-border: var(--ingenic-tag-sky-border);
+  --ingenic-tag-ink: var(--ingenic-tag-sky-ink);
 
   --ingenic-tag-tech-tint: #f0edff;
   --ingenic-tag-tech-border: #d6cdf7;

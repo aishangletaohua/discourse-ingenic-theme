@@ -165,6 +165,15 @@ new tag is coloured the moment it is created. The lists themselves are the tag
 rule set in `common/common.scss`; adding a subject or a language is one more
 selector.
 
+An administrator can override that classification without a theme release:
+**Admin → Plugins → Ingenic → Tag colours** stores an explicit family per tag,
+and the plugin sends it with the site payload. `api-initializers/ingenic-tag-colours.js`
+turns each assignment into one rule pointing the pill's custom properties at the
+chosen family. The assignment wins over the stylesheet's name lists but changes
+nothing else about the pill, so border, tint, ink and hover cannot drift between
+the defaults and the overrides. A tag with no assignment keeps the list's family,
+and then sky.
+
 Typography and spacing are Discourse's own scale (`--font-up-*`, `--space-*`,
 `--font-family`), not the theme's invention, so they follow whatever the site's
 font settings say and match other Discourse sites without a second style guide.
