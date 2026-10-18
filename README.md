@@ -40,8 +40,8 @@ settings behind them — see the plugin's usage guide:
   the right prompt and button for each of the three access tiers — and, for a
   resource that is priced, **Unlock for N points** when the reader can afford it
   and **Needs N points** when they cannot
-- a development board catalogue with series and chip filters and outbound
-  application links
+- a development board catalogue with type, series and chip filter rows, drawn
+  as buttons, and outbound application/purchase links
 - a points page at `/ingenic/points`, showing the reader their balance, what the
   forum pays for and their own history — read-only, and nobody else's rows
 - a **高分悬赏** board at `/ingenic/bounties`: what is on offer across the forum,
