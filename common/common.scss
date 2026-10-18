@@ -334,6 +334,15 @@ html.ingenic-nav-first .sidebar-sections {
   display: none;
 }
 
+// The home page's cards are white. On a white page the only thing separating
+// them is their shadow, which at rest is a faint line; the reference layout
+// puts a pale wash behind the whole page so the cards' own edges do the work.
+// Scoped to the page that holds the home blocks, so every other route keeps
+// the plain surface.
+body:has(.ingenic-homepage) {
+  background: var(--ingenic-sky-50);
+}
+
 .ingenic-homepage {
   max-width: 1680px;
   margin: 0 auto 2.5rem;
