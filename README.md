@@ -12,6 +12,8 @@ settings behind them — see the plugin's usage guide:
 [English](https://github.com/aishangletaohua/discourse-ingenic-plugin/blob/main/docs/usage.md)
 · [中文](https://github.com/aishangletaohua/discourse-ingenic-plugin/blob/main/docs/usage.zh-CN.md).
 
+中文说明：[README.zh-CN.md](README.zh-CN.md).
+
 ## What it provides
 
 - the sidebar's Ingenic navigation, in three groups: the forum at the top
