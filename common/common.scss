@@ -264,6 +264,75 @@ html.ingenic-nav-first .sidebar-sections {
   }
 }
 
+// The native half of the sidebar reads the same as the Ingenic half: the
+// labels are near-black and semibold rather than a column of blue links. Core
+// draws the community rows without a per-link class, so each icon is coloured
+// by the glyph it already carries.
+[data-section-name="community"],
+[data-section-name^="chat-"] {
+  .sidebar-section-link {
+    color: var(--primary);
+    font-weight: 600;
+
+    &:hover,
+    &:focus {
+      color: var(--primary);
+    }
+  }
+}
+
+[data-section-name="community"] {
+  .d-icon-layer-group {
+    color: #2b6cb0; // Topics
+  }
+
+  .d-icon-user {
+    color: #2c7a7b; // My posts
+  }
+
+  .d-icon-inbox {
+    color: #4c51bf; // My messages
+  }
+
+  .d-icon-flag {
+    color: #c53030; // Review
+  }
+
+  .d-icon-wrench {
+    color: #4a5568; // Admin
+  }
+
+  .d-icon-paper-plane {
+    color: #2f855a; // Invite
+  }
+
+  .d-icon-robot {
+    color: #6b46c1; // MCP
+  }
+
+  .d-icon-comments {
+    color: #0e7490; // Site Feedback
+  }
+
+  .d-icon-list {
+    color: #b7791f; // All Categories
+  }
+
+  .d-icon-ellipsis-vertical {
+    color: #805ad5; // More
+  }
+}
+
+// The chat controls below the channel list keep a colour too, so the column
+// does not turn grey again after All Categories.
+[data-section-name="chat-search"] .d-icon {
+  color: #2b6cb0;
+}
+
+[data-section-name="chat-dms"] .d-icon {
+  color: #2f855a;
+}
+
 // The heading over the developer resources: the same near-black and weight as
 // the module names below it, so the group and its rows read as one column.
 .sidebar-section-wrapper[data-section-name="ingenic-resources"]
