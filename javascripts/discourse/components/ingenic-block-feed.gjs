@@ -99,6 +99,7 @@ export default class IngenicBlockFeed extends Component {
       views: topic.views,
       lastPostedAt: topic.last_posted_at,
       category: categoryFor(topic),
+      categoryUrl: categoryFor(topic)?.url,
     }));
   }
 
@@ -154,8 +155,9 @@ export default class IngenicBlockFeed extends Component {
 
               <div class="ingenic-feed__meta">
                 {{#if row.category}}
-                  <span
+                  <a
                     class="ingenic-feed__category"
+                    href={{row.categoryUrl}}
                     style="--ingenic-category: #{{row.category.color}}"
                   >
                     <span
@@ -164,7 +166,7 @@ export default class IngenicBlockFeed extends Component {
                       aria-hidden="true"
                     ></span>
                     {{row.category.name}}
-                  </span>
+                  </a>
                 {{/if}}
                 <span class="ingenic-feed__count">
                   {{i18n (themePrefix "ingenic.home.topics.replies") count=row.postsCount}}

@@ -60,6 +60,7 @@ export default class IngenicBlockBounties extends Component {
         url: bounty.topic.url,
         title: bounty.topic.title,
         category,
+        categoryUrl: category?.url,
       };
     });
   }
@@ -118,12 +119,13 @@ export default class IngenicBlockBounties extends Component {
                 <a class="ingenic-bounty-list__title" href={{row.url}}>{{row.title}}</a>
 
                 {{#if row.category}}
-                  <span
+                  <a
                     class="ingenic-bounty-list__category"
+                    href={{row.categoryUrl}}
                     style="border-color: #{{row.category.color}}"
                   >
                     {{row.category.name}}
-                  </span>
+                  </a>
                 {{/if}}
               </div>
             </li>

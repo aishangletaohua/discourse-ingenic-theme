@@ -45,6 +45,7 @@ export default class IngenicBounties extends Component {
         title: bounty.topic.title,
         asker: bounty.user?.username,
         category,
+        categoryUrl: category?.url,
         closesIn: this.#closesIn(bounty.expires_at),
       };
     });
@@ -117,12 +118,13 @@ export default class IngenicBounties extends Component {
 
               <p class="ingenic-bounty-list__meta">
                 {{#if row.category}}
-                  <span
+                  <a
                     class="ingenic-bounty-list__category"
+                    href={{row.categoryUrl}}
                     style="border-color: #{{row.category.color}}"
                   >
                     {{row.category.name}}
-                  </span>
+                  </a>
                 {{/if}}
 
                 {{#if row.asker}}

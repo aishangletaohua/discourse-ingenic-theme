@@ -987,6 +987,14 @@ body:has(.ingenic-homepage) {
     gap: 0.3rem;
     color: color-mix(in srgb, var(--ingenic-category) 78%, var(--ingenic-navy));
     font-weight: 500;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      color: color-mix(in srgb, var(--ingenic-category) 78%, var(--ingenic-navy));
+      text-decoration: underline;
+      text-underline-offset: 0.15em;
+    }
   }
 
   &__dot {
@@ -1453,6 +1461,13 @@ body:has(.ingenic-homepage) {
     color: var(--primary-medium);
     font-size: var(--font-down-2);
     white-space: nowrap;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--ingenic-link);
+      text-decoration: none;
+    }
   }
 
   &__meta {
