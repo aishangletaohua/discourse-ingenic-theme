@@ -186,6 +186,8 @@ en:
       kind_filter: "Type"
       kind_board: "Development boards"
       kind_sample: "Sample chips"
+      series_filter: "Series"
+      all_series: "All series"
       chip_filter: "Chip"
       all_chips: "All chips"
       clear_filters: "Clear filters"

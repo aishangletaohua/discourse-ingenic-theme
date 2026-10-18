@@ -35,7 +35,11 @@ export default class IngenicBlockFeed extends Component {
   @service store;
 
   @tracked topics = [];
+  // True once the request has settled, including a failed one: until then the
+  // card draws placeholder rows, so the list does not announce "nothing here"
+  // while it is still being fetched.
   @tracked loaded = false;
+  requested = false;
 
   get type() {
     return this.args.block?.type;
@@ -98,13 +102,19 @@ export default class IngenicBlockFeed extends Component {
     }));
   }
 
+  // One placeholder per row the real list will hold, so the card keeps its
+  // height when the titles arrive.
+  get placeholders() {
+    return Array.from({ length: this.limit }, (_, index) => index);
+  }
+
   @action
   async load() {
-    if (this.loaded) {
+    if (this.requested) {
       return;
     }
 
-    this.loaded = true;
+    this.requested = true;
 
     try {
       const result = await this.store.findFiltered("topicList", {
@@ -114,6 +124,8 @@ export default class IngenicBlockFeed extends Component {
       this.topics = result.topics ?? [];
     } catch {
       this.topics = [];
+    } finally {
+      this.loaded = true;
     }
   }
 
@@ -167,10 +179,19 @@ export default class IngenicBlockFeed extends Component {
             </li>
           {{/each}}
         </ol>
-      {{else}}
+      {{else if this.loaded}}
         <p class="ingenic-section__subtitle">
           {{i18n (themePrefix "ingenic.home.empty")}}
         </p>
+      {{else}}
+        <ol class="ingenic-feed__list" aria-hidden="true">
+          {{#each this.placeholders as |placeholder|}}
+            <li class="ingenic-feed__item ingenic-feed__item--skeleton">
+              <span class="ingenic-skeleton ingenic-skeleton--title"></span>
+              <span class="ingenic-skeleton ingenic-skeleton--meta"></span>
+            </li>
+          {{/each}}
+        </ol>
       {{/if}}
 
       {{#if this.isHot}}

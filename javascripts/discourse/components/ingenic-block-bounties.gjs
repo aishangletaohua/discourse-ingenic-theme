@@ -26,6 +26,9 @@ export default class IngenicBlockBounties extends Component {
   @service site;
 
   @tracked bounties = [];
+  // Distinguishes "the list is empty" from "the list has not arrived": the
+  // panel shows the same shape either way, with placeholders until then.
+  @tracked loaded = false;
 
   // A plain field rather than a tracked one: `load` is called from the
   // constructor, which runs inside the render computation, and writing tracked
@@ -84,7 +87,13 @@ export default class IngenicBlockBounties extends Component {
       }
     } catch {
       this.bounties = [];
+    } finally {
+      this.loaded = true;
     }
+  }
+
+  get placeholders() {
+    return Array.from({ length: this.limit }, (_, index) => index);
   }
 
   <template>
@@ -120,10 +129,22 @@ export default class IngenicBlockBounties extends Component {
             </li>
           {{/each}}
         </ul>
-      {{else}}
+      {{else if this.loaded}}
         <p class="ingenic-section__subtitle">
           {{i18n (themePrefix "ingenic.bounties.empty")}}
         </p>
+      {{else}}
+        <ul class="ingenic-bounty-list" aria-hidden="true">
+          {{#each this.placeholders as |placeholder|}}
+            <li class="ingenic-bounty-list__item ingenic-bounty-list__item--skeleton">
+              <span class="ingenic-skeleton ingenic-skeleton--badge"></span>
+              <div class="ingenic-bounty-list__body">
+                <span class="ingenic-skeleton ingenic-skeleton--title"></span>
+                <span class="ingenic-skeleton ingenic-skeleton--meta"></span>
+              </div>
+            </li>
+          {{/each}}
+        </ul>
       {{/if}}
 
       <a class="ingenic-section__footer" href={{this.boardPath}}>

@@ -186,6 +186,8 @@ zh_CN:
       kind_filter: "类型"
       kind_board: "开发板"
       kind_sample: "样片"
+      series_filter: "系列"
+      all_series: "全部系列"
       chip_filter: "芯片型号"
       all_chips: "全部型号"
       clear_filters: "清除筛选"

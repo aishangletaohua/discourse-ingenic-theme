@@ -49,6 +49,10 @@ export default class IngenicBlockLeaderboard extends Component {
     return getURL("/u?period=weekly");
   }
 
+  get placeholders() {
+    return Array.from({ length: this.limit }, (_, index) => index);
+  }
+
   get rows() {
     return this.entries.slice(0, this.limit).map((entry) => ({
       ...entry,
@@ -130,9 +134,16 @@ export default class IngenicBlockLeaderboard extends Component {
           {{i18n (themePrefix "ingenic.leaderboard.empty")}}
         </p>
       {{else}}
-        <p class="ingenic-card__meta">
-          {{i18n (themePrefix "ingenic.leaderboard.loading")}}
-        </p>
+        <ol class="ingenic-leaderboard__list" aria-hidden="true">
+          {{#each this.placeholders as |placeholder|}}
+            <li class="ingenic-leaderboard__row ingenic-leaderboard__row--skeleton">
+              <span class="ingenic-skeleton ingenic-skeleton--rank"></span>
+              <span class="ingenic-skeleton ingenic-skeleton--avatar"></span>
+              <span class="ingenic-skeleton ingenic-skeleton--title"></span>
+              <span class="ingenic-skeleton ingenic-skeleton--points"></span>
+            </li>
+          {{/each}}
+        </ol>
       {{/if}}
 
       <a class="ingenic-section__footer" href={{this.allPath}}>

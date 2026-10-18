@@ -79,11 +79,13 @@
   --table-border-color: var(--ingenic-surface-border);
   --input-border-color: var(--ingenic-surface-border);
 
-  // The sidebar's rows. A little taller and a little further apart than core's
-  // 2.2em: at this width the navigation is a column of destinations, not a
-  // toolbar, and the extra air is what separates one from the next.
-  --d-sidebar-row-height: 2.4em;
-  --d-sidebar-vertical-gap: 0.35rem;
+  // The sidebar's rows. Taller and further apart than core's 2.2em: at this
+  // width the navigation is a column of destinations, not a toolbar, and the
+  // extra air is what separates one from the next. The column grows by about
+  // a hundred pixels over its full length, which a sticky sidebar can afford;
+  // it is the difference between a list and a wall of labels.
+  --d-sidebar-row-height: 2.8em;
+  --d-sidebar-vertical-gap: 0.5rem;
 
   // The seam between the navigation and the page. Core's `--space-8` is 2rem;
   // a quarter more separates the two columns without pushing the content off
@@ -203,6 +205,46 @@ html.ingenic-nav-first .sidebar-sections {
   // would make the sidebar look broken.
   > .sidebar-section-wrapper[data-section-name="categories"] {
     display: none;
+  }
+}
+
+// The navigation is read in groups. Without a boundary the three Ingenic
+// blocks — two of which carry no heading — ran into each other and the column
+// read as one long list; the hairline and the space above it give each group
+// an edge a reader can see before reading the labels.
+.sidebar-sections > .sidebar-section-wrapper {
+  margin-top: 0.6rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--ingenic-divider);
+}
+
+// The first group sits directly under the panel header, which is already a
+// boundary of its own: a second line there would double it.
+.sidebar-sections > .sidebar-section-wrapper:first-of-type {
+  margin-top: 0.15rem;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.sidebar-sections .sidebar-section-header {
+  margin-bottom: 0.5rem;
+}
+
+// A row is a destination, so it takes a shape on hover rather than only
+// changing the colour of its words.
+.sidebar-sections .sidebar-section-link {
+  border-radius: 6px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--ingenic-sky-50);
+  }
+
+  &.active {
+    background: var(--ingenic-sky-100);
   }
 }
 
@@ -1924,7 +1966,7 @@ body:has(.ingenic-homepage) {
   // same vertical line, which is what makes them read as one control.
   &__filter-label {
     flex: 0 0 5.5rem;
-    padding-top: 0.35rem;
+    padding-top: 0.55rem;
     color: var(--primary-medium);
     font-size: var(--font-down-1);
     line-height: 1.4;
@@ -1939,27 +1981,42 @@ body:has(.ingenic-homepage) {
     min-width: 0;
   }
 
-  // The word itself, not a bordered chip: the selected one is the only box on
-  // the row, so the choice is visible at a glance.
+  // Every option is a button, selected or not: a row of bare words gives no
+  // sign that the words can be clicked, and the selected one was the only box
+  // on the row. The frame is always drawn; the fill is what says "chosen".
   &__option {
-    padding: 0.35rem 0.7rem;
-    border: 1px solid transparent;
-    border-radius: 2px;
-    background: none;
-    color: var(--primary-high);
+    padding: 0.4rem 0.85rem;
+    border: 1px solid var(--ingenic-surface-border);
+    border-radius: 6px;
+    background: var(--secondary);
+    color: var(--primary);
     font-size: var(--font-0);
     line-height: 1.4;
+    white-space: nowrap;
     cursor: pointer;
-    transition: color 0.15s ease, background 0.15s ease;
+    transition:
+      color 0.15s ease,
+      background 0.15s ease,
+      border-color 0.15s ease;
 
-    &:hover {
-      color: var(--ingenic-link);
+    &:hover,
+    &:focus-visible {
+      border-color: var(--tertiary);
       background: var(--ingenic-sky-50);
+      color: var(--ingenic-link);
     }
 
+    &:focus-visible {
+      outline: 2px solid var(--tertiary);
+      outline-offset: 1px;
+    }
+
+    // The sky fill with the ink on top of it: the same pairing as a primary
+    // button, so a filter reads as the same kind of control.
     &.is-current {
-      background: var(--ingenic-navy);
-      color: #fff;
+      border-color: var(--tertiary);
+      background: var(--tertiary);
+      color: var(--ingenic-accent-ink);
       font-weight: 600;
     }
 
@@ -2963,5 +3020,121 @@ body:has(.ingenic-homepage) {
       width: 2.6rem;
       height: 2.6rem;
     }
+  }
+}
+
+// Placeholder rows for a card whose data is still on its way.
+//
+// The rail's cards fetch after the page's own render, so on a slow link they
+// used to appear one by one under whatever text the empty state had already
+// written. A skeleton of the same height keeps the column still and tells the
+// reader the list is coming rather than missing.
+.ingenic-skeleton {
+  display: block;
+  width: 100%;
+  height: 0.8rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--ingenic-sky-50) 0%,
+    var(--ingenic-sky-100) 50%,
+    var(--ingenic-sky-50) 100%
+  );
+  background-size: 200% 100%;
+  animation: ingenic-skeleton-sweep 1.4s ease-in-out infinite;
+
+  &--title {
+    width: 82%;
+    height: 0.95rem;
+  }
+
+  &--meta {
+    width: 45%;
+    height: 0.7rem;
+  }
+
+  &--line {
+    width: 100%;
+    height: 0.7rem;
+  }
+
+  &--badge {
+    width: 4.25rem;
+    height: 1.55rem;
+    flex-shrink: 0;
+  }
+
+  &--rank {
+    width: 0.8rem;
+    height: 0.7rem;
+    flex-shrink: 0;
+  }
+
+  &--avatar {
+    width: 1.65rem;
+    height: 1.65rem;
+    flex-shrink: 0;
+    border-radius: 50%;
+  }
+
+  &--points {
+    width: 2.6rem;
+    height: 0.7rem;
+    margin-left: auto;
+  }
+}
+
+@keyframes ingenic-skeleton-sweep {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ingenic-skeleton {
+    animation: none;
+  }
+}
+
+.ingenic-feed__item--skeleton {
+  gap: 0.5rem;
+}
+
+.ingenic-bounty-list__item--skeleton .ingenic-bounty-list__body {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.ingenic-leaderboard__row--skeleton .ingenic-skeleton--title {
+  flex: 1 1 auto;
+}
+
+.ingenic-promotion--skeleton .ingenic-promotion__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.ingenic-product-card--skeleton {
+  cursor: default;
+
+  &:hover,
+  &:focus-visible {
+    box-shadow: none;
+    transform: none;
+  }
+
+  .ingenic-product-card__media {
+    height: auto;
+    border-radius: 0;
+  }
+
+  .ingenic-product-card__body {
+    gap: 0.6rem;
   }
 }

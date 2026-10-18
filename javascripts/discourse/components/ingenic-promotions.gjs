@@ -36,6 +36,10 @@ function dateParts(value) {
  */
 export default class IngenicPromotions extends Component {
   @tracked promotions = [];
+  // The card is drawn before its slots exist, then removed if the team has
+  // none: a section that only appears after the slowest request on the page
+  // makes the rail jump, and the header is cheap to show early.
+  @tracked loaded = false;
 
   // Loaded from here rather than from a `did-insert` on the section, because the
   // section is what the load decides to draw: a modifier inside the conditional
@@ -73,13 +77,21 @@ export default class IngenicPromotions extends Component {
     return getURL("/latest");
   }
 
+  get isVisible() {
+    return !this.loaded || this.promotions.length > 0;
+  }
+
   async #load() {
-    const payload = await loadSiteContent();
-    this.promotions = payload.promotions ?? [];
+    try {
+      const payload = await loadSiteContent();
+      this.promotions = payload.promotions ?? [];
+    } finally {
+      this.loaded = true;
+    }
   }
 
   <template>
-    {{#if this.promotions.length}}
+    {{#if this.isVisible}}
       <section class="ingenic-section ingenic-promotions">
         <header class="ingenic-section__header">
           <h2>
@@ -88,61 +100,73 @@ export default class IngenicPromotions extends Component {
           </h2>
         </header>
 
-        <div class="ingenic-promotions__grid">
-          {{#each this.slots as |slot|}}
-            <article class="ingenic-promotion">
-              {{#if slot.image_url}}
-                <img
-                  class="ingenic-promotion__image"
-                  src={{slot.image_url}}
-                  alt=""
-                  loading="lazy"
-                />
-              {{/if}}
-
-              <div class="ingenic-promotion__content">
-                {{#if slot.corner_label}}
-                  <span class="ingenic-promotion__corner">{{slot.corner_label}}</span>
+        {{#if this.slots.length}}
+          <div class="ingenic-promotions__grid">
+            {{#each this.slots as |slot|}}
+              <article class="ingenic-promotion">
+                {{#if slot.image_url}}
+                  <img
+                    class="ingenic-promotion__image"
+                    src={{slot.image_url}}
+                    alt=""
+                    loading="lazy"
+                  />
                 {{/if}}
 
-                <div class="ingenic-promotion__headline">
-                  {{#if slot.date}}
-                    <time class="ingenic-promotion__date" datetime={{slot.iso}}>
-                      <span class="ingenic-promotion__month">{{slot.date.month}}</span>
-                      <span class="ingenic-promotion__day">{{slot.date.day}}</span>
-                    </time>
+                <div class="ingenic-promotion__content">
+                  {{#if slot.corner_label}}
+                    <span class="ingenic-promotion__corner">{{slot.corner_label}}</span>
                   {{/if}}
 
-                  <h3 class="ingenic-promotion__title">{{slot.title}}</h3>
+                  <div class="ingenic-promotion__headline">
+                    {{#if slot.date}}
+                      <time class="ingenic-promotion__date" datetime={{slot.iso}}>
+                        <span class="ingenic-promotion__month">{{slot.date.month}}</span>
+                        <span class="ingenic-promotion__day">{{slot.date.day}}</span>
+                      </time>
+                    {{/if}}
+
+                    <h3 class="ingenic-promotion__title">{{slot.title}}</h3>
+                  </div>
+
+                  {{#if slot.description}}
+                    <p class="ingenic-promotion__body">{{slot.description}}</p>
+                  {{/if}}
+
+                  {{#if slot.button_label}}
+                    {{#if slot.button_href}}
+                      <a
+                        class="btn btn-primary"
+                        href={{slot.button_href}}
+                        target={{slot.target}}
+                        rel={{slot.rel}}
+                      >
+                        {{slot.button_label}}
+                      </a>
+                    {{else}}
+                      <span class="ingenic-promotion__label">{{slot.button_label}}</span>
+                    {{/if}}
+                  {{/if}}
                 </div>
+              </article>
+            {{/each}}
+          </div>
 
-                {{#if slot.description}}
-                  <p class="ingenic-promotion__body">{{slot.description}}</p>
-                {{/if}}
-
-                {{#if slot.button_label}}
-                  {{#if slot.button_href}}
-                    <a
-                      class="btn btn-primary"
-                      href={{slot.button_href}}
-                      target={{slot.target}}
-                      rel={{slot.rel}}
-                    >
-                      {{slot.button_label}}
-                    </a>
-                  {{else}}
-                    <span class="ingenic-promotion__label">{{slot.button_label}}</span>
-                  {{/if}}
-                {{/if}}
+          <a class="ingenic-section__footer" href={{this.allPath}}>
+            {{i18n (themePrefix "ingenic.home.show_all")}}
+            {{dIcon "arrow-right"}}
+          </a>
+        {{else}}
+          <div class="ingenic-promotions__grid" aria-hidden="true">
+            <article class="ingenic-promotion ingenic-promotion--skeleton">
+              <div class="ingenic-promotion__content">
+                <span class="ingenic-skeleton ingenic-skeleton--title"></span>
+                <span class="ingenic-skeleton ingenic-skeleton--meta"></span>
+                <span class="ingenic-skeleton ingenic-skeleton--line"></span>
               </div>
             </article>
-          {{/each}}
-        </div>
-
-        <a class="ingenic-section__footer" href={{this.allPath}}>
-          {{i18n (themePrefix "ingenic.home.show_all")}}
-          {{dIcon "arrow-right"}}
-        </a>
+          </div>
+        {{/if}}
       </section>
     {{/if}}
   </template>

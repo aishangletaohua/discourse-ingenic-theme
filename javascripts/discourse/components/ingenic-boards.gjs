@@ -18,11 +18,16 @@ const ENDPOINT = "/ingenic/boards";
  * These are applied for or bought from the Ingenic team, so this page sells
  * nothing and takes no orders: every card ends in a link that leaves the forum.
  *
- * The filters are two levels and two rows, drawn like the download centre's:
- * the first chooses the kind of thing — a board or a sample — and the second
- * chooses the chip. Words rather than selects, because both rows are short
- * enough to read at once and a visitor should see what the catalogue holds
- * before choosing anything.
+ * The filters are three levels and three rows, drawn like the download
+ * centre's: the kind of thing — a board or a sample — then the series, then the
+ * chip inside that series. Words rather than selects, because the rows are
+ * short enough to read at once and a visitor should see what the catalogue
+ * holds before choosing anything.
+ *
+ * Everything is loaded once and filtered here. A catalogue is a handful of
+ * rows, and a filter that asks the server again on every click makes the
+ * control feel slower than the page it is filtering; the first load is the
+ * only network cost.
  *
  * A card is a shop window: picture, name, a short introduction, and the two
  * links. Everything longer — the full description and the specifications —
@@ -31,17 +36,15 @@ const ENDPOINT = "/ingenic/boards";
  */
 export default class IngenicBoards extends Component {
   @tracked boards = [];
-  @tracked filters = { kinds: ["board", "sample"], chips: [] };
+  @tracked filters = { kinds: ["board", "sample"] };
   @tracked kind = "board";
+  @tracked series = "";
   @tracked chip = "";
   @tracked selected = null;
   @tracked loading = true;
 
-  // Answers can arrive out of order — a kind is one click away from the next,
-  // and the page is often read over a slow link — so each load remembers which
-  // request it is and only the newest is allowed to write the results. Without
-  // this, switching tabs quickly can leave one kind's boards under the other
-  // kind's heading.
+  // One request, guarded so a second load (the component can be rebuilt by a
+  // route) does not replace the list while the first is still in flight.
   requestId = 0;
 
   get kindTabs() {
@@ -56,6 +59,85 @@ export default class IngenicBoards extends Component {
     }));
   }
 
+  // The default tab's boards, which the two lower rows narrow. The rows are
+  // built from these rather than from the whole product tree: an option that
+  // has nothing behind it is a control that can only produce an empty page.
+  get kindBoards() {
+    return this.boards.filter((board) => board.kind === this.kind);
+  }
+
+  get seriesButtons() {
+    const seen = new Map();
+
+    for (const board of this.kindBoards) {
+      if (board.series_slug && !seen.has(board.series_slug)) {
+        seen.set(board.series_slug, {
+          slug: board.series_slug,
+          label: board.series_name || board.series_slug,
+        });
+      }
+    }
+
+    return [
+      {
+        slug: "",
+        label: i18n(themePrefix("ingenic.boards.all_series")),
+        active: this.series === "",
+      },
+      ...Array.from(seen.values()).map((item) => ({
+        ...item,
+        active: item.slug === this.series,
+      })),
+    ];
+  }
+
+  get chipButtons() {
+    const seen = new Map();
+
+    for (const board of this.kindBoards) {
+      if (!board.product_slug) {
+        continue;
+      }
+
+      if (this.series && board.series_slug !== this.series) {
+        continue;
+      }
+
+      if (!seen.has(board.product_slug)) {
+        seen.set(board.product_slug, {
+          slug: board.product_slug,
+          label: board.chip_name || board.chip || board.product_slug,
+        });
+      }
+    }
+
+    return [
+      {
+        slug: "",
+        label: i18n(themePrefix("ingenic.boards.all_chips")),
+        active: this.chip === "",
+      },
+      ...Array.from(seen.values()).map((item) => ({
+        ...item,
+        active: item.slug === this.chip,
+      })),
+    ];
+  }
+
+  get visibleBoards() {
+    return this.kindBoards.filter((board) => {
+      if (this.series && board.series_slug !== this.series) {
+        return false;
+      }
+
+      if (this.chip && board.product_slug !== this.chip) {
+        return false;
+      }
+
+      return true;
+    });
+  }
+
   // Worked out here so the template stays a description of the layout. The
   // specification list is free text, one item per line.
   //
@@ -64,20 +146,15 @@ export default class IngenicBoards extends Component {
   // between a board that is for sale and one that is not, and a sale that has
   // ended reads differently from a board that was never listed.
   get cards() {
-    return this.boards.map((board) => ({
+    return this.visibleBoards.map((board) => ({
       ...board,
       specs: (board.specs ?? "")
         .split("\n")
         .map((line) => line.trim())
         .filter(Boolean),
-      applyClass: board.purchase_url ? "btn" : "btn btn-primary",
       applyDisabled: board.sold_out || !board.application_url,
       buyDisabled: board.sold_out || !board.purchase_url,
     }));
-  }
-
-  get selectedApplyClass() {
-    return this.selected?.purchase_url ? "btn" : "btn btn-primary";
   }
 
   get selectedApplyDisabled() {
@@ -91,7 +168,13 @@ export default class IngenicBoards extends Component {
   }
 
   get filtered() {
-    return this.chip !== "";
+    return this.series !== "" || this.chip !== "";
+  }
+
+  // Six cards is the grid's first two rows on a wide screen; the placeholders
+  // hold their height until the catalogue arrives.
+  get placeholders() {
+    return Array.from({ length: 6 }, (_, index) => index);
   }
 
   @action
@@ -99,21 +182,10 @@ export default class IngenicBoards extends Component {
     const request = ++this.requestId;
     this.loading = true;
 
-    const query = new URLSearchParams();
-    if (this.kind) {
-      query.set("kind", this.kind);
-    }
-    if (this.chip) {
-      query.set("chip", this.chip);
-    }
-
-    const suffix = query.toString();
-
     try {
-      const response = await fetch(
-        getURL(suffix ? `${ENDPOINT}?${suffix}` : ENDPOINT),
-        { headers: { Accept: "application/json" } }
-      );
+      const response = await fetch(getURL(ENDPOINT), {
+        headers: { Accept: "application/json" },
+      });
 
       if (response.ok) {
         const payload = await response.json();
@@ -141,24 +213,26 @@ export default class IngenicBoards extends Component {
     }
 
     this.kind = kind;
-    // The chip that was chosen may not have anything of the kind just picked,
-    // and a filter the visitor cannot see the reason for reads as an empty
-    // catalogue.
+    // Both rows below are choices about the kind that was just left. Keeping
+    // either would hold a value the new list may not contain, and the empty
+    // result would have no visible cause.
+    this.series = "";
     this.chip = "";
-    return this.load();
+  }
+
+  @action
+  pickSeries(value) {
+    if ((value ?? "") === this.series) {
+      return;
+    }
+
+    this.series = value ?? "";
+    this.chip = "";
   }
 
   @action
   pickChip(value) {
     this.chip = value ?? "";
-    return this.load();
-  }
-
-  @action
-  chipLabel(chip) {
-    return chip.series_name
-      ? `${chip.series_name} › ${chip.name}`
-      : chip.name;
   }
 
   // The whole card is the way into the detail dialog, so the two links have to
@@ -211,7 +285,11 @@ export default class IngenicBoards extends Component {
       </header>
 
       <div class="ingenic-boards__filters">
-        <div class="ingenic-downloads__filter">
+        <div
+          class="ingenic-downloads__filter"
+          role="group"
+          aria-label={{i18n (themePrefix "ingenic.boards.kind_filter")}}
+        >
           <span class="ingenic-downloads__filter-label">
             {{i18n (themePrefix "ingenic.boards.kind_filter")}}
           </span>
@@ -221,6 +299,7 @@ export default class IngenicBoards extends Component {
                 class="ingenic-downloads__option {{if tab.active 'is-current'}}"
                 type="button"
                 aria-pressed={{tab.active}}
+                disabled={{this.loading}}
                 {{on "click" (fn this.pickKind tab.kind)}}
               >
                 {{tab.label}}
@@ -229,35 +308,54 @@ export default class IngenicBoards extends Component {
           </div>
         </div>
 
-        <div class="ingenic-downloads__filter">
+        <div
+          class="ingenic-downloads__filter"
+          role="group"
+          aria-label={{i18n (themePrefix "ingenic.boards.series_filter")}}
+        >
+          <span class="ingenic-downloads__filter-label">
+            {{i18n (themePrefix "ingenic.boards.series_filter")}}
+          </span>
+          <div class="ingenic-downloads__options">
+            {{#each this.seriesButtons as |item|}}
+              <button
+                class="ingenic-downloads__option {{if item.active 'is-current'}}"
+                type="button"
+                aria-pressed={{item.active}}
+                disabled={{this.loading}}
+                {{on "click" (fn this.pickSeries item.slug)}}
+              >
+                {{item.label}}
+              </button>
+            {{/each}}
+          </div>
+        </div>
+
+        <div
+          class="ingenic-downloads__filter"
+          role="group"
+          aria-label={{i18n (themePrefix "ingenic.boards.chip_filter")}}
+        >
           <span class="ingenic-downloads__filter-label">
             {{i18n (themePrefix "ingenic.boards.chip_filter")}}
           </span>
           <div class="ingenic-downloads__options">
-            <button
-              class="ingenic-downloads__option {{unless this.chip 'is-current'}}"
-              type="button"
-              aria-pressed={{if this.chip "false" "true"}}
-              {{on "click" (fn this.pickChip "")}}
-            >
-              {{i18n (themePrefix "ingenic.boards.all_chips")}}
-            </button>
-
-            {{#each this.filters.chips as |item|}}
+            {{#each this.chipButtons as |item|}}
               <button
-                class="ingenic-downloads__option {{if (eq item.slug this.chip) 'is-current'}}"
+                class="ingenic-downloads__option {{if item.active 'is-current'}}"
                 type="button"
-                aria-pressed={{eq item.slug this.chip}}
+                aria-pressed={{item.active}}
+                disabled={{this.loading}}
                 {{on "click" (fn this.pickChip item.slug)}}
               >
-                {{this.chipLabel item}}
+                {{item.label}}
               </button>
             {{/each}}
           </div>
         </div>
       </div>
 
-      {{#if this.boards.length}}
+      {{#if this.cards.length}}
         <div class="ingenic-card-grid ingenic-card-grid--products">
           {{#each this.cards as |board|}}
             <article
@@ -307,12 +405,12 @@ export default class IngenicBoards extends Component {
 
               <div class="ingenic-product-card__actions">
                 {{#if board.applyDisabled}}
-                  <button class={{board.applyClass}} type="button" disabled>
+                  <button class="btn btn-primary" type="button" disabled>
                     {{i18n (themePrefix "ingenic.boards.apply")}}
                   </button>
                 {{else}}
                   <a
-                    class={{board.applyClass}}
+                    class="btn btn-primary"
                     href={{board.application_url}}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -342,7 +440,17 @@ export default class IngenicBoards extends Component {
           {{/each}}
         </div>
       {{else if this.loading}}
-        <p class="ingenic-card__meta">…</p>
+        <div class="ingenic-card-grid ingenic-card-grid--products" aria-hidden="true">
+          {{#each this.placeholders as |placeholder|}}
+            <article class="ingenic-product-card ingenic-product-card--skeleton">
+              <div class="ingenic-product-card__media ingenic-skeleton"></div>
+              <div class="ingenic-product-card__body">
+                <span class="ingenic-skeleton ingenic-skeleton--title"></span>
+                <span class="ingenic-skeleton ingenic-skeleton--meta"></span>
+              </div>
+            </article>
+          {{/each}}
+        </div>
       {{else if this.filtered}}
         <p class="ingenic-card__meta">{{i18n (themePrefix "ingenic.boards.no_match")}}</p>
       {{else}}
@@ -416,12 +524,12 @@ export default class IngenicBoards extends Component {
 
             <div class="ingenic-board-dialog__actions">
               {{#if this.selectedApplyDisabled}}
-                <button class={{this.selectedApplyClass}} type="button" disabled>
+                <button class="btn btn-primary" type="button" disabled>
                   {{i18n (themePrefix "ingenic.boards.apply")}}
                 </button>
               {{else}}
                 <a
-                  class={{this.selectedApplyClass}}
+                  class="btn btn-primary"
                   href={{this.selected.application_url}}
                   target="_blank"
                   rel="noopener noreferrer"
