@@ -1,6 +1,6 @@
 import { apiInitializer } from "discourse/lib/api";
 
-const FAMILIES = ["sky", "tech", "resolved", "announcement"];
+const FAMILIES = ["sky", "tech", "resolved", "announcement", "hot"];
 const STYLE_ID = "ingenic-tag-colours";
 
 // Text inside a CSS attribute selector's quoted string. A tag name can hold

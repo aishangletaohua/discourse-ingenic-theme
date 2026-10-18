@@ -98,6 +98,11 @@
   --ingenic-tag-announcement-border: #f5c6d0;
   --ingenic-tag-announcement-ink: #a03048;
 
+  // A topic the community has liked enough to be worth a reader's time.
+  --ingenic-tag-hot-tint: #fff4e0;
+  --ingenic-tag-hot-border: #f0d19a;
+  --ingenic-tag-hot-ink: #8a5300;
+
   // Core's own frames — the sidebar, the topic list, every table and input —
   // read these, so recolouring them here reaches the whole forum rather than
   // only the theme's components.
@@ -271,6 +276,14 @@
   --ingenic-tag-ink: var(--ingenic-tag-announcement-ink);
 }
 
+// A topic with enough likes to be worth reading.
+.discourse-tags .discourse-tag[data-tag-name="hot"],
+.discourse-tags .discourse-tag[data-tag-name="高赞"] {
+  --ingenic-tag-tint: var(--ingenic-tag-hot-tint);
+  --ingenic-tag-border: var(--ingenic-tag-hot-border);
+  --ingenic-tag-ink: var(--ingenic-tag-hot-ink);
+}
+
 // The forum is Ingenic's, and its footer is the one this theme draws. Core's
 // "Powered by Discourse" strip is switched off with
 // `enable_powered_by_discourse`, and this is the second line of defence: a
@@ -317,6 +330,15 @@ html.ingenic-nav-first .sidebar-sections {
   // section is not collapsed but removed: leaving it as an empty triangle
   // would make the sidebar look broken.
   > .sidebar-section-wrapper[data-section-name="categories"] {
+    display: none;
+  }
+
+  // Tags are a topic's label, not a place. The vocabulary is small and every
+  // tag a reader might want is on the topics themselves; a tag index in the
+  // navigation would offer a second, worse way to browse the forum. Chat's
+  // sections go with it: this forum's conversation is the topic list.
+  > .sidebar-section-wrapper[data-section-name="tags"],
+  > .sidebar-section-wrapper[data-section-name^="chat-"] {
     display: none;
   }
 }
@@ -1412,6 +1434,50 @@ body:has(.ingenic-homepage) {
   &__error {
     background: var(--danger-low);
     color: var(--danger);
+  }
+}
+
+// The bounty field in the composer. One line, because it sits above the title
+// and should not push it down; the balance is in the hint so the number has a
+// context before it is typed rather than after it is refused.
+.ingenic-composer-bounty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  padding: 0.35rem 0;
+
+  &__field {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--ingenic-link);
+    font-size: var(--font-down-1);
+    font-weight: 600;
+  }
+
+  input {
+    width: 7rem;
+    margin: 0;
+  }
+
+  &__hint {
+    margin: 0;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+
+  &__error {
+    flex-basis: 100%;
+    margin: 0;
+    color: var(--danger);
+    font-size: var(--font-down-1);
   }
 }
 
