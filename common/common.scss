@@ -70,6 +70,28 @@
   --ingenic-radius: 8px;
   --ingenic-panel-border: var(--ingenic-surface-border);
 
+  // Tags. Core gives a tag no colour of its own, so the four families below
+  // are this theme's classification of the forum's own vocabulary. Each is a
+  // tint to sit on, a hairline and an ink dark enough to read on that tint;
+  // the rule set further down matches them by tag name. A tag nobody has
+  // classified falls back to the sky, so a new one is coloured from the day
+  // it is created rather than waiting for an edit here.
+  --ingenic-tag-tint: var(--ingenic-sky-100);
+  --ingenic-tag-border: #a8dcf4;
+  --ingenic-tag-ink: #0a6288;
+
+  --ingenic-tag-tech-tint: #f0edff;
+  --ingenic-tag-tech-border: #d6cdf7;
+  --ingenic-tag-tech-ink: #5540a8;
+
+  --ingenic-tag-resolved-tint: #e5f6ea;
+  --ingenic-tag-resolved-border: #b7e1c3;
+  --ingenic-tag-resolved-ink: #1d6e3e;
+
+  --ingenic-tag-announcement-tint: #fdecef;
+  --ingenic-tag-announcement-border: #f5c6d0;
+  --ingenic-tag-announcement-ink: #a03048;
+
   // Core's own frames — the sidebar, the topic list, every table and input —
   // read these, so recolouring them here reaches the whole forum rather than
   // only the theme's components.
@@ -156,6 +178,91 @@
 .d-icon.d-icon-d-unread,
 .d-icon.d-icon-d-watching {
   color: var(--ingenic-link);
+}
+
+// Tags are labels, not a line of prose. Core separates them with commas and
+// leaves them the colour of metadata; on a list read at a glance the comma is
+// noise, and the colour is the only thing that can say "this one is about a
+// chip" before the word itself is read. The separator is therefore removed
+// and each tag becomes a pill.
+//
+// The colour is matched on the tag's name because core has no colour field to
+// put it in. The names below are the vocabulary the forum actually uses; a new
+// tag gets the default sky, and extending a family is one more name on its
+// list.
+.discourse-tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3em;
+}
+
+// The comma between two tags, drawn by core as an element of its own.
+.discourse-tags__tag-separator {
+  display: none;
+}
+
+.discourse-tags li {
+  display: inline-flex;
+  margin: 0;
+}
+
+.discourse-tags .discourse-tag {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 0.1em 0.6em;
+  border: 1px solid var(--ingenic-tag-border);
+  border-radius: 999px;
+  background: var(--ingenic-tag-tint);
+  color: var(--ingenic-tag-ink);
+  font-size: var(--font-down-2);
+  font-weight: 600;
+  line-height: 1.5;
+  text-decoration: none;
+
+  // A step deeper on hover, mixed from the tag's own ink so one rule darkens
+  // all four families without a second set of hover colours.
+  &:hover {
+    background: color-mix(in srgb, currentColor 8%, var(--ingenic-tag-tint));
+    color: var(--ingenic-tag-ink);
+  }
+}
+
+// Technical subjects: what a thread is about rather than what it is filed
+// under.
+.discourse-tags .discourse-tag[data-tag-name="linux"],
+.discourse-tags .discourse-tag[data-tag-name="android"],
+.discourse-tags .discourse-tag[data-tag-name="camera"],
+.discourse-tags .discourse-tag[data-tag-name="sdk"],
+.discourse-tags .discourse-tag[data-tag-name="firmware"],
+.discourse-tags .discourse-tag[data-tag-name="driver"],
+.discourse-tags .discourse-tag[data-tag-name="open-source"],
+.discourse-tags .discourse-tag[data-tag-name="ai"],
+.discourse-tags .discourse-tag[data-tag-name="安卓"],
+.discourse-tags .discourse-tag[data-tag-name="相机"],
+.discourse-tags .discourse-tag[data-tag-name="驱动"],
+.discourse-tags .discourse-tag[data-tag-name="固件"],
+.discourse-tags .discourse-tag[data-tag-name="开源"] {
+  --ingenic-tag-tint: var(--ingenic-tag-tech-tint);
+  --ingenic-tag-border: var(--ingenic-tag-tech-border);
+  --ingenic-tag-ink: var(--ingenic-tag-tech-ink);
+}
+
+// A question that has an answer.
+.discourse-tags .discourse-tag[data-tag-name="solved"],
+.discourse-tags .discourse-tag[data-tag-name="已解决"] {
+  --ingenic-tag-tint: var(--ingenic-tag-resolved-tint);
+  --ingenic-tag-border: var(--ingenic-tag-resolved-border);
+  --ingenic-tag-ink: var(--ingenic-tag-resolved-ink);
+}
+
+// Site news.
+.discourse-tags .discourse-tag[data-tag-name="announcement"],
+.discourse-tags .discourse-tag[data-tag-name="公告"] {
+  --ingenic-tag-tint: var(--ingenic-tag-announcement-tint);
+  --ingenic-tag-border: var(--ingenic-tag-announcement-border);
+  --ingenic-tag-ink: var(--ingenic-tag-announcement-ink);
 }
 
 // The forum is Ingenic's, and its footer is the one this theme draws. Core's

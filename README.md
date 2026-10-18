@@ -61,6 +61,9 @@ settings behind them — see the plugin's usage guide:
   conversations. It appears only while `ai_bot_enabled` is on, and for a
   signed-out reader the button becomes a sign-in link that returns to the
   assistant afterwards
+- tags drawn as pills and coloured by subject — chip names in sky, technical
+  subjects in violet, solved questions in green and announcements in red —
+  instead of core's comma-separated grey text
 - English and Chinese strings, structured so more locales can be added later
 
 ## Installation
@@ -150,6 +153,17 @@ accent has to be read are named separately:
 Both follow the scheme: move `tertiary` and they move with it, because they are
 the same hue either side of it. The theme's stylesheet is loaded after the colour
 scheme's, so the `:root` block here overrides the scheme's own variables.
+
+Tags are the one place that needs a colour beyond the accent. Core gives a tag
+no colour of its own, so the theme classifies the forum's vocabulary by name:
+`T33` and every other chip stay sky, technical subjects (`linux`, `android`,
+`camera`, `sdk`, `firmware`, `driver`, `open-source`, `ai` and their Chinese
+equivalents) are violet, `solved` / `已解决` green and `announcement` / `公告`
+red. The three family tints are named in the `:root` block as
+`--ingenic-tag-*`, and a tag that is not on a list falls back to the sky, so a
+new tag is coloured the moment it is created. The lists themselves are the tag
+rule set in `common/common.scss`; adding a subject or a language is one more
+selector.
 
 Typography and spacing are Discourse's own scale (`--font-up-*`, `--space-*`,
 `--font-family`), not the theme's invention, so they follow whatever the site's
