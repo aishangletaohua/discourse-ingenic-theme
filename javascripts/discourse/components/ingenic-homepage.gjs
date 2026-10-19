@@ -51,14 +51,16 @@ const BLOCK_LAYOUTS = {
 
 // What the page shows before anyone has configured it. The order is meta's:
 // sections first, then the discussion feed down the left, with the activity
-// slots, the bounty board and the hot list stacked down the right. All three
-// rail cards are above the fold together — that is why the bounty panel no
-// longer spans the page under everything else.
+// slots, popular posts, the bounty board and the contributor table stacked
+// down the right. The rail cards are above the fold together — that is why the
+// bounty panel no longer spans the page under everything else. The feed's
+// sixteen rows are what make the left column reach the rail's bottom edge on a
+// normal screen; the block's own paging keeps the rest of the list reachable.
 const DEFAULT_BLOCKS = [
   { type: "categories", position: 0, limit: 3 },
-  { type: "latest", position: 1, limit: 10 },
+  { type: "latest", position: 1, limit: 16 },
   { type: "activity", position: 2, limit: 3, category: "official-announcements" },
-  { type: "popular", position: 3, limit: 5 },
+  { type: "popular", position: 3, limit: 4 },
   { type: "bounties", position: 4, limit: 4 },
   { type: "leaderboard", position: 5, limit: 5 },
 ];

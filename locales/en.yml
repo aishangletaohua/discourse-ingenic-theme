@@ -64,6 +64,9 @@ en:
         all: "All"
         unanswered: "Unanswered"
         solved: "Solved"
+      pagination: "Discussion pages"
+      previous_page: "Previous page"
+      next_page: "Next page"
       empty: "Nothing here yet."
       topics:
         latest: "Latest discussions"

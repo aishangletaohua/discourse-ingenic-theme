@@ -45,6 +45,11 @@ export default class IngenicBlockFeed extends Component {
   // filtered in the browser: Discourse has no "unanswered" feed to ask for, and
   // 已解决 is a tag on the topic rather than a filter the server understands.
   @tracked filter = "all";
+  // Which slice of the fetched list the table shows. The whole latest list
+  // arrives at once (Discourse sends thirty), so turning a page is a slice
+  // rather than a request: the reader does not wait for a reload to see the
+  // next rows.
+  @tracked page = 1;
   requested = false;
 
   get type() {
@@ -112,10 +117,10 @@ export default class IngenicBlockFeed extends Component {
       );
   }
 
-  get rows() {
+  get allRows() {
     const categoryFor = this.categoryFor;
 
-    return this.topics.slice(0, this.limit).map((topic, index) => ({
+    return this.topics.map((topic, index) => ({
       id: topic.id,
       rank: index + 1,
       title: topic.title,
@@ -141,23 +146,72 @@ export default class IngenicBlockFeed extends Component {
           : {
               name: tag.name,
               key: (tag.name ?? "").toLowerCase(),
-              url: getURL(`/tag/${tag.slug}/${tag.id}`),
+              url: getURL(`/tag/${tag.slug || tag.id}`),
             },
       ),
     }));
   }
 
-  get visibleRows() {
+  // Filter the whole fetched list, then slice the current page out of what
+  // survived: filtering only the visible page would leave a page shorter than
+  // its neighbours and the count of pages wrong.
+  get filteredRows() {
     if (this.isHot || this.filter === "all") {
-      return this.rows;
+      return this.allRows;
     }
 
-    return this.rows.filter((row) => row[this.filter]);
+    return this.allRows.filter((row) => row[this.filter]);
+  }
+
+  get pageCount() {
+    return Math.max(1, Math.ceil(this.filteredRows.length / this.limit));
+  }
+
+  get pageLinks() {
+    return Array.from({ length: this.pageCount }, (_, index) => ({
+      number: index + 1,
+      active: index + 1 === this.page,
+    }));
+  }
+
+  get previousPage() {
+    return Math.max(1, this.page - 1);
+  }
+
+  get nextPage() {
+    return Math.min(this.pageCount, this.page + 1);
+  }
+
+  get isFirstPage() {
+    return this.page === 1;
+  }
+
+  get isLastPage() {
+    return this.page === this.pageCount;
+  }
+
+  get rows() {
+    if (this.isHot) {
+      return this.filteredRows.slice(0, this.limit);
+    }
+
+    const start = (this.page - 1) * this.limit;
+    return this.filteredRows.slice(start, start + this.limit);
   }
 
   @action
   chooseFilter(key) {
     this.filter = key;
+    this.page = 1;
+  }
+
+  @action
+  choosePage(page) {
+    if (page < 1 || page > this.pageCount) {
+      return;
+    }
+
+    this.page = page;
   }
 
   // One placeholder per row the real list will hold, so the card keeps its
@@ -231,9 +285,9 @@ export default class IngenicBlockFeed extends Component {
         </div>
       {{/if}}
 
-      {{#if this.visibleRows.length}}
+      {{#if this.rows.length}}
         <ol class="ingenic-feed__list">
-          {{#each this.visibleRows as |row|}}
+          {{#each this.rows as |row|}}
             {{#if this.isTable}}
               <li class="ingenic-feed__item ingenic-feed__item--row">
                 <div class="ingenic-feed__cell ingenic-feed__cell--topic">
@@ -336,10 +390,49 @@ export default class IngenicBlockFeed extends Component {
         </ol>
       {{/if}}
 
-      <a class="ingenic-section__footer" href={{this.allPath}}>
-        {{i18n (themePrefix "ingenic.home.view_all")}}
-        {{dIcon "arrow-right"}}
-      </a>
+      {{#if this.isTable}}
+        <nav
+          class="ingenic-feed__pager"
+          role="navigation"
+          aria-label={{i18n (themePrefix "ingenic.home.pagination")}}
+        >
+          <button
+            type="button"
+            class="ingenic-feed__page ingenic-feed__page--step"
+            disabled={{this.isFirstPage}}
+            aria-label={{i18n (themePrefix "ingenic.home.previous_page")}}
+            {{on "click" (fn this.choosePage this.previousPage)}}
+          >
+            {{dIcon "chevron-left"}}
+          </button>
+
+          {{#each this.pageLinks as |page|}}
+            <button
+              type="button"
+              class="ingenic-feed__page {{if page.active 'is-active'}}"
+              aria-current={{if page.active "page"}}
+              {{on "click" (fn this.choosePage page.number)}}
+            >
+              {{page.number}}
+            </button>
+          {{/each}}
+
+          <button
+            type="button"
+            class="ingenic-feed__page ingenic-feed__page--step"
+            disabled={{this.isLastPage}}
+            aria-label={{i18n (themePrefix "ingenic.home.next_page")}}
+            {{on "click" (fn this.choosePage this.nextPage)}}
+          >
+            {{dIcon "chevron-right"}}
+          </button>
+        </nav>
+      {{else}}
+        <a class="ingenic-section__footer" href={{this.allPath}}>
+          {{i18n (themePrefix "ingenic.home.view_all")}}
+          {{dIcon "arrow-right"}}
+        </a>
+      {{/if}}
     </section>
   </template>
 }

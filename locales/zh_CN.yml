@@ -62,6 +62,9 @@ zh_CN:
         all: "全部"
         unanswered: "未回复"
         solved: "已解决"
+      pagination: "讨论分页"
+      previous_page: "上一页"
+      next_page: "下一页"
       empty: "暂无内容。"
       topics:
         latest: "最新讨论"
