@@ -360,31 +360,113 @@ html.ingenic-nav-first .sidebar-sections {
   }
 }
 
-// The navigation is read in groups. Without a boundary the three Ingenic
-// blocks — two of which carry no heading — ran into each other and the column
-// read as one long list; the hairline and the space above it give each group
-// an edge a reader can see before reading the labels.
+// The navigation is read as a stack of modules, the way the reference page
+// draws it: a small uppercase heading, then that group's rows on a white card.
+// Core already uppercases and spaces the heading; what is added here is the
+// card and the gap that separates one module from the next. The same treatment
+// reaches core's community section, so the native half of the column reads as
+// one of these modules rather than as a different kind of list.
 .sidebar-sections > .sidebar-section-wrapper {
-  margin-top: 0.6rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid var(--ingenic-divider);
+  margin-top: 0.9rem;
+  padding: 0;
+  border-bottom: 0;
+
+  &:first-of-type {
+    margin-top: 0.25rem;
+  }
+
+  > .sidebar-section-header-wrapper {
+    margin: 0 0 0.4rem;
+    padding: 0 0.4rem;
+  }
+
+  > .sidebar-section-content {
+    margin: 0;
+    padding: 0.3rem;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: 0.7rem;
+    background: var(--secondary);
+    box-shadow: 0 4px 14px rgb(18 38 58 / 5%);
+  }
 }
 
-// The first group sits directly under the panel header, which is already a
-// boundary of its own: a second line there would double it.
-.sidebar-sections > .sidebar-section-wrapper:first-of-type {
-  margin-top: 0.15rem;
-  padding-top: 0;
-  border-top: 0;
+// Core draws its community rows inside their own container, outside the list
+// of sections: same card, same spacing, so the native rows read as one more
+// module of the column. Core gives that section no heading, which would leave
+// the last card unlabelled; the label is drawn here from the page language.
+.sidebar-custom-sections > .sidebar-section-wrapper[data-section-name="community"] {
+  margin-top: 0.9rem;
+  padding: 0;
+  border-bottom: 0;
+
+  &::before {
+    display: block;
+    margin: 0 0.4rem 0.4rem;
+    color: var(--primary-medium);
+    font-size: var(--font-down-2);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    content: "Community";
+  }
+
+  > .sidebar-section-content {
+    margin: 0;
+    padding: 0.3rem;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: 0.7rem;
+    background: var(--secondary);
+    box-shadow: 0 4px 14px rgb(18 38 58 / 5%);
+  }
+}
+
+html[lang^="zh"]
+  .sidebar-custom-sections
+  > .sidebar-section-wrapper[data-section-name="community"]::before {
+  content: "社区";
+}
+
+// The carets core adds to a collapsible section turn the labels into an
+// accordion; a module heading in the reference page is a plain label. Clicking
+// one still collapses the group, as it did before.
+.sidebar-sections
+  > .sidebar-section-wrapper[data-section-name^="ingenic-"]
+  .sidebar-section-header-caret {
+  display: none;
 }
 
 .sidebar-sections .sidebar-section-header {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
+  color: var(--primary-medium);
+  font-weight: 700;
+}
+
+// The rows are a step smaller than core's default, which is what the reference
+// column uses and what lets "SDK & Firmware Downloads" reach the chevron
+// without an ellipsis.
+.sidebar-sections .sidebar-section-link,
+.sidebar-custom-sections .sidebar-section-link {
+  font-size: var(--font-down-1);
+}
+
+// The developer resources are a way out of the forum, and the reference page
+// marks each one with a chevron. The rows are still ordinary links; the mark
+// says where following one leads.
+[data-section-name="ingenic-resources"] .ingenic-sidebar-link::after {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-inline-start: auto;
+  border-top: 1.5px solid var(--primary-medium);
+  border-right: 1.5px solid var(--primary-medium);
+  transform: rotate(45deg);
 }
 
 // A row is a destination, so it takes a shape on hover rather than only
 // changing the colour of its words.
-.sidebar-sections .sidebar-section-link {
+.sidebar-sections .sidebar-section-link,
+.sidebar-custom-sections .sidebar-section-link {
   border-radius: 6px;
   transition:
     background 0.15s ease,
@@ -461,6 +543,28 @@ html.ingenic-nav-first .sidebar-sections {
   }
 }
 
+// Starting a topic is the one action in the column rather than a destination,
+// so it is drawn as the reference page draws it: a filled row across the card,
+// not another line of links. It sits after the per-module icon colours because
+// both the row and its glyph are white here, whatever the module colour says.
+[data-section-name="ingenic-forum"] .ingenic-sidebar-link--new-post {
+  justify-content: center;
+  border-radius: 0.6rem;
+  background: var(--tertiary);
+  color: #fff;
+  font-weight: 600;
+
+  .d-icon {
+    color: currentColor;
+  }
+
+  &:hover,
+  &:focus {
+    background: color-mix(in srgb, var(--tertiary) 88%, #000);
+    color: #fff;
+  }
+}
+
 // The native half of the sidebar reads the same as the Ingenic half: the
 // labels are near-black and semibold rather than a column of blue links. Core
 // draws the community rows without a per-link class, so each icon is coloured
@@ -528,14 +632,6 @@ html.ingenic-nav-first .sidebar-sections {
 
 [data-section-name="chat-dms"] .d-icon {
   color: #2f855a;
-}
-
-// The heading over the developer resources: the same near-black and weight as
-// the module names below it, so the group and its rows read as one column.
-.sidebar-section-wrapper[data-section-name="ingenic-resources"]
-  .sidebar-section-header {
-  color: var(--primary);
-  font-weight: 600;
 }
 
 // The header buttons live in the outlet between the logo and the right-hand
@@ -1150,18 +1246,6 @@ body:has(.ingenic-homepage) {
     overflow-wrap: anywhere;
   }
 
-  // The topic count sits beside the name as a small badge, the way the
-  // reference cards carry theirs: one line, no description under it.
-  &__count {
-    flex: none;
-    padding: 0.06rem 0.45rem;
-    border-radius: 999px;
-    background: var(--ingenic-surface-tint);
-    color: var(--primary-medium);
-    font-size: var(--font-down-2);
-    font-weight: 600;
-    white-space: nowrap;
-  }
 }
 
 @media (width <= 700px) {

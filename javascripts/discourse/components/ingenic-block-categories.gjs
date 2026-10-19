@@ -42,9 +42,9 @@ const CATEGORY_TINTS = {
  * category, and inventing one for it would make the forum claim a section it
  * does not have.
  *
- * A card naming a category borrows that category's name, colour, icon,
- * description and topic count from `site.categories`, so what the front page
- * says about a section is what its page says.
+ * A card naming a category borrows that category's name, colour and icon from
+ * `site.categories`, so what the front page says about a section is what its
+ * page says.
  */
 export default class IngenicBlockCategories extends Component {
   @service site;
@@ -90,7 +90,6 @@ export default class IngenicBlockCategories extends Component {
       href: "/ingenic/docs",
       label: i18n(themePrefix("ingenic.nav.docs")),
       icon: "book",
-      count: null,
       style: "--ingenic-category: #2f9e63",
     };
 
@@ -121,7 +120,6 @@ export default class IngenicBlockCategories extends Component {
       label: card.label,
       icon: card.icon,
       image_url: card.image_url,
-      count: null,
       style: card.color ? `--ingenic-category: #${card.color.replace(/^#/, "")}` : null,
     };
   }
@@ -144,7 +142,6 @@ export default class IngenicBlockCategories extends Component {
         CATEGORY_ICONS[category.slug] ||
         "comments",
       image_url: overlay.image_url,
-      count: category.topic_count,
       style: color ? `--ingenic-category: #${color.replace(/^#/, "")}` : null,
     };
   }
@@ -188,15 +185,6 @@ export default class IngenicBlockCategories extends Component {
 
               <span class="ingenic-sections__text">
                 <span class="ingenic-sections__name">{{card.label}}</span>
-
-                {{#if card.count}}
-                  <span class="ingenic-sections__count">
-                    {{i18n
-                      (themePrefix "ingenic.home.sections.topic_count")
-                      count=card.count
-                    }}
-                  </span>
-                {{/if}}
               </span>
             </a>
           {{/each}}

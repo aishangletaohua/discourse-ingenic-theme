@@ -15,12 +15,11 @@ en:
       mcp: "MCP"
       site_feedback: "Site Feedback"
       all_categories: "All Categories"
-      # The lists that are drawn without a heading. Nothing shows these words;
-      # they are what the sidebar's filter matches against, so typing "forum"
-      # or "points" finds the whole list.
+      # The sidebar groups. The headings are drawn above each group's card and
+      # are also what the sidebar's filter matches against.
       sections:
-        forum: "Forum"
-        member: "Bounties and points"
+        forum: "Ingenic community"
+        member: "Rewards"
     mcp:
       title: "MCP server"
       subtitle: "Connect an AI client to the Ingenic community."
@@ -87,12 +86,9 @@ en:
           one: "%{count} view"
           other: "%{count} views"
       sections:
-        title: "Popular sections"
+        title: "Explore the community"
         all: "All categories"
         empty: "No sections are visible to you yet."
-        topic_count:
-          one: "%{count} topic"
-          other: "%{count} topics"
     header_links:
       label: "Ingenic links"
     promotions:

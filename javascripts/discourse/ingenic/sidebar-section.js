@@ -9,10 +9,10 @@ import { hrefFor, resolveNavItems } from "./nav-items";
  *
  * Three of them, because the navigation is three things: the forum itself at
  * the top, the developer resources under their own heading, and what a member
- * has earned or set aside at the bottom. Only the middle one is drawn with a
- * heading — one over the topic list would be a label on the forum, and one over
- * 高分悬赏 and Points would file them under the resources above them, which is
- * exactly where they do not belong.
+ * has earned or set aside at the bottom. Each group is drawn with its heading.
+ * The headings are what make the column read as stacked modules rather than
+ * one long list, and they keep 高分悬赏 and Points from filing under the
+ * resources above them, which is exactly where they do not belong.
  *
  * Rendering a bare <nav> into a plugin outlet looks similar but is not the same
  * thing: it would sit beside Discourse's own sidebar rather than inside it, so
@@ -33,14 +33,13 @@ import { hrefFor, resolveNavItems } from "./nav-items";
  * true from `displaySectionContent` for it, whatever the collapse state says.
  */
 
-// The groups, in the order they are read. `text` is the heading for the one
-// group that has one; for the others it is only what the sidebar's filter
-// matches, since nothing is drawn.
+// The groups, in the order they are read. Each one is drawn with its heading;
+// `text` is also what the sidebar's filter matches.
 const GROUPS = [
   {
     name: "ingenic-forum",
     section: "forum",
-    titled: false,
+    titled: true,
     textKey: "ingenic.nav.sections.forum",
   },
   {
@@ -54,7 +53,7 @@ const GROUPS = [
   {
     name: "ingenic-member",
     section: "member",
-    titled: false,
+    titled: true,
     textKey: "ingenic.nav.sections.member",
   },
 ];
