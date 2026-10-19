@@ -4,6 +4,7 @@ import { service } from "@ember/service";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import { markFor } from "../ingenic/category-marks";
+import IngenicImage from "./ingenic-image";
 
 // A category only carries an icon when an administrator sets one, and most
 // forums do not bother. The sections this forum ships with are the ones a
@@ -148,11 +149,10 @@ export default class IngenicBlockCategories extends Component {
             >
               <span class="ingenic-sections__icon" aria-hidden="true">
                 {{#if card.image_url}}
-                  <img
-                    class="ingenic-sections__image"
-                    src={{card.image_url}}
-                    alt=""
-                    loading="lazy"
+                  <IngenicImage
+                    @src={{card.image_url}}
+                    @className="ingenic-sections__image"
+                    @fallbackIcon={{card.icon}}
                   />
                 {{else if card.icon}}
                   {{dIcon card.icon}}

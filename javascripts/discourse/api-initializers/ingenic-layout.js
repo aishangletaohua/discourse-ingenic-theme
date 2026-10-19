@@ -8,42 +8,12 @@ import IngenicComposerBounty from "../components/ingenic-composer-bounty";
 import IngenicFooter from "../components/ingenic-footer";
 import IngenicHeaderLinks from "../components/ingenic-header-links";
 import IngenicLocaleSwitcher from "../components/ingenic-locale-switcher";
+import { rebaseLocalUrl } from "../ingenic/asset-url";
 import { applyIngenicLayout } from "../ingenic/layout";
 import {
   registerIngenicCommunityLinks,
   registerIngenicSidebarSections,
 } from "../ingenic/sidebar-section";
-
-// The site's logo is sent to the client as an absolute URL built from the
-// server's own `site_url` — every other upload is addressed relative to the
-// page. That is right when visitors reach the site at the address the server
-// knows, and wrong when they do not: a preview served through a tunnel asks for
-// `http://localhost:3000/...`, which on the visitor's machine is their own
-// computer, and the logo arrives as a broken image. Re-root a local address to
-// the origin actually being viewed. A logo hosted on a CDN or another domain
-// on purpose is left exactly as configured.
-const LOCAL_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0", "::1", "[::1]"];
-
-function rebaseLocalUrl(value) {
-  if (typeof value !== "string" || value.length === 0) {
-    return value;
-  }
-
-  try {
-    const parsed = new URL(value, window.location.origin);
-
-    if (
-      parsed.hostname !== window.location.hostname &&
-      LOCAL_HOSTS.includes(parsed.hostname)
-    ) {
-      return `${window.location.origin}${parsed.pathname}${parsed.search}${parsed.hash}`;
-    }
-  } catch {
-    // Not an address that can be parsed; leave it to the browser.
-  }
-
-  return value;
-}
 
 /**
  * Wires the Ingenic layout into Discourse.

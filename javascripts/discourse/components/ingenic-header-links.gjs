@@ -3,6 +3,7 @@ import Component from "@glimmer/component";
 import { service } from "@ember/service";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
+import IngenicImage from "./ingenic-image";
 
 /**
  * The buttons in the header, beside the logo: the official site, GitHub, and
@@ -46,11 +47,10 @@ export default class IngenicHeaderLinks extends Component {
             title={{if link.show_label null link.label}}
           >
             {{#if link.image_url}}
-              <img
-                class="ingenic-header-links__image"
-                src={{link.image_url}}
-                alt=""
-                loading="lazy"
+              <IngenicImage
+                @src={{link.image_url}}
+                @className="ingenic-header-links__image"
+                @fallbackIcon={{this.iconFor link}}
               />
             {{else if (this.iconFor link)}}
               {{dIcon (this.iconFor link)}}
