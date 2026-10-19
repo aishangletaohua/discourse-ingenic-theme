@@ -168,7 +168,7 @@ export default class IngenicBlockPopular extends Component {
       {{/if}}
 
       <a class="ingenic-section__footer" href={{this.allPath}}>
-        {{i18n (themePrefix "ingenic.home.view_all")}}
+        {{i18n (themePrefix "ingenic.home.show_all")}}
         {{dIcon "arrow-right"}}
       </a>
     </section>

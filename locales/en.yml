@@ -57,7 +57,7 @@ en:
       eyebrow: "Ingenic developer community"
       search_placeholder: "Search the forum"
       search: "Search"
-      view_all: "View all"
+      show_all: "Show all"
       filters:
         all: "All"
         unanswered: "Unanswered"

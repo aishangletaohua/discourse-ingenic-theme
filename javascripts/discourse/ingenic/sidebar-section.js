@@ -8,11 +8,12 @@ import { hrefFor, resolveNavItems } from "./nav-items";
  * Registers the Ingenic navigation as first-class Discourse sidebar sections.
  *
  * Three of them, because the navigation is three things: the forum itself at
- * the top, the developer resources under their own heading, and what a member
- * has earned or set aside at the bottom. Each group is drawn with its heading.
- * The headings are what make the column read as stacked modules rather than
- * one long list, and they keep 高分悬赏 and Points from filing under the
- * resources above them, which is exactly where they do not belong.
+ * the top, the developer resources below it, and what a member has earned or
+ * set aside at the bottom. The groups are told apart by the cards the
+ * stylesheet draws around them, not by headings: a caption over each group
+ * broke the column into separate blocks. The split still matters, because it
+ * keeps 高分悬赏 and Points from filing under the resources above them, which
+ * is exactly where they do not belong.
  *
  * Rendering a bare <nav> into a plugin outlet looks similar but is not the same
  * thing: it would sit beside Discourse's own sidebar rather than inside it, so
@@ -33,19 +34,19 @@ import { hrefFor, resolveNavItems } from "./nav-items";
  * true from `displaySectionContent` for it, whatever the collapse state says.
  */
 
-// The groups, in the order they are read. Each one is drawn with its heading;
-// `text` is also what the sidebar's filter matches.
+// The groups, in the order they are read. None is drawn with a heading; `text`
+// is what the sidebar's filter matches.
 const GROUPS = [
   {
     name: "ingenic-forum",
     section: "forum",
-    titled: true,
+    titled: false,
     textKey: "ingenic.nav.sections.forum",
   },
   {
     name: "ingenic-resources",
     section: "resources",
-    titled: true,
+    titled: false,
     // An administrator's own words for the group, falling back to the theme's.
     textKey: "ingenic.nav.title",
     textSetting: "ingenic_nav_title",
@@ -53,7 +54,7 @@ const GROUPS = [
   {
     name: "ingenic-member",
     section: "member",
-    titled: true,
+    titled: false,
     textKey: "ingenic.nav.sections.member",
   },
 ];

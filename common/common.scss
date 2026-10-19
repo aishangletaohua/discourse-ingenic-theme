@@ -360,25 +360,17 @@ html.ingenic-nav-first .sidebar-sections {
   }
 }
 
-// The navigation is read as a stack of modules: a small caption, then that
-// group's rows on a white card. The caption is deliberately quiet and the gap
-// between modules short — at heading size and with room around it, every group
-// read as its own page and the column came apart. The same treatment reaches
-// core's community section, so the native half of the column reads as one of
-// these modules rather than as a different kind of list.
-.sidebar-sections > .sidebar-section-wrapper {
+// The navigation is read as a short stack of cards. The groups carry no
+// captions: a label over every group, even a small one, cut the column into
+// separate pages. The card edge is enough to say where one group ends, and the
+// gap between cards is kept short so the column still reads as one list. The
+// same treatment reaches core's community section, so the native half of the
+// column reads as one more card rather than as a different kind of list.
+.sidebar-sections > .sidebar-section-wrapper,
+.sidebar-custom-sections > .sidebar-section-wrapper {
   margin-top: 0.55rem;
   padding: 0;
   border-bottom: 0;
-
-  &:first-of-type {
-    margin-top: 0.2rem;
-  }
-
-  > .sidebar-section-header-wrapper {
-    margin: 0 0 0.2rem;
-    padding: 0 0.4rem;
-  }
 
   > .sidebar-section-content {
     margin: 0;
@@ -390,57 +382,10 @@ html.ingenic-nav-first .sidebar-sections {
   }
 }
 
-// Core draws its community rows inside their own container, outside the list
-// of sections: same card, same spacing, so the native rows read as one more
-// module of the column. Core gives that section no heading, which would leave
-// the last card unlabelled; the label is drawn here from the page language.
-.sidebar-custom-sections > .sidebar-section-wrapper[data-section-name="community"] {
-  margin-top: 0.55rem;
-  padding: 0;
-  border-bottom: 0;
-
-  &::before {
-    display: block;
-    margin: 0 0.4rem 0.2rem;
-    color: var(--primary-medium);
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    content: "Community";
-  }
-
-  > .sidebar-section-content {
-    margin: 0;
-    padding: 0.3rem;
-    border: 1px solid var(--ingenic-panel-border);
-    border-radius: 0.7rem;
-    background: var(--secondary);
-    box-shadow: 0 4px 14px rgb(18 38 58 / 5%);
-  }
-}
-
-html[lang^="zh"]
-  .sidebar-custom-sections
-  > .sidebar-section-wrapper[data-section-name="community"]::before {
-  content: "社区";
-}
-
-// The carets core adds to a collapsible section turn the labels into an
-// accordion; a module heading in the reference page is a plain label. Clicking
-// one still collapses the group, as it did before.
-.sidebar-sections
-  > .sidebar-section-wrapper[data-section-name^="ingenic-"]
-  .sidebar-section-header-caret {
-  display: none;
-}
-
-.sidebar-sections .sidebar-section-header {
-  margin-bottom: 0;
-  color: var(--primary-medium);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+// The first card sits directly under the panel header, which is already a
+// boundary: the gap above it only needs to match the header's own spacing.
+.sidebar-sections > .sidebar-section-wrapper:first-of-type {
+  margin-top: 0.2rem;
 }
 
 // The rows are a step smaller than core's default, which is what the reference

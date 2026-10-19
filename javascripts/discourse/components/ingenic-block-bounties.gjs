@@ -150,7 +150,7 @@ export default class IngenicBlockBounties extends Component {
       {{/if}}
 
       <a class="ingenic-section__footer" href={{this.boardPath}}>
-        {{i18n (themePrefix "ingenic.home.view_all")}}
+        {{i18n (themePrefix "ingenic.home.show_all")}}
         {{dIcon "arrow-right"}}
       </a>
     </section>
