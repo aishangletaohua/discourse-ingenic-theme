@@ -92,15 +92,27 @@ export default class IngenicSidebarFlyout extends Component {
     );
   }
 
-  #panelFor(category, anchorRect) {
-    const items = this.#childrenOf(category.id).map((child) => ({
+  // A row inside a panel. A series is a row with children rather than a row
+  // plus an indented list: the chips wait in a panel of their own, so a series
+  // with forty chips is one clean row here and a scrollable list beside it,
+  // not forty rows that push everything below them out of sight. `category` is
+  // kept so hovering the row can build that next panel.
+  #rowFor(child) {
+    return {
       id: child.id,
       name: child.name,
       url: getURL(child.url),
       icon: child.icon || "comments",
       tintStyle: `--ingenic-category: #${child.color || "0f7fa8"}`,
       hasChildren: this.#childrenOf(child.id).length > 0,
-    }));
+      category: child,
+    };
+  }
+
+  #panelFor(category, anchorRect) {
+    const items = this.#childrenOf(category.id).map((child) =>
+      this.#rowFor(child),
+    );
 
     // The height is only needed to keep the panel inside the window; the
     // stylesheet owns the real layout and caps a long list with a scrollbar.
@@ -161,7 +173,10 @@ export default class IngenicSidebarFlyout extends Component {
       return;
     }
 
-    const link = target.closest(".sidebar-section-link");
+    // Only this theme's own rows open a panel. The listener is on the whole
+    // column, so a Discourse-drawn category row would otherwise grow one too —
+    // the navigation's two sections are the only place a panel belongs.
+    const link = target.closest(".sidebar-section-link.ingenic-sidebar-link");
 
     if (!link) {
       this.#scheduleClose();
@@ -208,8 +223,8 @@ export default class IngenicSidebarFlyout extends Component {
       return;
     }
 
-    const link = target.closest(".sidebar-section-link");
-    const category = this.#categoryForLink(link);
+    const link = target.closest(".sidebar-section-link.ingenic-sidebar-link");
+    const category = link && this.#categoryForLink(link);
 
     if (category && this.#childrenOf(category.id).length) {
       this.#open(link, category);
@@ -265,7 +280,17 @@ export default class IngenicSidebarFlyout extends Component {
     this.#sidebar?.removeEventListener("focusin", this.#focus);
     this.#sidebar?.removeEventListener("scroll", this.#scroll);
     document.removeEventListener("keydown", this.#key);
-    this.#routerOff?.();
+
+    // `router.on` has returned a plain unsubscribe function for a long time,
+    // but not every Ember build does: some hand back a subscription object.
+    // Calling it blind throws on teardown, which is the one moment there is
+    // nothing left to catch the error.
+    if (typeof this.#routerOff === "function") {
+      this.#routerOff();
+    } else {
+      this.#routerOff?.unsubscribe?.();
+    }
+
     this.#portal?.remove();
     this.#sidebar = null;
     this.#portal = null;
@@ -290,33 +315,38 @@ export default class IngenicSidebarFlyout extends Component {
     this.#scheduleClose();
   }
 
+  // A row with children opens the next panel beside the one it is in, anchored
+  // to the row itself. A row without children only tidies any panel left open
+  // deeper than the one being read.
   @action
   hoverRow(panelIndex, row, event) {
     this.#cancelClose();
 
     const kept = this.panels.slice(0, panelIndex + 1);
+    const anchor = event?.currentTarget;
 
-    if (!row.hasChildren) {
+    if (!row.hasChildren || !anchor) {
       if (kept.length !== this.panels.length) {
         this.panels = kept;
       }
       return;
     }
 
-    if (this.panels[panelIndex + 1]?.key === `panel-${row.id}`) {
+    const existing = this.panels[panelIndex + 1];
+    const next = this.#panelFor(row.category, anchor.getBoundingClientRect());
+
+    // The pointer moving within the row fires this more than once. Rebuilding
+    // the panel on each firing would restart its entry animation and reset a
+    // list the reader may already be scrolling, so an already-correct next
+    // panel is kept and only anything below it is dropped.
+    if (existing?.key === next.key) {
+      if (kept.length + 1 !== this.panels.length) {
+        this.panels = this.panels.slice(0, panelIndex + 2);
+      }
       return;
     }
 
-    const category = (this.site?.categories ?? []).find(
-      (candidate) => candidate.id === row.id,
-    );
-
-    if (!category) {
-      return;
-    }
-
-    const anchor = event.currentTarget.getBoundingClientRect();
-    this.panels = [...kept, this.#panelFor(category, anchor)];
+    this.panels = [...kept, next];
   }
 
   @action
@@ -373,9 +403,14 @@ export default class IngenicSidebarFlyout extends Component {
                     {{#each panel.items as |row|}}
                       <li>
                         <a
-                          class="ingenic-sidebar-flyout__row"
+                          class="ingenic-sidebar-flyout__row
+                            {{if
+                              row.hasChildren
+                              'ingenic-sidebar-flyout__row--children'
+                            }}"
                           href={{row.url}}
                           style={{row.tintStyle}}
+                          aria-haspopup={{if row.hasChildren "menu"}}
                           {{on "mouseenter" (fn this.hoverRow index row)}}
                           {{on "focus" (fn this.hoverRow index row)}}
                           {{on "click" this.close}}

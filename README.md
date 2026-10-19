@@ -16,21 +16,27 @@ settings behind them — see the plugin's usage guide:
 
 ## What it provides
 
-- the sidebar's Ingenic navigation, in three groups: the forum at the top
+- the sidebar's Ingenic navigation, in three blocks: the forum at the top
   (start a post, the front page, the forum's own sections), the developer
-  resources under their own heading (Documentation, Open Source, Downloads,
-  Development Boards), and what a member has earned or set aside at the bottom
-  (Bounties, Points). Only the middle group is drawn with a heading; the outer
-  two are plain lists, which is what keeps Bounties and Points out of the
-  developer resources. Each group is registered as a real Discourse sidebar
-  section, so they inherit the mobile drawer, the section filter, the collapse
-  state and active-link handling that core already implements — and sit inside
-  the sidebar rather than beside it. Discourse's own categories, tags and
-  visitor-made sections are left exactly as they are.
-- three community links that sit between the forum list and Discourse's own
-  **More** drawer: **MCP** (only while `mcp_server_enabled` is on), **Site
-  Feedback** and **All Categories**. They are community-section links, so they
-  share that group's collapse state and active highlighting.
+  resources under their own heading (Documentation, SDK & Firmware Downloads,
+  Development Boards, then **MCP**), and the member block at the bottom
+  (**Site Feedback**, Topics, Bounties, Points, All Categories, More). Only the
+  middle block is drawn with a heading; the outer two are plain lists. The
+  forum and developer resources are real Discourse sidebar sections, so they
+  inherit the mobile drawer, the section filter, the collapse state and
+  active-link handling that core already implements. The member block is core's
+  own community section with four rows added to it, which is what lets Bounties
+  and Points sit below Topics instead of in a card of their own. Discourse's
+  other categories, tags and visitor-made sections are left exactly as they are.
+- hover panels on the two forum sections: **Technical Discussions** opens the
+  series, and pointing at a series opens its chips in a second panel beside the
+  first — so a series with many chips stays one clean row instead of a list that
+  pushes the rest out of sight. **Open Source**, the row directly below it, opens
+  its two sub-forums. Only those two rows carry a chevron; every other sidebar
+  entry is a plain link.
+- community rows in the order **Site Feedback · Topics · Bounties · Points ·
+  All Categories · More**. **MCP** (only while `mcp_server_enabled` is on) is a
+  developer-resource row, directly below Development Boards.
 - admin-configurable navigation items (label, icon, target, group, order,
   visibility)
 - a sidebar that can be moved to either side and resized from theme settings
@@ -106,7 +112,7 @@ Two core features are optional and read straight from site settings:
 | `ingenic_sidebar_width` | Width of the navigation sidebar on desktop, in pixels |
 | `ingenic_sidebar_position` | `left` or `right` |
 | `ingenic_nav_order` | `first` puts the Ingenic navigation above Discourse's own sidebar sections (categories, tags, the visitor's own) |
-| `ingenic_nav_title` | Heading over the developer-resources group; empty reads *Developer Resources* (开发者资源 in Chinese). The two lists around it are heading-less by design. |
+| `ingenic_nav_title` | Heading over the developer-resources block; empty reads *Developer Resources* (开发者资源 in Chinese). The forum block above it and the member block below are heading-less by design. |
 | `ingenic_hero_title` | Optional headline above the homepage blocks |
 | `ingenic_hero_subtitle` | Optional supporting line under the headline |
 
@@ -200,22 +206,25 @@ Navigation item shape:
 }
 ```
 
-`section` is which of the three sidebar groups the entry is drawn in: `forum`
-(the plain list at the top), `resources` (the group under the theme's heading) or
-`member` (the plain list at the bottom). `position` orders entries within their
-own group; the groups themselves always come in that order. An unknown group name
-is read as `forum`, so a typo moves a row rather than losing it.
+`section` says which block the entry belongs to: `forum` (the plain list at the
+top), `resources` (the block under the theme's heading) or `member` (the rows in
+the member block, which the theme places below Topics). `position` orders entries
+within their own block; the blocks themselves always come in that order. An
+unknown group name is read as `forum`, so a typo moves a row rather than losing
+it. Site Feedback and All Categories are not configurable: they are places in
+the forum that the member block always ends with.
 
 Use `"category": "technical-discussions"` instead of `href` to point at a
 Discourse category; it resolves to the category route automatically.
 
-Left empty, the theme ships its own list in the same three groups:
-New Post, Home, Official Announcements, Technical Discussions · Online
-Documentation, Open Source, SDK & Firmware Downloads, Development Boards ·
-Bounties, Points. A configured list **replaces** that one wholesale rather than
-merging with it, so a site that configured its navigation before the bounty board
-existed has no Bounties entry and will not grow one — add it, or clear the
-setting.
+Left empty, the theme ships its own list: New Post, Home, Official Announcements,
+Technical Discussions, Open Source · Online Documentation, SDK & Firmware
+Downloads, Development Boards, MCP · Bounties, Points. Open Source sits directly
+below Technical Discussions because it is the next section of the forum, not one
+of the developer resources. A configured list **replaces** that one wholesale
+rather than merging with it, so a site that configured its navigation before the
+bounty board existed has no Bounties or Points row and will not grow one — add
+them, or clear the setting.
 
 A link stays highlighted for the whole subtree it points at, so
 `/ingenic/docs/t32pro/2.1.0/overview` still shows Documentation as active.

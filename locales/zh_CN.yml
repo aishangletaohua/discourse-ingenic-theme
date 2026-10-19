@@ -14,11 +14,10 @@ zh_CN:
       discussions: "技术讨论"
       mcp: "MCP"
       site_feedback: "站点反馈"
-      all_categories: "所有分区"
-      # 不带标题的分组。这些文字不会显示，只用于侧边栏的搜索匹配。
+      all_categories: "全部分类"
+      # 不带标题的块。这些文字不会显示，只用于侧边栏的搜索匹配。
       sections:
         forum: "Ingenic 社区"
-        member: "奖励"
     mcp:
       title: "MCP 服务"
       subtitle: "将 AI 客户端连接到君正开发者社区。"
@@ -83,10 +82,8 @@ zh_CN:
           other: "%{count} 次浏览"
       sections:
         title: "探索社区"
-        all: "所有分区"
+        all: "全部分类"
         empty: "暂无可查看的版块。"
-    header_links:
-      label: "君正链接"
     promotions:
       title: "推广活动"
     activity:
@@ -141,6 +138,22 @@ zh_CN:
       pick_page: "请从目录中选择页面开始阅读。"
       no_versions: "该型号的文档尚未编写。"
       not_found: "该文档页面不可用。"
+      documentation: "在线文档"
+      chips: "型号"
+      latest_label: "最新版本"
+      updated: "更新于 %{date}"
+      soc: "SoC"
+      on_this_page: "本页内容"
+      copy: "复制"
+      copied: "已复制"
+      zoom_image: "查看大图"
+      link_section: "复制本节链接"
+      close: "关闭"
+      download_sdk: "下载 SDK"
+      boards_action: "开发板"
+      need_help: "需要帮助？"
+      need_help_text: "Ingenic 团队和其他开发者会在论坛里回答问题。"
+      go_to_forum: "在论坛提问"
     downloads:
       title: "下载中心"
       subtitle: "SDK、固件、手册与工具。部分资源在提供文件前需要确认您的身份。"

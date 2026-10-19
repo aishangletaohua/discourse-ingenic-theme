@@ -15,11 +15,10 @@ en:
       mcp: "MCP"
       site_feedback: "Site Feedback"
       all_categories: "All Categories"
-      # The sidebar groups. The headings are drawn above each group's card and
-      # are also what the sidebar's filter matches against.
+      # The sidebar blocks. The text is not drawn as a heading; it is what the
+      # sidebar's filter matches against.
       sections:
         forum: "Ingenic community"
-        member: "Rewards"
     mcp:
       title: "MCP server"
       subtitle: "Connect an AI client to the Ingenic community."
@@ -86,8 +85,6 @@ en:
         title: "Explore the community"
         all: "All categories"
         empty: "No sections are visible to you yet."
-    header_links:
-      label: "Ingenic links"
     promotions:
       title: "Promotions"
     activity:
@@ -142,6 +139,22 @@ en:
       pick_page: "Choose a page from the contents to start reading."
       no_versions: "This chip's documentation has not been written yet."
       not_found: "This documentation page is not available."
+      documentation: "Documentation"
+      chips: "Chips"
+      latest_label: "Latest"
+      updated: "Updated %{date}"
+      soc: "SoC"
+      on_this_page: "On this page"
+      copy: "Copy"
+      copied: "Copied"
+      zoom_image: "View image full size"
+      link_section: "Link to this section"
+      close: "Close"
+      download_sdk: "Download SDK"
+      boards_action: "Development boards"
+      need_help: "Need help?"
+      need_help_text: "The Ingenic team and other developers answer questions in the forum."
+      go_to_forum: "Ask in the forum"
     downloads:
       title: "Downloads"
       subtitle: "SDKs, firmware, manuals and tools. Some resources ask who you are before they hand over a file."

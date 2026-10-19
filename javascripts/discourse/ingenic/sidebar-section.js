@@ -7,13 +7,17 @@ import { hrefFor, resolveNavItems } from "./nav-items";
 /**
  * Registers the Ingenic navigation as first-class Discourse sidebar sections.
  *
- * Three of them, because the navigation is three things: the forum itself at
- * the top, the developer resources below it, and what a member has earned or
- * set aside at the bottom. The groups are told apart by the cards the
- * stylesheet draws around them, not by headings: a caption over each group
- * broke the column into separate blocks. The split still matters, because it
- * keeps 高分悬赏 and Points from filing under the resources above them, which
- * is exactly where they do not belong.
+ * The column reads as three blocks: the forum at the top, the developer
+ * resources below it, and the member block at the bottom. Only the first two
+ * are sections of their own. The third is core's community section, which
+ * already holds Topics and the More drawer; the theme adds the rows that
+ * belong around them and orders the whole block in the stylesheet.
+ *
+ * The blocks are told apart by the cards the stylesheet draws around them, not
+ * by headings: a caption over each block broke the column into separate pages.
+ * The split still matters, because it keeps 高分悬赏 and Points from filing
+ * under the developer resources above them, which is exactly where they do not
+ * belong.
  *
  * Rendering a bare <nav> into a plugin outlet looks similar but is not the same
  * thing: it would sit beside Discourse's own sidebar rather than inside it, so
@@ -26,16 +30,12 @@ import { hrefFor, resolveNavItems } from "./nav-items";
  * box). Where this block sits relative to those is therefore the stylesheet's
  * decision, not a matter of registration order — see `ingenic_nav_order`.
  *
- * The links that browse the community itself are not a section: they are added
- * to core's community section through `addCommunitySectionLink`, which puts
- * them under Topics and above the More drawer, in registration order.
- *
  * A section with `hideSectionHeader` is always drawn expanded: core returns
  * true from `displaySectionContent` for it, whatever the collapse state says.
  */
 
-// The groups, in the order they are read. None is drawn with a heading; `text`
-// is what the sidebar's filter matches.
+// The groups, in the order they are read. Neither is drawn with a heading;
+// `text` is what the sidebar's filter matches.
 const GROUPS = [
   {
     name: "ingenic-forum",
@@ -51,32 +51,21 @@ const GROUPS = [
     textKey: "ingenic.nav.title",
     textSetting: "ingenic_nav_title",
   },
-  {
-    name: "ingenic-member",
-    section: "member",
-    titled: false,
-    textKey: "ingenic.nav.sections.member",
-  },
 ];
 
-// The links that browse the community itself — MCP, Site Feedback and All
-// categories — belong in the community section rather than in a section of
-// their own, because that is where core draws Topics and the More drawer. The
-// public API appends them to the section's primary links, so they render
-// directly under Topics and above More in the order registered here. Core's
-// own Categories section, which used to hold two of them behind a repeated
-// forum heading, is hidden by the stylesheet.
+// The third block: Site Feedback, Topics, Bounties, Points, All Categories,
+// More. Topics and More are core's, drawn inside its community section, and
+// the public API can only append to that section — so registration order here
+// is not the order the block reads in. The stylesheet gives each row its place
+// with `order`; this list only has to contain the four that are ours.
+//
+// Site Feedback is a category rather than a page of its own, and it is above
+// Topics because it is a place in the forum rather than a view of it. Bounties
+// and Points stay configurable through the plugin's navigation setting, which
+// is why they are looked up there before falling back to the shipped labels.
+// Core's own Categories section, which used to hold two of these behind a
+// repeated forum heading, is hidden by the stylesheet.
 const communityLinks = [
-  {
-    key: "mcp",
-    icon: "robot",
-    labelKey: "ingenic.nav.mcp",
-    href: "/ingenic/mcp",
-    // The MCP server is core's and is off by default. A link to a page about
-    // an endpoint that is not listening would explain something that cannot
-    // be used, so the row follows the setting.
-    enabled: (siteSettings) => siteSettings.mcp_server_enabled,
-  },
   {
     key: "site-feedback",
     // The same glyph the section carries on its own page, from the shared
@@ -85,6 +74,22 @@ const communityLinks = [
     labelKey: "ingenic.nav.site_feedback",
     category: "site-feedback",
     enabled: () => true,
+  },
+  {
+    key: "bounties",
+    icon: "gift",
+    labelKey: "ingenic.nav.bounties",
+    href: "/ingenic/bounties",
+    enabled: () => true,
+    configured: true,
+  },
+  {
+    key: "points",
+    icon: "star",
+    labelKey: "ingenic.nav.points",
+    href: "/ingenic/points",
+    enabled: () => true,
+    configured: true,
   },
   {
     key: "all-categories",
@@ -97,8 +102,8 @@ const communityLinks = [
 
 /**
  * Registers the community links. Separate from the sections above so the
- * initializer reads as what it is: three groups of the developer navigation,
- * plus the three links that browse the forum.
+ * initializer reads as what it is: two groups of the developer navigation,
+ * plus the four rows that complete the member block.
  */
 export function registerIngenicCommunityLinks(api) {
   for (const link of communityLinks) {
@@ -106,12 +111,28 @@ export function registerIngenicCommunityLinks(api) {
       return class extends BaseCommunitySectionLink {
         @service site;
 
+        // A row an administrator has moved, relabelled or re-iconed through
+        // the plugin's navigation setting. The setting replaces the shipped
+        // list wholesale, so a site that has configured it is read here rather
+        // than ignored; a site that has not keeps the labels above.
+        get configured() {
+          if (!link.configured) {
+            return null;
+          }
+
+          const items = this.site?.ingenic_nav_items;
+
+          return Array.isArray(items)
+            ? items.find((item) => item.key === link.key)
+            : null;
+        }
+
         get name() {
           return link.key;
         }
 
         get text() {
-          return i18n(themePrefix(link.labelKey));
+          return this.configured?.label || i18n(themePrefix(link.labelKey));
         }
 
         get title() {
@@ -119,6 +140,10 @@ export function registerIngenicCommunityLinks(api) {
         }
 
         get href() {
+          if (this.configured?.href) {
+            return getURL(this.configured.href);
+          }
+
           const target = link.category
             ? hrefFor({ category: link.category }, this.site)
             : link.href;
@@ -127,21 +152,37 @@ export function registerIngenicCommunityLinks(api) {
         }
 
         get prefixValue() {
-          return link.icon;
+          return this.configured?.icon || link.icon;
         }
 
         get shouldDisplay() {
+          // A configured list replaces the shipped one, so an entry it does
+          // not carry is gone rather than reintroduced from the defaults.
+          const items = this.site?.ingenic_nav_items;
+
+          if (
+            link.configured &&
+            Array.isArray(items) &&
+            items.length > 0 &&
+            !this.configured
+          ) {
+            return false;
+          }
+
           return link.enabled(this.siteSettings);
         }
 
         // These are plain hrefs with no route behind them, so core has no
         // route to compare against. Match the address instead, with the
-        // subtree rule the developer links use: /mcp/something is still MCP.
+        // subtree rule the developer links use: /docs/something is still a
+        // documentation row.
         get currentWhen() {
           const current = (this.router.currentURL ?? "").split("?")[0];
-          const target = link.category
-            ? hrefFor({ category: link.category }, this.site)
-            : link.href;
+          const target =
+            this.configured?.href ||
+            (link.category
+              ? hrefFor({ category: link.category }, this.site)
+              : link.href);
 
           return current === target || current.startsWith(`${target}/`);
         }
@@ -283,6 +324,7 @@ export function registerIngenicSidebarSections(api) {
         return class extends BaseCustomSidebarSection {
           @service router;
           @service site;
+          @service siteSettings;
 
           get name() {
             return group.name;
@@ -305,7 +347,11 @@ export function registerIngenicSidebarSections(api) {
           }
 
           get links() {
-            return resolveNavItems(this.site, group.section).map(
+            return resolveNavItems(
+              this.site,
+              group.section,
+              this.siteSettings,
+            ).map(
               (item) =>
                 new IngenicSectionLink({
                   item,

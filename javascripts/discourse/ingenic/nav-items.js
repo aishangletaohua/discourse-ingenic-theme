@@ -6,18 +6,20 @@ import getURL from "discourse/lib/get-url";
 // plugin's setting. Anything configured on the plugin side replaces this list
 // wholesale rather than merging with it, so order and labels have one owner.
 //
-// `section` is which of the three groups an entry belongs to:
+// `section` is which of the two Ingenic groups an entry belongs to:
 //
 //   forum      the plain list at the top — the forum itself, no heading
 //   resources  the titled group below it
-//   member     the plain list under that — what a member has earned or set
-//              aside, which is not a developer resource and does not belong
-//              under one
+//
+// Bounties and Points are not here: they are community-section links, so they
+// can sit in the member block below Topics rather than in a card of their own.
+// The third block is core's community section, and the theme orders its rows
+// together in the stylesheet.
 //
 // `href` is used as written; `category` resolves to `/c/<slug>`, which is how an
 // entry points at a forum section without the theme having to know category ids.
-// The two lists without a heading have no other separator, so an entry's section
-// is what keeps it out of the group above it.
+// The two lists share no heading, so an entry's section is what keeps it out of
+// the group above it.
 const DEFAULT_ITEMS = [
   // The forum.
   {
@@ -45,16 +47,19 @@ const DEFAULT_ITEMS = [
     category: "technical-discussions",
     section: "forum",
   },
-
-  // The developer resources.
-  { key: "docs", icon: "book", labelKey: "ingenic.nav.docs", href: "/ingenic/docs", section: "resources" },
+  // Directly below Technical Discussions, because it is the next section of the
+  // forum rather than one of the developer resources. Its own row, with its
+  // own hover panel; it is not filed inside Technical Discussions.
   {
     key: "open-source",
     icon: "code",
     labelKey: "ingenic.nav.open_source",
     category: "open-source",
-    section: "resources",
+    section: "forum",
   },
+
+  // The developer resources.
+  { key: "docs", icon: "book", labelKey: "ingenic.nav.docs", href: "/ingenic/docs", section: "resources" },
   {
     key: "downloads",
     icon: "download",
@@ -69,22 +74,24 @@ const DEFAULT_ITEMS = [
     href: "/ingenic/boards",
     section: "resources",
   },
-
-  // What the member has.
+  // Below Development Boards, because it is another way into the developer
+  // material rather than a place in the forum. The MCP server is core's and is
+  // off by default, so the row follows the setting; a link to a page about an
+  // endpoint that is not listening would explain something that cannot be used.
   {
-    key: "bounties",
-    icon: "gift",
-    labelKey: "ingenic.nav.bounties",
-    href: "/ingenic/bounties",
-    section: "member",
+    key: "mcp",
+    icon: "robot",
+    labelKey: "ingenic.nav.mcp",
+    href: "/ingenic/mcp",
+    section: "resources",
+    setting: "mcp_server_enabled",
   },
-  { key: "points", icon: "star", labelKey: "ingenic.nav.points", href: "/ingenic/points", section: "member" },
 ];
 
 // What an entry with no `section` belongs to. Unstated is the plain list at the
 // top, which is where a list that says nothing about groups reads as being.
 // The server normalises this on its side too, so a configured entry arrives
-// carrying all three names; this is what the shipped defaults fall back to.
+// carrying the name of its group; this is what the shipped defaults fall back to.
 const DEFAULT_SECTION = "forum";
 
 function isExternal(href) {
@@ -97,15 +104,15 @@ function isExternal(href) {
 // the site's category list is for.
 //
 // The list carries no `url` to take, only ids, so the address is built the way
-// `Category#url` builds it: the slug path, then the id. A sub-category's slug
-// path is its parent's slug and then its own (`/c/open-source/official/7`), and
-// that parent is in the same list.
+// `Category#url` builds it: every ancestor's slug, then the id. A section two
+// levels down is `/c/technical-discussions/t-series/t33/12`, and the whole
+// chain is in the same list.
 //
 // The server resolves a configured entry the same way; this is the shipped
 // list's turn, and it is the only place a category entry is written by hand.
 //
 // Exported because the shipped list names no sub-category, so the branch that
-// composes a parent's slug is the one part of this a page load would never
+// composes an ancestor path is the one part of this a page load would never
 // reach: it is here for an entry an administrator adds as a default, and it is
 // checked on its own rather than left to be found by whoever writes that entry.
 export function hrefFor(item, site) {
@@ -128,11 +135,22 @@ export function hrefFor(item, site) {
     return `/c/${item.category}`;
   }
 
-  const parent = categories.find(
+  const ancestors = [];
+  let parent = categories.find(
     (candidate) => candidate.id === category.parent_category_id,
   );
 
-  return `/c/${parent ? `${parent.slug}/` : ""}${category.slug}/${category.id}`;
+  while (parent) {
+    ancestors.unshift(parent.slug);
+    const next = parent;
+    parent = categories.find(
+      (candidate) => candidate.id === next.parent_category_id,
+    );
+  }
+
+  const path = [...ancestors, category.slug].join("/");
+
+  return `/c/${path}/${category.id}`;
 }
 
 /**
@@ -146,8 +164,9 @@ export function hrefFor(item, site) {
  *
  * @param {object} site the site model, carrying `ingenic_nav_items`
  * @param {string} section which group to return
+ * @param {object} siteSettings the site's settings, for rows that follow one
  */
-export function resolveNavItems(site, section) {
+export function resolveNavItems(site, section, siteSettings = null) {
   const configured = site?.ingenic_nav_items;
   const items =
     Array.isArray(configured) && configured.length > 0
@@ -158,6 +177,7 @@ export function resolveNavItems(site, section) {
           label: i18n(themePrefix(item.labelKey)),
           href: hrefFor(item, site),
           section: item.section,
+          setting: item.setting,
         }));
 
   return items
@@ -171,6 +191,11 @@ export function resolveNavItems(site, section) {
       href: item.href,
       url: getURL(item.href),
       external: item.external === true || isExternal(item.href),
+      // A configured list loses the shipped row's `setting` on the way through
+      // the server, so MCP is recognised by its key as well. Other rows have no
+      // setting to follow.
+      setting: item.setting || (item.key === "mcp" ? "mcp_server_enabled" : null),
     }))
-    .filter((item) => item.key && item.label && item.href);
+    .filter((item) => item.key && item.label && item.href)
+    .filter((item) => !item.setting || siteSettings?.[item.setting] !== false);
 }

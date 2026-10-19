@@ -1,13 +1,10 @@
-import { themePrefix } from "virtual:theme";
 import Component from "@glimmer/component";
 import { service } from "@ember/service";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
-import { i18n } from "discourse-i18n";
 import IngenicImage from "./ingenic-image";
 
 /**
- * The buttons in the header, beside the logo: the official site, GitHub, and
- * whatever else the Ingenic team adds.
+ * The two buttons beside the wordmark: the official site and GitHub.
  *
  * The list is content — it arrives in the site payload, so the first paint has
  * it and the header does not grow a row of buttons a moment after the page
@@ -15,9 +12,8 @@ import IngenicImage from "./ingenic-image";
  * both; an icon-only button keeps its name as its accessible label, so the
  * button is still announced.
  *
- * It draws nothing at all when the list is empty, which is the state a fresh
- * install starts in: a header with a gap where buttons would be is worse than
- * a header without them.
+ * It draws nothing at all when the list is empty, which is what a forum that
+ * has chosen its own header looks like.
  */
 export default class IngenicHeaderLinks extends Component {
   @service site;
@@ -26,17 +22,13 @@ export default class IngenicHeaderLinks extends Component {
     return this.site.ingenic_header_links ?? [];
   }
 
-  get label() {
-    return i18n(themePrefix("ingenic.header_links.label"));
-  }
-
   iconFor(link) {
     return link.icon || (link.show_label ? null : "link");
   }
 
   <template>
     {{#if this.links.length}}
-      <nav class="ingenic-header-links" aria-label={{this.label}}>
+      <nav class="ingenic-header-links">
         {{#each this.links as |link|}}
           <a
             class="ingenic-header-links__link"

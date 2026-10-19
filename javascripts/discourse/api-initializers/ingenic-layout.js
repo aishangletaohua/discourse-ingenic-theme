@@ -54,10 +54,9 @@ export default apiInitializer((api) => {
     before: "user-menu",
   });
 
-  // The header's own buttons go in the space between the logo and the right
-  // cluster, which is where the empty middle of the header is. The wrapper
-  // around this outlet is a plain flex child; the stylesheet gives it the room
-  // and centres what is drawn in it.
+  // The official site and GitHub sit directly after the wordmark. The outlet
+  // is the header's empty middle; the stylesheet gives it the room, and the
+  // two buttons keep their names so a reader does not have to guess a glyph.
   api.renderInOutlet("before-header-panel", IngenicHeaderLinks);
 
   api.renderInOutlet("topic-above-posts", IngenicBounty);

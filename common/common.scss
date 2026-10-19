@@ -162,6 +162,136 @@
   body:not(.has-sidebar-page) .wrap {
     max-width: 88vw;
   }
+
+  // The navigation runs to the window's left edge instead of indenting the
+  // whole page. The page beside it then sits in the room that is left, centred
+  // there, with the same width of white on either side: the seam between the
+  // navigation and the content is as wide as the margin right of it. Core's
+  // 88vw centring would otherwise leave a gutter before the navigation too.
+  body.has-sidebar-page #main-outlet-wrapper {
+    max-width: none;
+    margin-inline: 0;
+    padding-left: 0;
+    // The page's margin is measured from the window, but padding is measured
+    // inside the scrollbar. Taking it back out keeps the white to the right of
+    // the rail the same width on screen as the seam to its left.
+    padding-right: calc(6vw + 0.67rem - (100vw - 100%));
+    column-gap: calc(6vw + 0.67rem);
+  }
+
+  // The header follows the navigation to the window's edges. Its wrap is the
+  // same one the page is measured in, which held it to the page's width and
+  // left the logo indented past the navigation below it. The row is a brand on
+  // the left and an account on the right; the middle is empty now that the
+  // external links live in the footer.
+  body.has-sidebar-page .d-header .wrap {
+    max-width: none;
+    padding-inline: 0.5rem;
+  }
+
+  // The left rail is one column from the logo down through the navigation.
+  // The wordmark starts on the same line as the cards below it, the toggle
+  // moves to the rail's right edge instead of standing in front of the brand,
+  // and the first card rises to meet the header instead of starting a row
+  // under it. The header's edge is drawn only from the rail rightwards, so
+  // nothing cuts across the column where brand and navigation meet.
+  body.has-sidebar-page .d-header {
+    border-bottom: 0;
+
+    &::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: var(--d-sidebar-width);
+      height: 1px;
+      background: var(--ingenic-surface-border);
+    }
+  }
+
+  // The collapse control is the leftmost thing in the row, then the wordmark
+  // and the two external buttons. Core's document order already puts the
+  // toggle first; the order here is explicit so the run does not depend on it.
+  body.has-sidebar-page .d-header .home-logo-wrapper-outlet {
+    order: 1;
+  }
+
+  body.has-sidebar-page .d-header .before-header-panel-outlet {
+    display: flex;
+    align-items: center;
+    order: 2;
+    min-width: 0;
+  }
+
+  body.has-sidebar-page .d-header .header-sidebar-toggle {
+    order: 0;
+  }
+
+  body.has-sidebar-page .d-header .panel {
+    order: 3;
+  }
+
+  body.has-sidebar-page .d-header .after-header-panel-outlet {
+    order: 4;
+  }
+
+  body.has-sidebar-page .sidebar-sections {
+    padding-top: 0;
+  }
+}
+
+// The official site and GitHub, directly beside the wordmark. They are drawn
+// as buttons rather than bare links: each is a destination outside the forum,
+// and the edge says so before the pointer reaches it. The names stay visible;
+// the icons are there to be recognised, not to replace the words.
+.ingenic-header-links {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-inline-start: 0.6rem;
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.65rem;
+    border: 1px solid var(--ingenic-surface-border);
+    border-radius: 0.5rem;
+    background: var(--secondary);
+    color: var(--primary-high);
+    font-size: var(--font-down-1);
+    font-weight: 600;
+    white-space: nowrap;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+
+    .d-icon {
+      color: var(--primary-medium);
+    }
+
+    &:hover,
+    &:focus {
+      border-color: var(--tertiary);
+      background: var(--tertiary-very-low);
+      color: var(--ingenic-link);
+      text-decoration: none;
+
+      .d-icon {
+        color: inherit;
+      }
+    }
+  }
+
+  &__image {
+    width: 1.15rem;
+    height: 1.15rem;
+    object-fit: contain;
+  }
+}
+
+@media (max-width: 1023px) {
+  .ingenic-header-links {
+    display: none;
+  }
 }
 
 // The header gives back a little of its height and draws its own edge. Core's
@@ -181,6 +311,13 @@
 // seam between them, not a single surface.
 #main-outlet {
   --main-outlet-padding-top: var(--space-5);
+}
+
+// The front page opens directly under the header. The shared padding above the
+// page is right for a topic, which needs air under the title bar, but on the
+// front page it pushed the welcome band down a row before the page began.
+body:has(.ingenic-homepage) #main-outlet {
+  --main-outlet-padding-top: 0.125rem;
 }
 
 // Section names and topic titles across the native lists, not only the front
@@ -325,13 +462,14 @@
   }
 }
 
-// The Ingenic navigation is three sidebar sections, and core draws its own
-// sections around them: the panel header, the visitor's own sections, the
-// category list, tags, and only then anything registered through the API. So
-// "first" is done here, on the flex container, rather than by registration
-// order — the filter box above everything, the three groups below it in the
-// order they were registered (equal `order` values keep their document order,
-// which is the order the sections were added in).
+// The Ingenic navigation is two sidebar sections — the forum and the developer
+// resources — and core draws its own sections around them: the panel header,
+// the visitor's own sections, the category list, tags, and only then anything
+// registered through the API. So "first" is done here, on the flex container,
+// rather than by registration order — the filter box above everything, the two
+// groups below it in the order they were registered (equal `order` values keep
+// their document order, which is the order the sections were added in). Core's
+// community section follows them and closes the column as the third block.
 html.ingenic-nav-first .sidebar-sections {
   > .sidebar-panel-header {
     order: -2;
@@ -343,9 +481,9 @@ html.ingenic-nav-first .sidebar-sections {
 
   // Core's Categories section held General, Site Feedback and All categories.
   // The forum list above it already names the forum, and the links that matter
-  // are now added to the community section itself, directly under Topics. The
-  // section is not collapsed but removed: leaving it as an empty triangle
-  // would make the sidebar look broken.
+  // are now added to the community section itself. The section is not collapsed
+  // but removed: leaving it as an empty triangle would make the sidebar look
+  // broken.
   > .sidebar-section-wrapper[data-section-name="categories"] {
     display: none;
   }
@@ -357,6 +495,47 @@ html.ingenic-nav-first .sidebar-sections {
   > .sidebar-section-wrapper[data-section-name="tags"],
   > .sidebar-section-wrapper[data-section-name^="chat-"] {
     display: none;
+  }
+}
+
+// The third block reads Site Feedback · Topics · Bounties · Points · All
+// Categories · More. Topics and More are core's children of its community
+// section, and the public API only appends to that list, so the order is set
+// here rather than by registration: every row starts at `order: 1`, and the
+// four that are ours move to either side of the core rows. The list becomes a
+// column for `order` to apply; document order is untouched, so the More
+// trigger keeps its usual place in the tab sequence and `:last-child` stays
+// More even when the rows around it are drawn elsewhere.
+html.ingenic-nav-first
+  .sidebar-custom-sections
+  .sidebar-section-wrapper[data-section-name="community"] {
+  > .sidebar-section-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-section-link-wrapper {
+    order: 1;
+  }
+
+  [data-list-item-name="site-feedback"] {
+    order: 0;
+  }
+
+  [data-list-item-name="bounties"] {
+    order: 2;
+  }
+
+  [data-list-item-name="points"] {
+    order: 3;
+  }
+
+  [data-list-item-name="all-categories"] {
+    order: 4;
+  }
+
+  .sidebar-section-link-wrapper:has(> .sidebar-more-section-trigger) {
+    order: 5;
   }
 }
 
@@ -396,22 +575,9 @@ html.ingenic-nav-first .sidebar-sections {
   font-size: var(--font-down-1);
 }
 
-// The developer resources are a way out of the forum, and the reference page
-// marks each one with a chevron. The rows are still ordinary links; the mark
-// says where following one leads.
-[data-section-name="ingenic-resources"] .ingenic-sidebar-link::after {
-  content: "";
-  flex: 0 0 auto;
-  width: 0.4rem;
-  height: 0.4rem;
-  margin-inline-start: auto;
-  border-top: 1.5px solid var(--primary-medium);
-  border-right: 1.5px solid var(--primary-medium);
-  transform: rotate(45deg);
-}
-
-// A forum row with another level under it says so the same way: the chevron
-// points at the panel that opens beside it, not at a page.
+// Only a row that actually opens another level carries a chevron. The resource
+// rows are ordinary destinations, so they end in their label rather than in an
+// arrow that promises a submenu.
 [data-section-name="ingenic-forum"] .ingenic-sidebar-link--children::after {
   content: "";
   flex: 0 0 auto;
@@ -620,9 +786,21 @@ html.ingenic-nav-first .sidebar-sections {
   white-space: nowrap;
 }
 
+// A series does not list its chips in the same panel: a series can hold a
+// long catalogue, and drawing it inline would push the rows below it out of
+// sight. The chevron says the row opens a panel of its own beside this one.
 .ingenic-sidebar-flyout__chevron {
   display: inline-flex;
 
+  .d-icon {
+    color: var(--primary-low-mid);
+    transition: color 0.15s ease;
+  }
+}
+
+.ingenic-sidebar-flyout__row--children:hover .ingenic-sidebar-flyout__chevron,
+.ingenic-sidebar-flyout__row--children:focus-visible
+  .ingenic-sidebar-flyout__chevron {
   .d-icon {
     color: var(--primary-medium);
   }
@@ -697,60 +875,6 @@ html.ingenic-nav-first .sidebar-sections {
   color: #2f855a;
 }
 
-// The header buttons live in the outlet between the logo and the right-hand
-// cluster. That outlet is a plain flex child; it starts its contents at the
-// logo so the row reads as part of the brand rather than as a floating group.
-// Narrow screens hide the row rather than squeezing the logo and the user
-// menu: the same destinations are in the sidebar.
-.before-header-panel-outlet:has(.ingenic-header-links) {
-  display: flex;
-  flex: 1 1 auto;
-  // Beside the logo, not floating in the middle of the header. The outlet is
-  // the whole space between the logo and the icon row, so centring it put the
-  // buttons wherever that space happened to end rather than where a reader
-  // looks for them.
-  justify-content: flex-start;
-  min-width: 0;
-}
-
-.ingenic-header-links {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  margin: 0 0.75rem;
-
-  &__link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.3rem 0.6rem;
-    border-radius: 999px;
-    color: var(--primary-high);
-    font-size: var(--font-down-1);
-    white-space: nowrap;
-    transition: background 0.15s ease, color 0.15s ease;
-
-    &:hover,
-    &:focus {
-      background: var(--tertiary-very-low);
-      color: var(--ingenic-link);
-      text-decoration: none;
-    }
-  }
-
-  &__image {
-    width: 1.15rem;
-    height: 1.15rem;
-    object-fit: contain;
-  }
-}
-
-@media (max-width: 1000px) {
-  .ingenic-header-links {
-    display: none;
-  }
-}
-
 // The header's icon row is the language switcher and the account menu. Core
 // also draws a search trigger there; the site already has a search field on
 // the front page and in the sidebar, and the extra icon crowded the two that
@@ -798,7 +922,7 @@ body:has(.ingenic-homepage) {
   // it is a heading rather than a banner: meta's front page does not make a
   // reader scroll past its own introduction to reach the forum.
   &__hero {
-    margin-bottom: 1.4rem;
+    margin-bottom: 1rem;
     padding: clamp(1rem, 2.2vw, 1.6rem) clamp(1rem, 2vw, 1.75rem)
       clamp(1rem, 1.8vw, 1.35rem);
     border-radius: var(--ingenic-radius);
@@ -830,8 +954,8 @@ body:has(.ingenic-homepage) {
     // Centred under the greeting, and narrower than the column: the search is
     // the page's first action, not a form that fills it.
     max-width: 36rem;
-    margin: 1rem auto 0;
-    padding: 0.25rem 0.3rem 0;
+    margin: 0.9rem auto 0;
+    padding: 0.2rem 0.3rem 0;
     border: 1px solid var(--ingenic-surface-border);
     border-radius: 0.85rem;
     background: var(--secondary);
@@ -849,7 +973,7 @@ body:has(.ingenic-homepage) {
     align-items: center;
     gap: 0.5rem;
     margin: 0;
-    padding: 0.1rem 0.1rem 0.45rem 0.7rem;
+    padding: 0.08rem 0.1rem 0.35rem 0.7rem;
 
     &-icon {
       display: inline-flex;
@@ -870,8 +994,8 @@ body:has(.ingenic-homepage) {
     &-input[type="search"] {
       flex: 1;
       min-width: 0;
-      height: 2.5rem;
-      min-height: 2.5rem;
+      height: 2.35rem;
+      min-height: 2.35rem;
       margin: 0;
       padding: 0.25rem;
       // The band is centred; what is typed into the field is still read from
@@ -897,7 +1021,7 @@ body:has(.ingenic-homepage) {
       flex: 0 0 auto;
       align-items: center;
       justify-content: center;
-      min-height: 2.5rem;
+      min-height: 2.35rem;
       margin: 0;
       border-radius: 0.55rem;
       padding-block: 0;
@@ -914,7 +1038,7 @@ body:has(.ingenic-homepage) {
     justify-content: center;
     gap: 0.35rem 1.2rem;
     margin: 0;
-    padding: 0.6rem 0.8rem 0.7rem;
+    padding: 0.5rem 0.8rem 0.55rem;
     border-top: 1px solid var(--ingenic-divider);
   }
 
@@ -1200,31 +1324,19 @@ body:has(.ingenic-homepage) {
   }
 }
 
-// The forum's sections on the front page. The reference page puts the heading
-// on the page and the three entrances under it as their own cards, so the
-// block is a heading row and a grid rather than another framed module: the
-// cards themselves are the modules here.
+// The forum's sections on the front page: the three entrances directly under
+// the search, with the way to the full list under them. A heading between the
+// search and the cards only pushed them down; the cards say what they are.
 .ingenic-sections-block {
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 0.8rem;
-
-    h2 {
-      display: flex;
-      align-items: center;
-      gap: 0.55rem;
-      margin: 0;
-      font-size: var(--font-up-1);
-    }
-  }
-
+  // Centred under the cards, and far enough below them to separate the grid
+  // from the feed that follows.
   &__all {
-    display: inline-flex;
+    display: flex;
+    justify-content: center;
     align-items: center;
     gap: 0.3rem;
+    width: fit-content;
+    margin: 0.6rem auto 0.15rem;
     color: var(--ingenic-link);
     font-size: var(--font-down-1);
     font-weight: 600;
@@ -1248,7 +1360,10 @@ body:has(.ingenic-homepage) {
   // description that used to make them tall is gone, because a front-page
   // card is a way in, not an introduction to the section.
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.85rem;
+  // The cards are a row of three, not a wall: the inset and the wider gap let
+  // the page's own surface show between them.
+  margin-inline: 1rem;
+  gap: 1.5rem;
 
   &__card {
     --ingenic-category: var(--tertiary);
@@ -1256,8 +1371,13 @@ body:has(.ingenic-homepage) {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.7rem 0.85rem;
+    gap: 0.7rem;
+    // Short and wide would read as a toolbar; the card is a doorway, so it
+    // gets the height of one at both edges rather than only the width. The
+    // box is border-box because the page's own reset does not set one here.
+    box-sizing: border-box;
+    min-height: 5rem;
+    padding: 1.15rem 1rem;
     border: 1px solid var(--ingenic-panel-border);
     border-radius: 0.7rem;
     background: var(--secondary);
@@ -2670,248 +2790,436 @@ body:has(.ingenic-homepage) {
   }
 }
 
+// The documentation reader ---------------------------------------------------
+//
+// Three columns under one toolbar: the contents, the page, and — once a page
+// is open — the headings inside it. The toolbar is the whole of the choosing:
+// which chip, which version, and a search across the pages of both.
+//
+// Colour here is carried by the chip marks, the version badge and the status
+// pills; everything else is a surface, a hairline and type. A reader who has
+// the page open has already chosen, and the page should not keep competing
+// with its own navigation.
+
 .ingenic-docs {
   min-height: 70vh;
-  margin: -1rem -1rem 2rem;
+  // Wide enough for three columns at a desktop width, and no wider: past
+  // this the page is a band of text between two margins of empty sky, and
+  // the eye has further to travel than the line does.
+  max-width: 1500px;
+  margin: -1rem auto 2rem;
   border: 1px solid var(--ingenic-panel-border);
+  border-radius: 12px;
   background: var(--secondary);
+  box-shadow: 0 10px 34px rgb(18 38 58 / 6%);
 
+  &__notice {
+    margin: 1.5rem;
+    color: var(--primary-medium);
+  }
+
+  // --- Toolbar --------------------------------------------------------------
+
+  &__toolbar {
+    position: relative;
+    z-index: 40;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem 0.75rem;
+    padding: 0.85rem 1.15rem;
+    border-bottom: 1px solid var(--ingenic-panel-border);
+    background: color-mix(in srgb, var(--ingenic-sky-50) 55%, var(--secondary));
+    border-radius: 12px 12px 0 0;
+  }
+
+  // "Documentation / T Series". The first word is the way home; the second is
+  // the series the chosen chip belongs to, so the two things that change when
+  // a chip changes are both stated here.
+  &__crumbs {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    min-width: 0;
+    color: #5c7389;
+    font-size: var(--font-down-1);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+
+    a {
+      color: #5c7389;
+      font-weight: 700;
+
+      &:hover {
+        color: var(--ingenic-link);
+        text-decoration: none;
+      }
+    }
+  }
+
+  &__crumb-sep {
+    color: var(--ingenic-surface-border);
+    font-weight: 400;
+  }
+
+  &__crumb-current {
+    overflow: hidden;
+    color: var(--ingenic-navy);
+    font-weight: 800;
+    text-overflow: ellipsis;
+  }
+
+  &__version {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+
+    select {
+      appearance: none;
+      min-width: 9.5rem;
+      padding: 0.42rem 2rem 0.42rem 0.7rem;
+      border: 1px solid var(--ingenic-panel-border);
+      border-radius: 7px;
+      background: var(--secondary);
+      color: var(--primary);
+      font-size: var(--font-down-1);
+      font-weight: 700;
+      cursor: pointer;
+
+      &:hover {
+        border-color: var(--tertiary);
+      }
+    }
+  }
+
+  &__version-caret {
+    position: absolute;
+    right: 0.65rem;
+    color: var(--primary-medium);
+    font-size: 0.7rem;
+    pointer-events: none;
+  }
+
+  // Shown on narrow screens only; the contents fold away and this brings them
+  // back.
+  &__toc-toggle {
+    display: none;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.42rem 0.65rem;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: 7px;
+    background: var(--secondary);
+    color: var(--primary);
+    font-size: var(--font-down-1);
+    font-weight: 700;
+    cursor: pointer;
+
+    .d-icon {
+      color: var(--ingenic-link);
+    }
+  }
+
+  // --- The three columns ----------------------------------------------------
+
+  // The panes fill the window rather than the article: the contents and the
+  // page scroll inside their own columns, and the previous/next bar sits at the
+  // foot of the page column, in view whatever the length of the article. The
+  // subtraction is the site header, this toolbar and the panel's own margins.
   &__panes {
     display: grid;
-    grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr);
-    min-height: 70vh;
+    grid-template-columns: 15.5rem minmax(0, 1fr);
+    height: calc(100dvh - 10.25rem);
+    min-height: 26rem;
+
+    &--rail {
+      grid-template-columns: 15.5rem minmax(0, 1fr) 13rem;
+    }
   }
 
-  // The control strip. `position: relative` is what lets the chip flyout sit
-  // outside the column and over the content, the way the reference layout
-  // behaves — so nothing in this subtree may clip overflow.
-  &__controls {
-    position: relative;
-    padding: 1rem;
-    border-right: 1px solid var(--ingenic-surface-border);
-    background: var(--ingenic-surface-tint);
+  &__main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    padding: clamp(1.5rem, 3vw, 2.6rem) clamp(1.25rem, 3vw, 2.75rem) 0;
+    overflow: hidden;
   }
 
-  &__field {
+  &__emptycard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 4rem 1.5rem;
+    border: 1px dashed var(--ingenic-panel-border);
+    border-radius: 12px;
+    color: var(--primary-medium);
+    text-align: center;
+
+    h2 {
+      margin: 0;
+      color: var(--primary);
+      font-size: var(--font-up-1);
+      font-weight: 800;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &__emptyicon {
+    display: grid;
+    width: 3rem;
+    height: 3rem;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--ingenic-sky-100);
+    color: var(--ingenic-link);
+    font-size: 1.25rem;
+  }
+
+  // --- Right rail -----------------------------------------------------------
+
+  &__rail {
+    align-self: stretch;
+    height: 100%;
+    padding: 1.6rem 1rem 2rem 1.1rem;
+    overflow-y: auto;
+    border-left: 1px solid var(--ingenic-divider);
+  }
+
+  &__rail-title {
+    margin: 0 0 0.6rem 0.7rem;
+    color: #5c7389;
+    font-size: var(--font-down-2);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__rail-link {
     display: block;
-    margin-top: 1rem;
+    padding: 0.32rem 0.5rem 0.32rem 0.7rem;
+    border-left: 2px solid transparent;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    line-height: 1.4;
 
-    span {
-      display: block;
-      margin-bottom: 0.4rem;
-      color: var(--primary-medium);
-      font-size: var(--font-down-1);
+    &--1 {
+      padding-left: 1.35rem;
+      font-size: var(--font-down-2);
+    }
+
+    &:hover {
+      color: var(--ingenic-link);
+      text-decoration: none;
+    }
+
+    &.is-active {
+      border-left-color: var(--tertiary);
+      color: var(--ingenic-navy);
       font-weight: 700;
     }
   }
 
-  &__select {
-    width: 100%;
-  }
-
-  &__search {
-    margin-top: 0.75rem;
-    width: 100%;
-  }
-
-  &__nav {
-    margin-top: 1rem;
-  }
-
-  &__tree-toggle {
-    display: block;
-    width: 100%;
-    padding: 0.4rem 0.55rem;
-    border: 0;
-    border-radius: 4px;
-    background: transparent;
-    color: var(--primary-medium);
-    font-size: var(--font-down-1);
-    font-weight: 700;
-    text-align: left;
-    cursor: pointer;
-
-    &:hover {
-      background: var(--ingenic-sky-100);
-      color: var(--primary);
-    }
-  }
-
-  &__search-summary {
+  &__help {
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin: 0.5rem 0;
-    color: var(--primary-medium);
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: 1.6rem;
+    padding: 0.9rem;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: 10px;
+    background: var(--ingenic-sky-50);
     font-size: var(--font-down-2);
-  }
+    line-height: 1.5;
 
-  &__link {
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--ingenic-link);
-    font-size: inherit;
-    cursor: pointer;
-  }
+    b {
+      color: var(--primary);
+      font-size: var(--font-down-1);
+    }
 
-  &__notice {
-    margin: 1rem;
-    color: var(--primary-medium);
-  }
+    span {
+      color: var(--primary-medium);
+    }
 
-  &__notice--inline {
-    margin: 0.75rem 0 0;
-    padding-left: 0.6rem;
-    border-left: 3px solid var(--tertiary);
-    font-size: var(--font-down-2);
-  }
-
-  &__body {
-    min-width: 0;
-    padding: clamp(1.5rem, 4vw, 4rem);
-
-    table {
-      display: block;
-      max-width: 100%;
-      overflow-x: auto;
+    a {
+      margin-top: 0.25rem;
+      font-weight: 700;
     }
   }
 
-  &__title {
-    margin-top: 0;
-    font-size: var(--font-up-3);
+  &__help-icon {
+    display: grid;
+    width: 1.9rem;
+    height: 1.9rem;
+    place-items: center;
+    border-radius: 7px;
+    background: var(--secondary);
+    color: var(--ingenic-link);
   }
 
-  &__content {
-    line-height: 1.75;
+  // --- Image lightbox -------------------------------------------------------
+
+  &__lightbox {
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    display: grid;
+    padding: 3rem;
+    place-items: center;
+    background: rgb(9 20 32 / 82%);
+    cursor: zoom-out;
 
     img {
-      max-width: 100%;
+      max-width: min(96vw, 90rem);
+      max-height: 86vh;
+      border-radius: 8px;
+      box-shadow: 0 24px 80px rgb(0 0 0 / 45%);
     }
   }
 
-  &__footer {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-top: 3rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--ingenic-divider);
-  }
-
-  &__step {
-    color: var(--ingenic-link);
-  }
-
-  &__step--next {
-    margin-left: auto;
-    text-align: right;
-  }
-
-  &__step-label {
-    display: block;
-    color: var(--primary-medium);
-    font-size: var(--font-down-2);
-  }
-
-  &__discuss {
-    margin-top: 2rem;
-    font-size: var(--font-down-1);
+  &__lightbox-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    display: grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    place-items: center;
+    border: 1px solid rgb(255 255 255 / 30%);
+    border-radius: 50%;
+    background: rgb(255 255 255 / 10%);
+    color: #fff;
+    cursor: pointer;
   }
 }
 
-// Two-level product picker. The trigger sits in the control column; the panel
-// drops below it, and hovering a series pops its chips out to the right.
-.ingenic-picker {
+// --- The chip picker --------------------------------------------------------
+//
+// Two columns: the series on the left, the chips of the pointed-at series on
+// the right. Hovering a series changes the right column; clicking a chip is
+// the only thing that leaves the panel, and it leaves with a new page.
+
+.ingenic-docpicker {
   position: relative;
 
+  &__scrim {
+    position: fixed;
+    z-index: 90;
+    inset: 0;
+  }
+
   &__trigger {
-    display: flex;
+    position: relative;
+    z-index: 100;
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    width: 100%;
-    padding: 0.55rem 0.7rem;
+    gap: 0.45rem;
+    max-width: 15rem;
+    padding: 0.42rem 0.7rem;
     border: 1px solid var(--ingenic-panel-border);
-    border-radius: 6px;
+    border-radius: 7px;
     background: var(--secondary);
     color: var(--primary);
     font-size: var(--font-down-1);
-    font-weight: 600;
-    text-align: left;
+    font-weight: 700;
     cursor: pointer;
 
-    &:hover {
+    &:hover,
+    .is-open & {
       border-color: var(--tertiary);
     }
   }
 
-  &__caret {
-    color: var(--primary-medium);
+  &__glyph {
+    display: grid;
+    place-items: center;
+    color: var(--ingenic-link);
   }
 
-  // The trigger is a flex row with the caret after the value, so a chip name
-  // longer than the column has to be allowed to shorten or it takes the caret
-  // off the edge of the control.
   &__value {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
+  &__caret {
+    color: var(--primary-medium);
+    font-size: 0.7rem;
+  }
+
   &__panel {
     position: absolute;
-    z-index: 200;
-    top: calc(100% + 0.25rem);
+    z-index: 100;
+    top: calc(100% + 0.4rem);
     left: 0;
-    min-width: 100%;
-    padding: 0.4rem;
+    display: grid;
+    grid-template-columns: 12rem 14rem;
+    overflow: hidden;
     border: 1px solid var(--ingenic-panel-border);
-    border-radius: 6px;
+    border-radius: 10px;
     background: var(--secondary);
-    box-shadow: var(--shadow-card);
+    box-shadow: 0 18px 44px rgb(15 34 54 / 18%);
+  }
+
+  &__column {
+    padding: 0.55rem;
+
+    &--chips {
+      border-left: 1px solid var(--ingenic-divider);
+      background: color-mix(in srgb, var(--ingenic-sky-50) 60%, var(--secondary));
+    }
   }
 
   &__heading {
-    margin: 0.2rem 0.4rem 0.4rem;
-    color: var(--primary-medium);
+    margin: 0.15rem 0.5rem 0.45rem;
+    color: #5c7389;
     font-size: var(--font-down-2);
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: 0.07em;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+
+    span {
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
+    }
   }
 
-  &__series {
+  &__series,
+  &__chips {
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-
-  &__series-item {
-    position: relative;
   }
 
   &__series-button {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 0.75rem;
     width: 100%;
-    padding: 0.45rem 0.55rem;
+    padding: 0.5rem 0.55rem;
     border: 0;
-    border-radius: 4px;
+    border-radius: 6px;
     background: transparent;
     color: var(--primary);
     font-size: var(--font-down-1);
+    font-weight: 600;
     text-align: left;
     white-space: nowrap;
     cursor: pointer;
 
     &:hover,
+    &.is-open {
+      background: var(--ingenic-sky-100);
+    }
+
     &.is-current {
-      background: var(--tertiary-very-low);
       color: var(--ingenic-link);
     }
   }
@@ -2920,39 +3228,367 @@ body:has(.ingenic-homepage) {
     color: var(--primary-medium);
   }
 
-  // Popped out to the right of the panel, overlapping the content column.
-  &__chips {
-    position: absolute;
-    z-index: 201;
-    top: 0;
-    left: 100%;
-    min-width: 10rem;
-    margin: 0 0 0 0.15rem;
-    padding: 0.4rem;
-    list-style: none;
-    border: 1px solid var(--ingenic-panel-border);
-    border-radius: 6px;
-    background: var(--secondary);
-    box-shadow: var(--shadow-card);
-  }
-
   &__chip {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
     width: 100%;
-    padding: 0.4rem 0.55rem;
+    padding: 0.5rem 0.55rem;
     border: 0;
-    border-radius: 4px;
+    border-radius: 6px;
     background: transparent;
     color: var(--primary);
     font-size: var(--font-down-1);
+    font-weight: 600;
     text-align: left;
     white-space: nowrap;
     cursor: pointer;
 
-    &:hover,
+    &:hover {
+      background: var(--ingenic-sky-100);
+    }
+
     &.is-current {
-      background: var(--tertiary-very-low);
+      background: var(--ingenic-sky-100);
       color: var(--ingenic-link);
+      font-weight: 800;
+    }
+  }
+
+  &__check {
+    color: var(--ingenic-link);
+  }
+
+  &__empty {
+    padding: 0.5rem 0.55rem;
+    color: var(--primary-medium);
+    font-size: var(--font-down-2);
+  }
+}
+
+// --- Search ---------------------------------------------------------------
+
+.ingenic-docsearch {
+  position: relative;
+  flex: 1 1 15rem;
+  min-width: 0;
+  max-width: 26rem;
+  margin-left: auto;
+
+  &__form {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0 0.55rem;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: 7px;
+    background: var(--secondary);
+
+    &:focus-within {
+      border-color: var(--tertiary);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--tertiary) 20%, transparent);
+    }
+  }
+
+  &__icon {
+    display: grid;
+    place-items: center;
+    color: var(--primary-medium);
+  }
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 0.45rem 0;
+    border: 0;
+    background: transparent;
+    color: var(--primary);
+    font-size: var(--font-down-1);
+    box-shadow: none;
+
+    &:focus {
+      outline: none;
+      box-shadow: none;
+    }
+  }
+
+  &__clear {
+    display: grid;
+    place-items: center;
+    padding: 0.2rem;
+    border: 0;
+    background: transparent;
+    color: var(--primary-medium);
+    cursor: pointer;
+  }
+
+  &__kbd {
+    padding: 0.08rem 0.32rem;
+    border: 1px solid var(--ingenic-divider);
+    border-radius: 4px;
+    background: var(--ingenic-sky-50);
+    color: var(--primary-medium);
+    font-family: inherit;
+    font-size: var(--font-down-2);
+  }
+
+  &__panel {
+    position: absolute;
+    z-index: 100;
+    top: calc(100% + 0.4rem);
+    right: 0;
+    left: 0;
+    max-height: min(60vh, 26rem);
+    padding: 0.45rem;
+    overflow-y: auto;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: 10px;
+    background: var(--secondary);
+    box-shadow: 0 18px 44px rgb(15 34 54 / 18%);
+  }
+
+  &__state,
+  &__empty {
+    margin: 0;
+    padding: 0.9rem 0.6rem;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    text-align: center;
+  }
+
+  &__summary {
+    margin: 0.15rem 0.55rem 0.4rem;
+    color: var(--primary-medium);
+    font-size: var(--font-down-2);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  &__results {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__result {
+    display: block;
+    padding: 0.55rem 0.6rem;
+    border-radius: 6px;
+    color: var(--primary);
+
+    &:hover,
+    &:focus {
+      background: var(--ingenic-sky-50);
+      text-decoration: none;
+    }
+  }
+
+  &__title {
+    display: block;
+    font-size: var(--font-down-1);
+    font-weight: 700;
+  }
+
+  &__excerpt {
+    display: block;
+    margin-top: 0.15rem;
+    overflow: hidden;
+    color: var(--primary-medium);
+    font-size: var(--font-down-2);
+    line-height: 1.45;
+    text-overflow: ellipsis;
+
+    // Two lines of context, then the reader can open the page.
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  mark {
+    padding: 0 0.1em;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--tertiary) 32%, transparent);
+    color: inherit;
+  }
+}
+
+// --- Contents --------------------------------------------------------------
+
+.ingenic-doctoc {
+  align-self: stretch;
+  height: 100%;
+  padding: 1.15rem 0.85rem 2rem;
+  overflow-y: auto;
+  border-right: 1px solid var(--ingenic-divider);
+  background: color-mix(in srgb, var(--ingenic-sky-50) 42%, var(--secondary));
+
+  &__home {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 1.1rem;
+    padding: 0.45rem 0.55rem;
+    border-radius: 6px;
+    color: var(--primary);
+    font-size: var(--font-down-1);
+    font-weight: 800;
+
+    .d-icon {
+      color: var(--ingenic-link);
+    }
+
+    &:hover {
+      background: var(--ingenic-sky-100);
+      text-decoration: none;
+    }
+  }
+
+  &__title {
+    margin: 0 0 0.5rem 0.55rem;
+    color: #5c7389;
+    font-size: var(--font-down-2);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__group + &__group {
+    margin-top: 0.3rem;
+  }
+
+  &__group-head {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    border-radius: 6px;
+
+    &:hover {
+      background: var(--ingenic-sky-100);
+    }
+  }
+
+  &__group-title {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+    padding: 0.45rem 0.5rem;
+    border-radius: 6px;
+    color: var(--primary);
+    font-size: var(--font-down-1);
+    font-weight: 700;
+    line-height: 1.35;
+
+    .d-icon {
+      flex: none;
+      color: var(--ingenic-link);
+      font-size: var(--font-down-2);
+    }
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &:hover {
+      color: var(--ingenic-link);
+      text-decoration: none;
+    }
+
+    &.is-current {
+      color: var(--ingenic-link);
+    }
+
+    // A folder heads a section but has no article of its own; the plugin
+    // refuses to serve one, so this row is a label rather than a link.
+    &--folder {
+      cursor: default;
+
+      &:hover {
+        color: var(--primary);
+      }
+    }
+  }
+
+  &__group-toggle {
+    display: grid;
+    flex: none;
+    width: 1.7rem;
+    height: 1.7rem;
+    place-items: center;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--primary-medium);
+    cursor: pointer;
+  }
+
+  &__chev {
+    display: inline-block;
+    font-size: 0.65rem;
+    transition: transform 0.15s ease;
+
+    &:not(.is-open) {
+      transform: rotate(-90deg);
+    }
+  }
+
+  &__items {
+    margin: 0.1rem 0 0.4rem;
+    padding: 0 0 0 0.55rem;
+    list-style: none;
+    border-left: 1px solid var(--ingenic-divider);
+  }
+
+  &__link {
+    display: block;
+    padding: 0.35rem 0.55rem;
+    border-radius: 5px;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    line-height: 1.4;
+
+    &--indent-1 { padding-left: 1rem; }
+    &--indent-2 { padding-left: 1.6rem; }
+    &--indent-3 { padding-left: 2.2rem; }
+
+    &:hover {
+      background: var(--ingenic-sky-100);
+      color: var(--ingenic-link);
+      text-decoration: none;
+    }
+
+    &.is-active {
+      background: var(--ingenic-sky-100);
+      color: var(--ingenic-link);
+      font-weight: 700;
+    }
+
+    // A nested folder is a heading inside its group, like the group title
+    // above, and is drawn here so its articles keep their indentation.
+    &--folder {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--primary);
+      font-weight: 700;
+      cursor: default;
+
+      .d-icon {
+        flex: none;
+        color: var(--ingenic-link);
+        font-size: var(--font-down-2);
+      }
+
+      &:hover {
+        background: transparent;
+        color: var(--primary);
+      }
     }
   }
 
@@ -2963,50 +3599,702 @@ body:has(.ingenic-homepage) {
   }
 }
 
-.ingenic-nav {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+// --- The page --------------------------------------------------------------
+//
+// The body is cooked Markdown the plugin hands over as HTML. Everything below
+// styles elements the reader's document already has; the classes appended by
+// the component (`__figure`, `__codeshell`, `__tablewrap`) are wrappers it
+// adds around those elements so a wide table can scroll and a code block can
+// carry a copy button.
 
-  &__link {
-    display: block;
-    padding: 0.42rem 0.55rem;
-    border-radius: 4px;
+.ingenic-doc {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: 100%;
+  max-width: 62rem;
+  min-height: 0;
+
+  // The article scrolls; the pager below it does not.
+  &__scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding-right: 0.35rem;
+    padding-bottom: 0.5rem;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
+
+  &__hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.9rem;
+    padding: 0.95rem 1.1rem;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: 12px;
+    background:
+      linear-gradient(
+        118deg,
+        color-mix(in srgb, var(--tertiary) 14%, var(--secondary)) 0%,
+        var(--ingenic-sky-50) 48%,
+        var(--secondary) 100%
+      );
+    box-shadow: 0 8px 24px rgb(18 38 58 / 5%);
+  }
+
+  &__hero-top {
+    display: flex;
+    flex: 1 1 20rem;
+    align-items: center;
+    gap: 0.85rem;
+    min-width: 0;
+  }
+
+  // The chip mark: four letters in a dark tile, the way a datasheet puts the
+  // part number first.
+  &__chipmark {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.05rem;
+    width: 3.4rem;
+    padding: 0.5rem 0.3rem;
+    border-radius: 8px;
+    background: linear-gradient(150deg, #1b4770, #0f2c49);
+    box-shadow: 0 6px 14px rgb(15 44 73 / 24%);
+    color: #fff;
+    line-height: 1.1;
+
+    b {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    span {
+      color: rgb(255 255 255 / 62%);
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+  }
+
+  &__hero-text {
+    min-width: 0;
+
+    h1 {
+      margin: 0;
+      color: var(--primary);
+      font-size: clamp(1.2rem, 1.7vw, 1.5rem);
+      font-weight: 800;
+      line-height: 1.2;
+    }
+  }
+
+  &__subtitle {
+    margin: 0.15rem 0 0;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    font-weight: 600;
+  }
+
+  &__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.45rem;
+  }
+
+  &__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.12rem 0.5rem;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: 999px;
+    background: var(--secondary);
+    color: var(--primary-medium);
+    font-size: var(--font-down-2);
+    font-weight: 700;
+
+    &--green {
+      border-color: color-mix(in srgb, #1f9d61 35%, var(--secondary));
+      background: color-mix(in srgb, #1f9d61 9%, var(--secondary));
+      color: #157a49;
+    }
+
+    &--blue {
+      border-color: color-mix(in srgb, var(--tertiary) 45%, var(--secondary));
+      background: var(--ingenic-sky-100);
+      color: var(--ingenic-link);
+    }
+  }
+
+  &__dot {
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: #1f9d61;
+  }
+
+  &__hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.42rem 0.75rem;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: 7px;
+    background: var(--secondary);
     color: var(--primary);
     font-size: var(--font-down-1);
+    font-weight: 700;
 
-    &:hover,
-    &.is-active {
-      background: var(--tertiary-very-low);
-      color: var(--ingenic-link);
+    &:hover {
+      border-color: var(--tertiary);
       text-decoration: none;
     }
 
-    // One step per level of the contents. The reader saturates the level at the
-    // deepest step here, so a page nested further than this keeps the last
-    // indentation instead of falling back to none.
-    &--indent-1 { padding-left: 1.2rem; }
-    &--indent-2 { padding-left: 1.85rem; }
-    &--indent-3 { padding-left: 2.5rem; }
-    &--indent-4 { padding-left: 3.15rem; }
-    &--indent-5 { padding-left: 3.8rem; }
-    &--indent-6 { padding-left: 4.45rem; }
-    &--indent-7 { padding-left: 5.1rem; }
-    &--indent-8 { padding-left: 5.75rem; }
+    &--primary {
+      border-color: transparent;
+      background: var(--ingenic-navy);
+      color: #fff;
+
+      .d-icon {
+        color: #fff;
+      }
+
+      &:hover {
+        background: color-mix(in srgb, var(--ingenic-navy) 88%, #000);
+        color: #fff;
+      }
+    }
   }
 
-  &__excerpt {
+  // --- Body type ------------------------------------------------------------
+
+  &__content {
+    margin-top: 1.25rem;
+    color: var(--primary);
+    font-size: 1rem;
+    line-height: 1.78;
+
+    > :first-child {
+      margin-top: 0;
+    }
+
+    h2,
+    h3,
+    h4 {
+      position: relative;
+      color: var(--primary);
+      line-height: 1.3;
+      scroll-margin-top: 1.5rem;
+    }
+
+    h2 {
+      margin: 2.6rem 0 0.9rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid var(--ingenic-divider);
+      font-size: var(--font-up-2);
+      font-weight: 800;
+    }
+
+    > h2:first-child {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    h3 {
+      margin: 1.9rem 0 0.7rem;
+      font-size: var(--font-up-1);
+      font-weight: 800;
+    }
+
+    h4 {
+      margin: 1.5rem 0 0.5rem;
+      font-size: var(--font-up-0);
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0 0 1rem;
+    }
+
+    a {
+      font-weight: 600;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 1.15rem;
+      padding-left: 1.5rem;
+    }
+
+    li {
+      margin-bottom: 0.35rem;
+    }
+
+    li::marker {
+      color: var(--ingenic-link);
+    }
+
+    strong {
+      font-weight: 700;
+    }
+
+    hr {
+      margin: 2rem 0;
+      border: 0;
+      border-top: 1px solid var(--ingenic-divider);
+    }
+
+    // A paragraph that is only an image becomes a framed figure with the alt
+    // text as its caption and a zoom affordance in the corner.
+    p:has(> img:only-child) {
+      margin: 1.5rem 0;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+
+  // The anchor added beside a heading. It is out of the way until the heading
+  // is pointed at, which is the only time a reader wants the address.
+  &__anchor {
+    margin-left: 0.45rem;
+    color: var(--ingenic-surface-border);
+    font-weight: 600;
+    text-decoration: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+
+    &:hover,
+    &:focus {
+      color: var(--ingenic-link);
+      text-decoration: none;
+      opacity: 1;
+    }
+  }
+
+  &__content h2:hover .ingenic-doc__anchor,
+  &__content h3:hover .ingenic-doc__anchor,
+  &__content h2:focus-within .ingenic-doc__anchor,
+  &__content h3:focus-within .ingenic-doc__anchor {
+    opacity: 1;
+  }
+
+  &__figure {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: 10px;
+    background: var(--ingenic-sky-50);
+
+    figcaption {
+      color: var(--primary-medium);
+      font-size: var(--font-down-2);
+      font-weight: 600;
+      text-align: center;
+    }
+
+    &:hover .ingenic-doc__zoom,
+    &:focus-within .ingenic-doc__zoom {
+      opacity: 1;
+    }
+  }
+
+  &__image {
+    border-radius: 6px;
+    cursor: zoom-in;
+  }
+
+  &__zoom {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.55rem;
+    display: grid;
+    width: 1.8rem;
+    height: 1.8rem;
+    place-items: center;
+    border-radius: 6px;
+    background: rgb(15 34 54 / 68%);
+    color: #fff;
+    font-size: 0.8rem;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+  }
+
+  // --- Code ----------------------------------------------------------------
+
+  &__codeshell {
+    margin: 1.4rem 0;
+    overflow: hidden;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: 9px;
+    background: #f7fafc;
+  }
+
+  &__codehead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.4rem 0.75rem;
+    border-bottom: 1px solid var(--ingenic-divider);
+    background: var(--ingenic-sky-50);
+  }
+
+  &__codelang {
+    color: #5c7389;
+    font-size: var(--font-down-2);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__copy {
+    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: 5px;
+    background: var(--secondary);
+    color: var(--primary-medium);
+    font-size: var(--font-down-2);
+    font-weight: 700;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--tertiary);
+      color: var(--ingenic-link);
+    }
+  }
+
+  &__codeshell pre {
+    margin: 0;
+    padding: 0.95rem 1.05rem;
+    overflow-x: auto;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: var(--font-down-1);
+    line-height: 1.6;
+  }
+
+  &__content code {
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    background: var(--ingenic-sky-100);
+    color: #144d66;
+    font-size: 0.9em;
+  }
+
+  &__codeshell code {
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font-size: inherit;
+  }
+
+  // --- Tables --------------------------------------------------------------
+
+  &__tablewrap {
+    margin: 1.4rem 0;
+    overflow-x: auto;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: 9px;
+  }
+
+  &__content table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    font-size: var(--font-down-1);
+  }
+
+  &__content th {
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--ingenic-panel-border);
+    background: var(--ingenic-sky-50);
+    color: #3f566b;
+    font-weight: 800;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  &__content td {
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--ingenic-divider);
+    vertical-align: top;
+  }
+
+  &__content tr:last-child td {
+    border-bottom: 0;
+  }
+
+  // A blockquote is this theme's callout: a tinted surface with the accent on
+  // its edge, which is what a note in a manual is.
+  &__content blockquote {
+    margin: 1.4rem 0;
+    padding: 0.85rem 1rem;
+    border-left: 3px solid var(--tertiary);
+    border-radius: 0 8px 8px 0;
+    background: var(--ingenic-sky-50);
+    color: var(--primary);
+    font-size: var(--font-down-1);
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    strong:first-child {
+      color: var(--ingenic-link);
+    }
+  }
+
+  // --- Previous / next -----------------------------------------------------
+
+  // Pinned to the foot of the page column rather than to the end of the text:
+  // a long article scrolls behind it, and next is always one glance away.
+  &__pager {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.7rem;
+    margin-top: 0;
+    padding: 0.8rem 0 0.9rem;
+    border-top: 1px solid var(--ingenic-divider);
+    background: var(--secondary);
+  }
+
+  &__pagecard {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: 9px;
+    color: var(--primary);
+
+    small {
+      color: var(--primary-medium);
+      font-size: var(--font-down-2);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    b {
+      overflow: hidden;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &:hover {
+      border-color: var(--tertiary);
+      text-decoration: none;
+    }
+
+    &--next {
+      margin-left: auto;
+      text-align: right;
+    }
+  }
+
+  &__discuss {
+    margin-top: 1.4rem;
+    font-size: var(--font-down-1);
+    font-weight: 600;
+  }
+}
+
+// A documentation reader is a page of its own. With the forum navigation
+// beside it, the three columns leave about 530px of text on a 1440px screen,
+// which is a column of prose, not a manual. The reader keeps the header and
+// the way back to the forum; the width goes to the document.
+@media (min-width: 1024px) {
+  body.has-sidebar-page:has(.ingenic-docs) {
+    #main-outlet-wrapper {
+      // Core's template areas name two columns, and an area template lays out
+      // tracks even when `grid-template-columns` lists one. Resetting the
+      // areas is what actually turns the sidebar's column off.
+      grid-template-areas: "content" "below-content";
+      grid-template-columns: minmax(0, 1fr);
+      column-gap: 0;
+      padding-inline: 3vw;
+    }
+
+    .sidebar-wrapper {
+      display: none;
+    }
+
+    .d-header::after {
+      left: 0;
+    }
+
+    .header-sidebar-toggle {
+      display: none;
+    }
+  }
+}
+
+// The rail needs the width of a whole column; below this the page keeps two
+// columns and the headings move into the page's own type.
+@media (max-width: 1199px) {
+  .ingenic-docs {
+    &__panes--rail {
+      grid-template-columns: 15.5rem minmax(0, 1fr);
+    }
+
+    &__rail {
+      display: none;
+    }
+  }
+}
+
+@include viewport.until(md) {
+  .ingenic-docs {
+    margin: -0.5rem -0.5rem 1rem;
+    border-radius: 0;
+
+    &__toolbar {
+      padding: 0.7rem 0.75rem;
+      border-radius: 0;
+    }
+
+    &__crumbs {
+      flex: 1 1 100%;
+    }
+
+    &__version {
+      flex: 1 1 8rem;
+    }
+
+    &__version select {
+      width: 100%;
+    }
+
+    &__toc-toggle {
+      display: inline-flex;
+    }
+
+    // A phone has no room for a fixed shell: the page scrolls as a whole and
+    // the pager goes back to the end of the article.
+    &__panes,
+    &__panes--rail {
+      display: block;
+      height: auto;
+      min-height: 0;
+    }
+
+    // Folded by default on a phone, opened by the Contents button.
+    &__panes .ingenic-doctoc.is-collapsed {
+      display: none;
+    }
+
+    &__main {
+      display: block;
+      padding: 1.1rem 0.9rem 2rem;
+      overflow: visible;
+    }
+
+    &__rail {
+      display: none;
+    }
+  }
+
+  .ingenic-doc {
     display: block;
-    margin-top: 0.2rem;
-    color: var(--primary-medium);
-    font-size: var(--font-down-2);
-    line-height: 1.4;
+
+    &__scroll {
+      padding: 0;
+      overflow: visible;
+    }
+
+    &__pager {
+      margin-top: 1.8rem;
+    }
   }
 
-  &__empty {
-    padding: 0.4rem 0.55rem;
-    color: var(--primary-medium);
-    font-size: var(--font-down-2);
+  .ingenic-doctoc {
+    position: static;
+    height: auto;
+    max-height: none;
+    border-right: 0;
+    border-bottom: 1px solid var(--ingenic-panel-border);
+  }
+
+  .ingenic-docsearch {
+    flex: 1 1 100%;
+    max-width: none;
+    margin-left: 0;
+  }
+
+  .ingenic-docpicker {
+    flex: 1 1 8rem;
+
+    &__trigger {
+      width: 100%;
+      max-width: none;
+    }
+
+    &__panel {
+      position: fixed;
+      top: auto;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      max-height: 70vh;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      overflow-y: auto;
+      border-radius: 14px 14px 0 0;
+    }
+  }
+
+  .ingenic-doc {
+    &__hero {
+      padding: 1.05rem;
+    }
+
+    &__hero-top {
+      flex: 1 1 100%;
+    }
+
+    &__hero-actions {
+      width: 100%;
+
+      .ingenic-doc__btn {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+
+    &__pager {
+      display: block;
+    }
+
+    &__pagecard + &__pagecard {
+      margin-top: 0.6rem;
+    }
   }
 }
 
@@ -3185,10 +4473,19 @@ body:has(.ingenic-homepage) {
     font-size: var(--font-down-1);
     cursor: pointer;
 
+    .d-icon {
+      font-size: var(--font-up-1);
+      color: var(--primary-medium);
+    }
+
     &:hover {
       border-color: var(--tertiary);
       color: var(--ingenic-link);
       text-decoration: none;
+
+      .d-icon {
+        color: inherit;
+      }
     }
   }
 
@@ -3291,26 +4588,6 @@ body:has(.ingenic-homepage) {
     }
   }
 
-  .ingenic-docs {
-    margin: -0.5rem -0.5rem 1rem;
-
-    // One column: the controls sit above the page rather than beside it, and
-    // the reader collapses the contents to get back to the text.
-    &__panes {
-      display: block;
-      min-height: 0;
-    }
-
-    &__controls {
-      border-right: 0;
-      border-bottom: 1px solid var(--ingenic-panel-border);
-    }
-
-    &__body {
-      padding: 1.25rem;
-    }
-  }
-
   .ingenic-downloads {
     &__prompt {
       display: block;
@@ -3325,17 +4602,6 @@ body:has(.ingenic-homepage) {
     }
   }
 
-  // A popout needs room this breakpoint does not have, so the chips open in
-  // place, indented under their series.
-  .ingenic-picker {
-    &__chips {
-      position: static;
-      margin: 0 0 0.35rem 0.75rem;
-      border-left: 2px solid var(--ingenic-panel-border);
-      border-radius: 0;
-      box-shadow: none;
-    }
-  }
 }
 
 // The homepage block titles link to their full listings. They are headings

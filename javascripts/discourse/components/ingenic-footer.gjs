@@ -1,11 +1,14 @@
 import { themePrefix } from "virtual:theme";
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
+import { service } from "@ember/service";
 import { action } from "@ember/object";
 import { on } from "@ember/modifier";
 import { fn } from "@ember/helper";
 import { eq } from "discourse/truth-helpers";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
+import IngenicImage from "./ingenic-image";
 import { loadSiteContent } from "../ingenic/site-content";
 
 /**
@@ -20,6 +23,8 @@ import { loadSiteContent } from "../ingenic/site-content";
  * worse experience than a code that is looked at.
  */
 export default class IngenicFooter extends Component {
+  @service site;
+
   @tracked socialLinks = [];
   @tracked columns = [];
   @tracked openQr = null;
@@ -42,8 +47,32 @@ export default class IngenicFooter extends Component {
     return this.args.outletArgs?.showFooter !== false;
   }
 
+  // The official site and the code host are entries the Ingenic team controls
+  // from Admin → Site content → Footer buttons. They join the partner strip
+  // rather than a row of their own, and a link that already stands in the
+  // strip is not drawn twice: the official site is both a partner platform and
+  // a footer button on a seeded forum.
+  get headerLinks() {
+    const seen = new Set(this.socialLinks.map((link) => this.#hrefKey(link.href)));
+    return (this.site.ingenic_header_links ?? []).filter(
+      (link) => !seen.has(this.#hrefKey(link.href)),
+    );
+  }
+
+  get hasPlatforms() {
+    return this.socialLinks.length > 0 || this.headerLinks.length > 0;
+  }
+
   get hasContent() {
-    return this.socialLinks.length > 0 || this.columns.length > 0;
+    return this.hasPlatforms || this.columns.length > 0;
+  }
+
+  #hrefKey(href) {
+    return (href ?? "").trim().replace(/\/+$/, "");
+  }
+
+  iconFor(link) {
+    return link.icon || (link.show_label ? null : "link");
   }
 
   get visible() {
@@ -71,7 +100,7 @@ export default class IngenicFooter extends Component {
     {{#if this.visible}}
       <footer class="ingenic-footer">
         <div class="ingenic-footer__inner">
-          {{#if this.socialLinks.length}}
+          {{#if this.hasPlatforms}}
             <section class="ingenic-footer__platforms">
               <h2 class="ingenic-footer__heading">
                 {{i18n (themePrefix "ingenic.footer.platforms")}}
@@ -136,6 +165,33 @@ export default class IngenicFooter extends Component {
                         {{/unless}}
                       </a>
                     {{/if}}
+                  </li>
+                {{/each}}
+
+                {{#each this.headerLinks as |link|}}
+                  <li class="ingenic-footer__platform">
+                    <a
+                      class="ingenic-footer__link"
+                      href={{link.href}}
+                      target={{if link.external "_blank"}}
+                      rel={{if link.external "noopener noreferrer"}}
+                      aria-label={{if link.show_label null link.label}}
+                      title={{if link.show_label null link.label}}
+                    >
+                      {{#if link.image_url}}
+                        <IngenicImage
+                          @src={{link.image_url}}
+                          @className="ingenic-footer__icon"
+                          @fallbackIcon={{this.iconFor link}}
+                        />
+                      {{else if (this.iconFor link)}}
+                        {{dIcon (this.iconFor link)}}
+                      {{/if}}
+
+                      {{#if link.show_label}}
+                        <span>{{link.label}}</span>
+                      {{/if}}
+                    </a>
                   </li>
                 {{/each}}
               </ul>
