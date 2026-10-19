@@ -55,12 +55,22 @@ export default class IngenicBlockActivity extends Component {
     return [...this.topics]
       .sort((a, b) => at(b) - at(a))
       .slice(0, this.limit)
-      .map((topic) => ({
-      id: topic.id,
-      title: topic.title,
-      url: topic.url,
-      at: topic.last_posted_at || topic.created_at,
-    }));
+      .map((topic) => {
+        const when = at(topic);
+        return {
+          id: topic.id,
+          title: topic.title,
+          url: topic.url,
+          at: topic.last_posted_at || topic.created_at,
+          // A calendar leaf, the way an events list dates its rows: the day is
+          // what a reader scans, and it does not need a locale-dependent
+          // "3 days ago" to be read.
+          month: new Intl.DateTimeFormat(undefined, { month: "short" })
+            .format(when)
+            .toUpperCase(),
+          day: when.getDate(),
+        };
+      });
   }
 
   @action
@@ -97,9 +107,16 @@ export default class IngenicBlockActivity extends Component {
         <ul class="ingenic-activity__list">
           {{#each this.rows as |row|}}
             <li class="ingenic-activity__item">
-              <a class="ingenic-activity__title" href={{row.url}}>{{row.title}}</a>
-              <span class="ingenic-activity__when">
-                {{dFormatDate row.at leaveAgo="true"}}
+              <span class="ingenic-activity__date" aria-hidden="true">
+                <span class="ingenic-activity__month">{{row.month}}</span>
+                <span class="ingenic-activity__day">{{row.day}}</span>
+              </span>
+
+              <span class="ingenic-activity__body">
+                <a class="ingenic-activity__title" href={{row.url}}>{{row.title}}</a>
+                <span class="ingenic-activity__when">
+                  {{dFormatDate row.at leaveAgo="true"}}
+                </span>
               </span>
             </li>
           {{/each}}

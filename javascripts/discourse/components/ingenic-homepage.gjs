@@ -2,7 +2,6 @@ import { themePrefix } from "virtual:theme";
 import Component from "@glimmer/component";
 import { service } from "@ember/service";
 import getURL from "discourse/lib/get-url";
-import dIcon from "discourse/ui-kit/helpers/d-icon";
 import IngenicBlockCategories from "./ingenic-block-categories";
 import IngenicBlockTopics from "./ingenic-block-topics";
 import IngenicBlockFeed from "./ingenic-block-feed";
@@ -103,33 +102,6 @@ export default class IngenicHomepage extends Component {
     return settings.ingenic_hero_title || i18n(themePrefix("ingenic.home.title"));
   }
 
-  get newTopicPath() {
-    return getURL("/new-topic");
-  }
-
-  // The three things a developer arrives wanting, beside the search. Kept to
-  // three because this is a way in, not a second navigation: the sidebar has
-  // the full list.
-  get quickLinks() {
-    return [
-      {
-        href: getURL("/ingenic/docs"),
-        icon: "book",
-        label: i18n(themePrefix("ingenic.home.quick.docs")),
-      },
-      {
-        href: getURL("/ingenic/downloads"),
-        icon: "download",
-        label: i18n(themePrefix("ingenic.home.quick.downloads")),
-      },
-      {
-        href: getURL("/ingenic/boards"),
-        icon: "microchip",
-        label: i18n(themePrefix("ingenic.home.quick.boards")),
-      },
-    ];
-  }
-
   get heroSubtitle() {
     return (
       settings.ingenic_hero_subtitle ||
@@ -163,25 +135,6 @@ export default class IngenicHomepage extends Component {
             {{i18n (themePrefix "ingenic.home.search")}}
           </button>
         </form>
-
-        <div class="ingenic-homepage__actions">
-          <a class="btn btn-primary ingenic-homepage__start" href={{this.newTopicPath}}>
-            {{dIcon "plus"}}
-            {{i18n (themePrefix "ingenic.home.start_discussion")}}
-          </a>
-
-          <nav
-            class="ingenic-homepage__quick"
-            aria-label={{i18n (themePrefix "ingenic.home.quick_links")}}
-          >
-            {{#each this.quickLinks as |link|}}
-              <a class="ingenic-homepage__quick-link" href={{link.href}}>
-                {{dIcon link.icon}}
-                {{link.label}}
-              </a>
-            {{/each}}
-          </nav>
-        </div>
       </section>
 
       <div

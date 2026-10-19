@@ -54,16 +54,10 @@ zh_CN:
       title: "使用君正芯片开发"
       subtitle: "面向君正开发者的文档、资源与技术讨论。"
       eyebrow: "君正开发者社区"
-      quick_links: "君正快速链接"
       search_placeholder: "搜索论坛"
       search: "搜索"
-      start_discussion: "发起讨论"
       show_all: "显示全部"
       view_all: "查看全部"
-      quick:
-        docs: "在线文档"
-        downloads: "下载中心"
-        boards: "开发板"
       filters:
         all: "全部"
         unanswered: "未回复"

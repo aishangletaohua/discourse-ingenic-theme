@@ -29,6 +29,16 @@ export default class IngenicPopular extends Component {
       rank: index + 1,
       isTop: index < 3,
       path: getURL(topic.url),
+      categoryPath: topic.category_url ? getURL(topic.category_url) : null,
+      tags: (topic.tags ?? []).map((tag) => ({
+        name: tag.name,
+        key: tag.slug || tag.name.toLowerCase(),
+        url: getURL(
+          tag.slug
+            ? `/tag/${tag.slug}`
+            : `/tag/${encodeURIComponent(tag.name)}`,
+        ),
+      })),
     }));
   }
 
@@ -83,8 +93,22 @@ export default class IngenicPopular extends Component {
                 <a class="ingenic-popular-page__title" href={{row.path}}>
                   {{row.title}}
                 </a>
+                {{#if row.tags.length}}
+                  <div class="ingenic-feed__tags discourse-tags">
+                    {{#each row.tags as |tag|}}
+                      <a
+                        class="discourse-tag simple"
+                        href={{tag.url}}
+                        data-tag-name={{tag.key}}
+                      >{{tag.name}}</a>
+                    {{/each}}
+                  </div>
+                {{/if}}
+
                 {{#if row.category}}
-                  <span class="ingenic-popular-page__category">{{row.category}}</span>
+                  <a class="ingenic-popular-page__category" href={{row.categoryPath}}>
+                    {{row.category}}
+                  </a>
                 {{/if}}
               </div>
 

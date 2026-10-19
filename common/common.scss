@@ -797,9 +797,22 @@ body:has(.ingenic-homepage) {
   // The coloured mark beside a home page card's name, the same device the
   // sidebar uses for its modules. The colour belongs to the card, not to the
   // icon, so the four rail cards can be told apart before the titles are read.
+  // Every module gets the same tinted tile, which is what makes the page read
+  // as a set of modules rather than a stack of unrelated lists.
   &__icon {
     display: inline-flex;
     flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 0.5rem;
+    background: color-mix(in srgb, currentColor 12%, transparent);
+
+    .d-icon {
+      width: 0.95em;
+      height: 0.95em;
+    }
   }
 
   &__subtitle {
@@ -868,19 +881,30 @@ body:has(.ingenic-homepage) {
   color: #975a16;
 }
 
+.ingenic-activity .ingenic-section__icon {
+  color: #dd6b20;
+}
+
+.ingenic-popular .ingenic-section__icon {
+  color: #c53030;
+}
+
+.ingenic-section--sections .ingenic-section__icon {
+  color: #2b6cb0;
+}
+
 // The forum's sections on the front page. Meta draws these as a row of wide
 // cards with a coloured icon and the section's name; the same shape is used
 // here, with the description and the topic count kept as the second and third
 // lines because an Ingenic visitor is choosing a place to ask a question, not
 // only recognising a name.
-// The cards are the section: no panel around them and no heading above them,
-// only the three choices and a way through to the full list. A titled panel
-// here repeated what the cards already said and pushed the discussion lists
-// below the fold.
+// The sections are a module like the rest: one titled card holding the three
+// entrances and a way through to the full list. The cards inside it are tinted
+// so they read as choices within the module rather than as modules themselves.
 .ingenic-section--sections {
-  padding: 0;
-  border: 0;
-  background: none;
+  .ingenic-section__header {
+    margin-bottom: 1rem;
+  }
 }
 
 .ingenic-sections {
@@ -921,16 +945,16 @@ body:has(.ingenic-homepage) {
     align-items: center;
     gap: 0.6rem;
     padding: 0.65rem 0.8rem;
-    border: 1px solid var(--ingenic-panel-border);
+    border: 1px solid transparent;
     border-radius: var(--ingenic-radius);
-    background: var(--secondary);
+    background: var(--ingenic-surface-tint);
     color: var(--primary);
     transition: background 0.15s ease, border-color 0.15s ease;
 
     &:hover,
     &:focus {
       border-color: var(--ingenic-surface-border);
-      background: var(--ingenic-surface-tint);
+      background: var(--secondary);
       text-decoration: none;
     }
   }
@@ -3389,62 +3413,10 @@ body:has(.ingenic-homepage) {
 }
 
 // ---------------------------------------------------------------------------
-// Home page v2: the hero's two ways in, the table-shaped discussion feed, and
-// the rail's two new cards. The section frame, the footer and the page surface
-// are unchanged — these are the parts the layout itself needed.
+// Home page v2: the table-shaped discussion feed and the rail's new cards.
+// The section frame, the footer and the page surface are unchanged — these are
+// the parts the layout itself needed.
 // ---------------------------------------------------------------------------
-
-.ingenic-homepage {
-  &__actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 0.65rem 1rem;
-    margin-top: 0.9rem;
-  }
-
-  &__start {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    border-radius: 999px;
-    padding-inline: 1.1rem;
-  }
-
-  &__quick {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.45rem;
-  }
-
-  &__quick-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.32rem 0.75rem;
-    border: 1px solid var(--ingenic-surface-border);
-    border-radius: 999px;
-    background: var(--secondary);
-    color: var(--primary-high);
-    font-size: var(--font-down-1);
-    font-weight: 500;
-
-    .d-icon {
-      width: 0.95em;
-      height: 0.95em;
-      color: var(--ingenic-link);
-    }
-
-    &:hover,
-    &:focus-visible {
-      background: var(--ingenic-surface-tint);
-      color: var(--ingenic-link);
-      text-decoration: none;
-    }
-  }
-}
 
 // The latest list as a table: topic, replies, views, activity. A list of bare
 // titles already told a reader what was said; the columns say which of them is
@@ -3576,9 +3548,9 @@ body:has(.ingenic-homepage) {
 
   &__item {
     display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    padding: 0.55rem 0;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 0.65rem 0;
     border-bottom: 1px solid var(--ingenic-divider);
 
     &:first-child {
@@ -3589,6 +3561,41 @@ body:has(.ingenic-homepage) {
       border-bottom: 0;
       padding-bottom: 0;
     }
+  }
+
+  // A calendar leaf: month over day. It gives each row the same left edge as a
+  // date-stamped events list, so the card reads as announcements rather than a
+  // smaller copy of the discussion feed.
+  &__date {
+    display: flex;
+    flex: 0 0 2.4rem;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.25rem 0.2rem;
+    border-radius: 0.45rem;
+    background: var(--ingenic-surface-tint);
+    line-height: 1.05;
+  }
+
+  &__month {
+    color: var(--ingenic-link);
+    font-size: var(--font-down-2);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  &__day {
+    color: var(--primary);
+    font-size: var(--font-up-1);
+    font-weight: 700;
+  }
+
+  &__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
   }
 
   &__title {
@@ -3665,8 +3672,31 @@ body:has(.ingenic-homepage) {
   }
 
   &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.15rem 0.55rem;
     color: var(--primary-medium);
     font-size: var(--font-down-1);
+  }
+
+  &__category {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--primary-medium);
+
+    &:hover,
+    &:focus {
+      color: var(--ingenic-link);
+      text-decoration: none;
+    }
+  }
+
+  &__dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
   }
 }
 

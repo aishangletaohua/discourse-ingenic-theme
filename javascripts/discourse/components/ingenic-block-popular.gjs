@@ -5,6 +5,7 @@ import { action } from "@ember/object";
 import { service } from "@ember/service";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import getURL from "discourse/lib/get-url";
+import dFormatDate from "discourse/ui-kit/helpers/d-format-date";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 
@@ -68,6 +69,20 @@ export default class IngenicBlockPopular extends Component {
           rank: index + 1,
           isTop: index < 3,
           path: getURL(topic.url),
+          categoryPath: topic.category_url
+            ? getURL(topic.category_url)
+            : null,
+          tags: (topic.tags ?? []).map((tag) => ({
+            name: tag.name,
+            key: tag.slug || tag.name.toLowerCase(),
+            // A tag written in Chinese has no romanised slug; its name is the
+            // address Discourse routes it by.
+            url: getURL(
+              tag.slug
+                ? `/tag/${tag.slug}`
+                : `/tag/${encodeURIComponent(tag.name)}`,
+            ),
+          })),
         }));
       }
     } catch {
@@ -95,10 +110,43 @@ export default class IngenicBlockPopular extends Component {
               </span>
               <div class="ingenic-popular__body">
                 <a class="ingenic-popular__title" href={{row.path}}>{{row.title}}</a>
+
+                {{#if row.tags.length}}
+                  <div class="ingenic-feed__tags discourse-tags">
+                    {{#each row.tags as |tag|}}
+                      <a
+                        class="discourse-tag simple"
+                        href={{tag.url}}
+                        data-tag-name={{tag.key}}
+                      >{{tag.name}}</a>
+                    {{/each}}
+                  </div>
+                {{/if}}
+
                 <span class="ingenic-popular__meta">
-                  {{i18n (themePrefix "ingenic.popular.likes") count=row.likes}}
-                  &middot;
-                  {{i18n (themePrefix "ingenic.popular.views") count=row.views}}
+                  {{#if row.category}}
+                    <a
+                      class="ingenic-popular__category"
+                      href={{row.categoryPath}}
+                      style="--ingenic-category: #{{row.category_color}}"
+                    >
+                      <span
+                        class="ingenic-popular__dot"
+                        style="background-color: #{{row.category_color}}"
+                        aria-hidden="true"
+                      ></span>
+                      {{row.category}}
+                    </a>
+                  {{/if}}
+                  <span class="ingenic-popular__count">
+                    {{i18n (themePrefix "ingenic.popular.likes") count=row.likes}}
+                  </span>
+                  <span class="ingenic-popular__count">
+                    {{i18n (themePrefix "ingenic.popular.views") count=row.views}}
+                  </span>
+                  <span class="ingenic-popular__when">
+                    {{dFormatDate row.last_posted_at leaveAgo="true"}}
+                  </span>
                 </span>
               </div>
             </li>
