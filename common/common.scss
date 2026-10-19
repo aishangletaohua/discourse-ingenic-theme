@@ -429,8 +429,12 @@ html.ingenic-nav-first .sidebar-sections {
     color: #c05621;
   }
 
+  // The same blue as Home, Topics and the Latest discussions heading. It was a
+  // teal, which made the section read as a different kind of destination from
+  // the three rows beside it, and disagreed with the blue its own home-page
+  // card already used.
   &--discussions .d-icon {
-    color: #2c7a7b;
+    color: #2b6cb0;
   }
 
   &--docs .d-icon {
