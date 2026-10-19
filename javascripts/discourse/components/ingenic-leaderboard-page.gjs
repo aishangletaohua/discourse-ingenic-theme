@@ -25,7 +25,6 @@ export default class IngenicLeaderboardPage extends Component {
   get rows() {
     return this.entries.map((entry) => ({
       ...entry,
-      isTop: entry.rank <= 3,
       avatar: entry.avatar_template?.replace("{size}", "48"),
       path: getURL(`/u/${entry.username}`),
     }));
@@ -91,7 +90,7 @@ export default class IngenicLeaderboardPage extends Component {
         <ol class="ingenic-leaderboard-page__list">
           {{#each this.rows as |row|}}
             <li class="ingenic-leaderboard-page__row">
-              <span class="ingenic-leaderboard-page__rank {{if row.isTop 'is-top'}}">
+              <span class="ingenic-leaderboard-page__rank">
                 {{row.rank}}
               </span>
 

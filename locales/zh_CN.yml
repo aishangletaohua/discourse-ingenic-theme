@@ -51,9 +51,7 @@ zh_CN:
       note: "回答由 AI 生成，重要信息请以文档为准。"
       close: "关闭"
     home:
-      title: "使用君正芯片开发"
-      subtitle: "面向君正开发者的文档、资源与技术讨论。"
-      eyebrow: "君正开发者社区"
+      title: "欢迎来到 Ingenic 社区"
       search_placeholder: "搜索论坛"
       search: "搜索"
       show_all: "显示全部"

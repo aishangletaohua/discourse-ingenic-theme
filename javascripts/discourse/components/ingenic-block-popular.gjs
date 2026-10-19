@@ -67,7 +67,6 @@ export default class IngenicBlockPopular extends Component {
         this.rows = (payload.topics ?? []).map((topic, index) => ({
           ...topic,
           rank: index + 1,
-          isTop: index < 3,
           path: getURL(topic.url),
           categoryPath: topic.category_url
             ? getURL(topic.category_url)
@@ -105,7 +104,7 @@ export default class IngenicBlockPopular extends Component {
         <ol class="ingenic-popular__list">
           {{#each this.visibleRows as |row|}}
             <li class="ingenic-popular__item">
-              <span class="ingenic-popular__rank {{if row.isTop 'is-top'}}" aria-hidden="true">
+              <span class="ingenic-popular__rank" aria-hidden="true">
                 {{row.rank}}
               </span>
               <div class="ingenic-popular__body">

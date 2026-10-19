@@ -693,35 +693,17 @@ body:has(.ingenic-homepage) {
     color: var(--primary);
     text-align: left;
 
+    // One line, read first, then the search directly under it: the greeting
+    // names the page and the search is the page's first action. An eyebrow
+    // and a supporting sentence made the band read as a banner to get past.
     h1 {
-      margin: 0.2rem 0 0.3rem;
+      margin: 0;
       color: inherit;
-      font-size: clamp(1.45rem, 2.6vw, 2rem);
+      font-size: clamp(1.75rem, 3vw, 2.35rem);
+      font-weight: 700;
       line-height: 1.15;
+      letter-spacing: -0.01em;
     }
-  }
-
-  // The greeting and the search step left together, the way the reference
-  // page read: the title is read first, the search is the action under it,
-  // and the three resource links are part of the same search panel.
-  &__intro {
-    max-width: 44rem;
-  }
-
-  &__intro p {
-    max-width: 42rem;
-    margin: 0;
-    color: var(--primary-high);
-    font-size: var(--font-0);
-  }
-
-  &__eyebrow {
-    margin: 0 !important;
-    color: var(--ingenic-link) !important;
-    font-size: var(--font-down-1) !important;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
 
   // The search and the three resource links share one white panel: the input
@@ -762,24 +744,42 @@ body:has(.ingenic-homepage) {
       }
     }
 
-    &-input {
+    // Core's `input[type="search"]` rule carries an attribute selector, so it
+    // outweighs the class alone and brings back its own border, padding and
+    // margin. The attribute here matches that specificity and the later rule
+    // wins: the input is a bare field inside the panel, not a box on it.
+    &-input,
+    &-input[type="search"] {
       flex: 1;
       min-width: 0;
-      min-height: 2.5rem;
+      height: 2.75rem;
+      min-height: 2.75rem;
+      margin: 0;
       padding: 0.25rem;
       border: 0;
       border-radius: 0;
       background: transparent;
+      box-shadow: none;
 
       &:focus,
       &:focus-visible {
         outline: none;
+        border: 0;
+        background: transparent;
       }
     }
 
+    // The same height as the field, so the two edges line up and the label
+    // sits on the field's centre line rather than a few pixels below it.
     .btn {
+      display: inline-flex;
       flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.75rem;
+      margin: 0;
       border-radius: 0.6rem;
+      padding-block: 0;
       padding-inline: 1.15rem;
     }
   }
@@ -1846,18 +1846,13 @@ body:has(.ingenic-homepage) {
     }
   }
 
-  // The first three are the week's winners and carry the accent. The rest are
-  // still ranked, just not decorated.
+  // Every rank reads the same, so the list does not look like two lists with
+  // a boundary after the third row.
   &__rank {
     flex: 0 0 1.15rem;
     color: var(--primary-medium);
     font-variant-numeric: tabular-nums;
     text-align: center;
-
-    &.is-top {
-      color: var(--ingenic-link);
-      font-weight: 700;
-    }
   }
 
   &__avatar {
@@ -3924,6 +3919,8 @@ body:has(.ingenic-homepage) {
     }
   }
 
+  // Every rank is drawn the same way. Marking only the first three made the
+  // fourth row look like a different kind of row rather than the next one down.
   &__rank {
     display: inline-flex;
     flex: 0 0 1.35rem;
@@ -3933,15 +3930,10 @@ body:has(.ingenic-homepage) {
     height: 1.35rem;
     margin-top: 0.1rem;
     border-radius: 50%;
-    background: var(--ingenic-surface-tint);
-    color: var(--primary-medium);
+    background: var(--ingenic-link);
+    color: var(--secondary);
     font-size: var(--font-down-2);
     font-weight: 700;
-
-    &.is-top {
-      background: var(--ingenic-link);
-      color: var(--secondary);
-    }
   }
 
   &__body {
@@ -4020,15 +4012,10 @@ body:has(.ingenic-homepage) {
     width: 1.7rem;
     height: 1.7rem;
     border-radius: 50%;
-    background: var(--ingenic-surface-tint);
-    color: var(--primary-medium);
+    background: var(--ingenic-link);
+    color: var(--secondary);
     font-size: var(--font-down-1);
     font-weight: 700;
-
-    &.is-top {
-      background: var(--ingenic-link);
-      color: var(--secondary);
-    }
   }
 
   &__body {
@@ -4117,11 +4104,6 @@ body:has(.ingenic-homepage) {
     font-size: var(--font-down-1);
     font-variant-numeric: tabular-nums;
     text-align: center;
-
-    &.is-top {
-      color: var(--ingenic-link);
-      font-weight: 700;
-    }
   }
 
   &__avatar {

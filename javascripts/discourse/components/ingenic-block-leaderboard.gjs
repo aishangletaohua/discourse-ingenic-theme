@@ -61,7 +61,6 @@ export default class IngenicBlockLeaderboard extends Component {
       // row instead of a full-size avatar shrunk by CSS.
       avatar: entry.avatar_template?.replace("{size}", "48"),
       path: getURL(`/u/${entry.username}`),
-      isTop: entry.rank <= 3,
     }));
   }
 
@@ -101,7 +100,7 @@ export default class IngenicBlockLeaderboard extends Component {
         <ol class="ingenic-leaderboard__list">
           {{#each this.rows as |row|}}
             <li class="ingenic-leaderboard__row">
-              <span class="ingenic-leaderboard__rank {{if row.isTop 'is-top'}}">
+              <span class="ingenic-leaderboard__rank">
                 {{row.rank}}
               </span>
 

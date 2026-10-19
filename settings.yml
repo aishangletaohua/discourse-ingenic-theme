@@ -32,12 +32,7 @@ ingenic_nav_title:
 ingenic_hero_title:
   default: ""
   type: string
-  description: "Optional headline shown above the homepage blocks."
-
-ingenic_hero_subtitle:
-  default: ""
-  type: string
-  description: "Optional supporting text shown under the homepage headline."
+  description: "Optional headline shown above the homepage blocks. Left empty, it reads Welcome to Ingenic Community (欢迎来到 Ingenic 社区 in Chinese)."
 
 ingenic_locales:
   default: "en|zh_CN"

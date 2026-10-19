@@ -27,7 +27,6 @@ export default class IngenicPopular extends Component {
     return this.topics.map((topic, index) => ({
       ...topic,
       rank: index + 1,
-      isTop: index < 3,
       path: getURL(topic.url),
       categoryPath: topic.category_url ? getURL(topic.category_url) : null,
       tags: (topic.tags ?? []).map((tag) => ({
@@ -85,7 +84,7 @@ export default class IngenicPopular extends Component {
         <ol class="ingenic-popular-page__list">
           {{#each this.rows as |row|}}
             <li class="ingenic-popular-page__row">
-              <span class="ingenic-popular-page__rank {{if row.isTop 'is-top'}}">
+              <span class="ingenic-popular-page__rank">
                 {{row.rank}}
               </span>
 

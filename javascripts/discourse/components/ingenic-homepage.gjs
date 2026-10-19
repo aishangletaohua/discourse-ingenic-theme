@@ -105,13 +105,6 @@ export default class IngenicHomepage extends Component {
     return settings.ingenic_hero_title || i18n(themePrefix("ingenic.home.title"));
   }
 
-  get heroSubtitle() {
-    return (
-      settings.ingenic_hero_subtitle ||
-      i18n(themePrefix("ingenic.home.subtitle"))
-    );
-  }
-
   // The three resource centres directly under the search. They are the same
   // destinations as the sidebar's developer section, repeated here because the
   // front page's search and these three links are what a visitor arriving with
@@ -139,13 +132,7 @@ export default class IngenicHomepage extends Component {
   <template>
     <div class="ingenic-homepage">
       <section class="ingenic-homepage__hero">
-        <div class="ingenic-homepage__intro">
-          <p class="ingenic-homepage__eyebrow">
-            {{i18n (themePrefix "ingenic.home.eyebrow")}}
-          </p>
-          <h1>{{this.heroTitle}}</h1>
-          <p>{{this.heroSubtitle}}</p>
-        </div>
+        <h1>{{this.heroTitle}}</h1>
 
         <div class="ingenic-homepage__search-panel">
           <form
