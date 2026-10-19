@@ -360,23 +360,23 @@ html.ingenic-nav-first .sidebar-sections {
   }
 }
 
-// The navigation is read as a stack of modules, the way the reference page
-// draws it: a small uppercase heading, then that group's rows on a white card.
-// Core already uppercases and spaces the heading; what is added here is the
-// card and the gap that separates one module from the next. The same treatment
-// reaches core's community section, so the native half of the column reads as
-// one of these modules rather than as a different kind of list.
+// The navigation is read as a stack of modules: a small caption, then that
+// group's rows on a white card. The caption is deliberately quiet and the gap
+// between modules short — at heading size and with room around it, every group
+// read as its own page and the column came apart. The same treatment reaches
+// core's community section, so the native half of the column reads as one of
+// these modules rather than as a different kind of list.
 .sidebar-sections > .sidebar-section-wrapper {
-  margin-top: 0.9rem;
+  margin-top: 0.55rem;
   padding: 0;
   border-bottom: 0;
 
   &:first-of-type {
-    margin-top: 0.25rem;
+    margin-top: 0.2rem;
   }
 
   > .sidebar-section-header-wrapper {
-    margin: 0 0 0.4rem;
+    margin: 0 0 0.2rem;
     padding: 0 0.4rem;
   }
 
@@ -395,17 +395,17 @@ html.ingenic-nav-first .sidebar-sections {
 // module of the column. Core gives that section no heading, which would leave
 // the last card unlabelled; the label is drawn here from the page language.
 .sidebar-custom-sections > .sidebar-section-wrapper[data-section-name="community"] {
-  margin-top: 0.9rem;
+  margin-top: 0.55rem;
   padding: 0;
   border-bottom: 0;
 
   &::before {
     display: block;
-    margin: 0 0.4rem 0.4rem;
+    margin: 0 0.4rem 0.2rem;
     color: var(--primary-medium);
-    font-size: var(--font-down-2);
-    font-weight: 700;
-    letter-spacing: 0.05em;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     content: "Community";
   }
@@ -438,7 +438,9 @@ html[lang^="zh"]
 .sidebar-sections .sidebar-section-header {
   margin-bottom: 0;
   color: var(--primary-medium);
-  font-weight: 700;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
 }
 
 // The rows are a step smaller than core's default, which is what the reference
