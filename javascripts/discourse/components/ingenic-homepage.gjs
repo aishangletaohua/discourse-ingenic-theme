@@ -2,6 +2,7 @@ import { themePrefix } from "virtual:theme";
 import Component from "@glimmer/component";
 import { service } from "@ember/service";
 import getURL from "discourse/lib/get-url";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 import IngenicBlockCategories from "./ingenic-block-categories";
 import IngenicBlockTopics from "./ingenic-block-topics";
 import IngenicBlockFeed from "./ingenic-block-feed";
@@ -111,6 +112,33 @@ export default class IngenicHomepage extends Component {
     );
   }
 
+  // The three resource centres directly under the search. They are the same
+  // destinations as the sidebar's developer section, repeated here because the
+  // front page's search and these three links are what a visitor arriving with
+  // a chip question reaches for first.
+  get quickLinks() {
+    return [
+      {
+        key: "docs",
+        href: getURL("/ingenic/docs"),
+        icon: "book",
+        label: i18n(themePrefix("ingenic.home.quick.docs")),
+      },
+      {
+        key: "downloads",
+        href: getURL("/ingenic/downloads"),
+        icon: "download",
+        label: i18n(themePrefix("ingenic.home.quick.downloads")),
+      },
+      {
+        key: "boards",
+        href: getURL("/ingenic/boards"),
+        icon: "microchip",
+        label: i18n(themePrefix("ingenic.home.quick.boards")),
+      },
+    ];
+  }
+
   <template>
     <div class="ingenic-homepage">
       <section class="ingenic-homepage__hero">
@@ -137,6 +165,18 @@ export default class IngenicHomepage extends Component {
             {{i18n (themePrefix "ingenic.home.search")}}
           </button>
         </form>
+
+        <nav
+          class="ingenic-homepage__quick"
+          aria-label={{i18n (themePrefix "ingenic.home.quick.label")}}
+        >
+          {{#each this.quickLinks as |link|}}
+            <a class="ingenic-homepage__quick-link" href={{link.href}}>
+              {{dIcon link.icon}}
+              {{link.label}}
+            </a>
+          {{/each}}
+        </nav>
       </section>
 
       <div

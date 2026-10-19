@@ -67,6 +67,11 @@ en:
       pagination: "Discussion pages"
       previous_page: "Previous page"
       next_page: "Next page"
+      quick:
+        label: "Developer resources"
+        docs: "Browse documentation"
+        downloads: "Download SDKs"
+        boards: "Find a board"
       empty: "Nothing here yet."
       topics:
         latest: "Latest discussions"
@@ -85,7 +90,6 @@ en:
         title: "Popular sections"
         all: "All categories"
         empty: "No sections are visible to you yet."
-        docs_hint: "Chip manuals, SDK guides and release notes."
         topic_count:
           one: "%{count} topic"
           other: "%{count} topics"

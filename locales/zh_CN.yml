@@ -65,6 +65,11 @@ zh_CN:
       pagination: "讨论分页"
       previous_page: "上一页"
       next_page: "下一页"
+      quick:
+        label: "开发者资源"
+        docs: "浏览文档"
+        downloads: "下载 SDK"
+        boards: "找开发板"
       empty: "暂无内容。"
       topics:
         latest: "最新讨论"
@@ -83,7 +88,6 @@ zh_CN:
         title: "热门分区"
         all: "所有分区"
         empty: "暂无可查看的版块。"
-        docs_hint: "芯片手册、SDK 指南与版本说明。"
         topic_count:
           # Chinese has one plural form, so both keys read the same here. Kept
           # in pairs so the two locale files have the same shape.

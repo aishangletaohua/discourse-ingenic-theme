@@ -89,7 +89,6 @@ export default class IngenicBlockCategories extends Component {
       key: "docs",
       href: "/ingenic/docs",
       label: i18n(themePrefix("ingenic.nav.docs")),
-      description: i18n(themePrefix("ingenic.home.sections.docs_hint")),
       icon: "book",
       count: null,
       style: "--ingenic-category: #2f9e63",
@@ -120,7 +119,6 @@ export default class IngenicBlockCategories extends Component {
       key: `card-${card.id}`,
       href: card.href,
       label: card.label,
-      description: card.description,
       icon: card.icon,
       image_url: card.image_url,
       count: null,
@@ -140,7 +138,6 @@ export default class IngenicBlockCategories extends Component {
       key: `category-${category.id}`,
       href: category.url,
       label: overlay.label || category.name,
-      description: overlay.description || category.description_text,
       icon:
         overlay.icon ||
         category.icon ||
@@ -184,10 +181,6 @@ export default class IngenicBlockCategories extends Component {
 
               <span class="ingenic-sections__text">
                 <span class="ingenic-sections__name">{{card.label}}</span>
-
-                {{#if card.description}}
-                  <span class="ingenic-sections__description">{{card.description}}</span>
-                {{/if}}
 
                 {{#if card.count}}
                   <span class="ingenic-sections__count">

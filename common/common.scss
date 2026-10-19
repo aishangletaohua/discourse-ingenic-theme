@@ -696,6 +696,47 @@ body:has(.ingenic-homepage) {
     }
   }
 
+  // The three resource centres, directly under the search. Small pills rather
+  // than cards: they repeat the sidebar's developer section, so they are a way
+  // through to those pages, not a second description of them.
+  &__quick {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.45rem 0.55rem;
+    max-width: 44rem;
+    margin: 0.85rem auto 0;
+  }
+
+  &__quick-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.28rem 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--ingenic-link) 22%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--secondary) 72%, transparent);
+    color: var(--primary-high);
+    font-size: var(--font-down-1);
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+    .d-icon {
+      width: 0.85em;
+      height: 0.85em;
+      color: var(--ingenic-link);
+    }
+
+    &:hover,
+    &:focus-visible {
+      border-color: var(--ingenic-link);
+      background: var(--secondary);
+      color: var(--ingenic-link);
+      text-decoration: none;
+    }
+  }
+
   // The tool pages are in the sidebar and in the header buttons. They used to
   // be a second row of pills here, which repeated the sidebar directly above
   // the sections and pushed the feed off the first screen.
@@ -951,11 +992,10 @@ body:has(.ingenic-homepage) {
   }
 }
 
-// The forum's sections on the front page. Meta draws these as a row of wide
-// cards with a coloured icon and the section's name; the same shape is used
-// here, with the description and the topic count kept as the second and third
-// lines because an Ingenic visitor is choosing a place to ask a question, not
-// only recognising a name.
+// The forum's sections on the front page. Meta draws these as a row of cards
+// with a coloured icon and the section's name; the same shape is used here.
+// The cards name the section and give its topic count, and nothing more: a
+// front-page card is a way into a section, not an introduction to it.
 // The sections are a module like the rest: one titled card holding the three
 // entrances and a way through to the full list. The cards inside it are tinted
 // so they read as choices within the module rather than as modules themselves.
@@ -967,8 +1007,11 @@ body:has(.ingenic-homepage) {
 
 .ingenic-sections {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-  gap: 0.85rem;
+  // Three compact jump cards. They name the section and carry its count; the
+  // description that used to make them tall is gone, because a front-page
+  // card is a way in, not an introduction to the section.
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
 
   // Centred under the cards and read as "on to the list": the arrow turns the
   // line into a direction rather than a label. Full width so the centring is
@@ -1001,10 +1044,10 @@ body:has(.ingenic-homepage) {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.65rem 0.8rem;
+    gap: 0.5rem;
+    padding: 0.5rem 0.7rem;
     border: 1px solid transparent;
-    border-radius: var(--ingenic-radius);
+    border-radius: 0.6rem;
     background: var(--ingenic-surface-tint);
     color: var(--primary);
     transition: background 0.15s ease, border-color 0.15s ease;
@@ -1021,9 +1064,9 @@ body:has(.ingenic-homepage) {
     display: grid;
     flex: 0 0 auto;
     place-items: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 0.5rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.45rem;
     background: color-mix(in srgb, var(--ingenic-category) 16%, var(--secondary));
     // The category colour itself is chosen to sit on white as a dot; as a
     // glyph on its own tint it can wash out. Mixing it towards the navy keeps
@@ -1041,25 +1084,15 @@ body:has(.ingenic-homepage) {
   &__text {
     display: flex;
     flex-direction: column;
-    gap: 0.1rem;
+    gap: 0.05rem;
     min-width: 0;
   }
 
   &__name {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    color: var(--primary);
-    font-size: var(--font-0);
-    font-weight: 600;
-  }
-
-  // One line at most. The card is an entrance, not a description of the
-  // section; a long blurb would make one card taller than its neighbours.
-  &__description {
     overflow: hidden;
-    color: var(--primary-medium);
+    color: var(--primary);
     font-size: var(--font-down-1);
+    font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -1067,6 +1100,12 @@ body:has(.ingenic-homepage) {
   &__count {
     color: var(--primary-medium);
     font-size: var(--font-down-2);
+  }
+}
+
+@media (width <= 700px) {
+  .ingenic-sections {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
