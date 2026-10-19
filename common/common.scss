@@ -131,9 +131,9 @@
   //
   // Core adds the sidebar width to this value when it sizes `.wrap`, so the
   // subtraction is what makes the whole page — sidebar, content and rail —
-  // end at this width rather than the sidebar being extra. 1680 uses the room
-  // a wide screen has without stretching the reading column: the feed stays
-  // near its comfortable measure and the rail keeps its fixed floor.
+  // end at this width rather than the sidebar being extra. A phone gets the
+  // unconstrained width this number leaves it; the proportional gutter starts
+  // at the desktop breakpoint below.
   --d-max-width: calc(1680px - var(--d-sidebar-width));
 
   // Capped as well as configured: this setting shipped at 272px, and a theme
@@ -144,6 +144,23 @@
 
   @include viewport.until(lg) {
     --d-sidebar-width: #{$d-sidebar-narrow-width};
+  }
+}
+
+// From the desktop breakpoint up the page keeps a share of the window instead
+// of a fixed width: 88vw leaves 6% of white on either side whether the screen
+// is 1024 or 2560 wide. On the narrow screens below, 6% of the window is
+// reading width the page cannot spare, so core's near-full width stands.
+@media (min-width: 1024px) {
+  :root {
+    --d-max-width: calc(88vw - var(--d-sidebar-width));
+  }
+
+  // Core assumes the sidebar is part of the wrap only on pages that have one.
+  // On the others the subtraction above would narrow the column by the
+  // sidebar's width, which is not on screen to make up the difference.
+  body:not(.has-sidebar-page) .wrap {
+    max-width: 88vw;
   }
 }
 
@@ -604,7 +621,9 @@ body:has(.ingenic-homepage) {
 }
 
 .ingenic-homepage {
-  max-width: 1680px;
+  // The wrap already holds the page at 88vw; a cap here would pull the home
+  // page inside the header's edges on a wide screen.
+  max-width: 100%;
   margin: 0 auto 2.5rem;
 
   // The welcome band. Meta's front page opens with a centred greeting and a
