@@ -22,10 +22,9 @@ const CATEGORY_ICONS = {
 // theme knows get a hue each. A card with its own colour still wins.
 const CATEGORY_TINTS = {
   // The home-page icon is mixed 70/30 towards the navy before it is drawn, so
-  // the tint is chosen backwards from #2b6cb0 — the blue Home, Topics and the
-  // Latest discussions heading use — to make the card's glyph land on the same
-  // colour as its sidebar row.
-  "technical-discussions": "#3582d3",
+  // the tint is chosen backwards from #2c7a7b — the teal its sidebar row uses —
+  // to make the card's glyph land on the same colour as that row.
+  "technical-discussions": "#369687",
   "official-announcements": "#ef8a2b",
   "site-feedback": "#d6539a",
   "open-source": "#7b61d6",

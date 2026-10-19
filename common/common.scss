@@ -429,12 +429,11 @@ html.ingenic-nav-first .sidebar-sections {
     color: #c05621;
   }
 
-  // The same blue as Home, Topics and the Latest discussions heading. It was a
-  // teal, which made the section read as a different kind of destination from
-  // the three rows beside it, and disagreed with the blue its own home-page
-  // card already used.
+  // Teal, and its home-page card is tuned to land on the same value. Home is
+  // the one blue in the primary navigation; the sections beside it each keep a
+  // colour of their own.
   &--discussions .d-icon {
-    color: #2b6cb0;
+    color: #2c7a7b;
   }
 
   &--docs .d-icon {
@@ -481,7 +480,7 @@ html.ingenic-nav-first .sidebar-sections {
 
 [data-section-name="community"] {
   .d-icon-layer-group {
-    color: #2b6cb0; // Topics
+    color: #b7791f; // Topics
   }
 
   .d-icon-user {
@@ -845,7 +844,7 @@ body:has(.ingenic-homepage) {
 }
 
 .ingenic-feed:not(.ingenic-feed--hot) .ingenic-section__icon {
-  color: #2b6cb0;
+  color: #2f855a;
 }
 
 .ingenic-feed--hot .ingenic-section__icon {
