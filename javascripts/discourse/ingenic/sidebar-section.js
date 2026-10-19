@@ -79,7 +79,9 @@ const communityLinks = [
   },
   {
     key: "site-feedback",
-    icon: "comments",
+    // The same glyph the section carries on its own page, from the shared
+    // marks table; a name should not change its icon between two rows.
+    icon: "comment-dots",
     labelKey: "ingenic.nav.site_feedback",
     category: "site-feedback",
     enabled: () => true,
@@ -148,21 +150,64 @@ export function registerIngenicCommunityLinks(api) {
   }
 }
 
+// The path part of an address, without a trailing slash, so `/c/open-source/7`
+// and `/c/open-source/7/` are the same destination.
+function normalizePath(url) {
+  if (!url) {
+    return "";
+  }
+
+  try {
+    return new URL(url, window.location.origin).pathname.replace(/\/+$/, "");
+  } catch {
+    return String(url).replace(/\/+$/, "");
+  }
+}
+
 /**
  * One row of the navigation. Core hands the base class to each registration
  * callback, so the link class is built from it rather than imported.
  */
 function makeLinkClass(BaseCustomSidebarSectionLink) {
   return class IngenicSectionLink extends BaseCustomSidebarSectionLink {
-    constructor({ item, router }) {
+    // The site is handed in rather than injected: core instantiates these
+    // links itself, but the section above builds them with `new`, and `new` on
+    // a plain class has no owner for `@service` to look the service up on.
+    constructor({ item, router, site }) {
       super(...arguments);
 
       this.item = item;
       this.router = router;
+      this.site = site;
     }
 
     get name() {
       return this.item.key;
+    }
+
+    // The category a row points at, when it points at one. A row is a plain
+    // href, so the address is the only thing tying it to the category tree.
+    get category() {
+      const path = normalizePath(this.item.href);
+
+      return (
+        (this.site?.categories ?? []).find(
+          (candidate) => normalizePath(candidate.url) === path,
+        ) ?? null
+      );
+    }
+
+    // Whether the row has another level under it. The flyout component reads
+    // the same tree; this is only what marks the row as a parent.
+    get hasChildren() {
+      const category = this.category;
+
+      return (
+        !!category &&
+        (this.site?.categories ?? []).some(
+          (candidate) => candidate.parent_category_id === category.id,
+        )
+      );
     }
 
     // The key goes on the row so the stylesheet can give each module an icon
@@ -173,7 +218,13 @@ function makeLinkClass(BaseCustomSidebarSectionLink) {
       // from typing spaces or punctuation into one.
       const key = String(this.item.key ?? "").replace(/[^a-z0-9_-]/gi, "-");
 
-      return `ingenic-sidebar-link ingenic-sidebar-link--${key}`;
+      return [
+        "ingenic-sidebar-link",
+        `ingenic-sidebar-link--${key}`,
+        this.hasChildren && "ingenic-sidebar-link--children",
+      ]
+        .filter(Boolean)
+        .join(" ");
     }
 
     get text() {
@@ -255,7 +306,12 @@ export function registerIngenicSidebarSections(api) {
 
           get links() {
             return resolveNavItems(this.site, group.section).map(
-              (item) => new IngenicSectionLink({ item, router: this.router }),
+              (item) =>
+                new IngenicSectionLink({
+                  item,
+                  router: this.router,
+                  site: this.site,
+                }),
             );
           }
 

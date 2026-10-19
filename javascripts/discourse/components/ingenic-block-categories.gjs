@@ -3,33 +3,13 @@ import Component from "@glimmer/component";
 import { service } from "@ember/service";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
+import { markFor } from "../ingenic/category-marks";
 
 // A category only carries an icon when an administrator sets one, and most
-// forums do not bother. The five sections this forum ships with are the ones a
-// visitor sees on the front page, so they get a glyph of their own here rather
-// than an empty tinted square.
-const CATEGORY_ICONS = {
-  "technical-discussions": "comments",
-  "official-announcements": "bullhorn",
-  "site-feedback": "comment-dots",
-  "open-source": "code",
-  general: "comments",
-};
-
-// Category colours in Discourse are often all one hue, because an administrator
-// picks one palette for the whole forum. On a front-page card the icon is the
-// only thing distinguishing one section from another, so the five sections this
-// theme knows get a hue each. A card with its own colour still wins.
-const CATEGORY_TINTS = {
-  // The home-page icon is mixed 70/30 towards the navy before it is drawn, so
-  // the tint is chosen backwards from #2c7a7b — the teal its sidebar row uses —
-  // to make the card's glyph land on the same colour as that row.
-  "technical-discussions": "#369687",
-  "official-announcements": "#ef8a2b",
-  "site-feedback": "#d6539a",
-  "open-source": "#7b61d6",
-  general: "#25aae2",
-};
+// forums do not bother. The sections this forum ships with are the ones a
+// visitor sees on the front page, so they get a glyph of their own. The table
+// is shared with the category page and the sidebar, so a section is drawn the
+// same way wherever its name appears.
 
 /**
  * The forum's sections, as the home page's way into the forum.
@@ -129,18 +109,14 @@ export default class IngenicBlockCategories extends Component {
       return null;
     }
 
-    const color =
-      overlay.color || CATEGORY_TINTS[category.slug] || category.color;
+    const mark = markFor(category);
+    const color = overlay.color || mark?.tint || category.color;
 
     return {
       key: `category-${category.id}`,
       href: category.url,
       label: overlay.label || category.name,
-      icon:
-        overlay.icon ||
-        category.icon ||
-        CATEGORY_ICONS[category.slug] ||
-        "comments",
+      icon: overlay.icon || category.icon || mark?.icon || "comments",
       image_url: overlay.image_url,
       style: color ? `--ingenic-category: #${color.replace(/^#/, "")}` : null,
     };

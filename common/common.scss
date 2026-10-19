@@ -410,6 +410,19 @@ html.ingenic-nav-first .sidebar-sections {
   transform: rotate(45deg);
 }
 
+// A forum row with another level under it says so the same way: the chevron
+// points at the panel that opens beside it, not at a page.
+[data-section-name="ingenic-forum"] .ingenic-sidebar-link--children::after {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-inline-start: auto;
+  border-top: 1.5px solid var(--primary-medium);
+  border-right: 1.5px solid var(--primary-medium);
+  transform: rotate(45deg);
+}
+
 // A row is a destination, so it takes a shape on hover rather than only
 // changing the colour of its words.
 .sidebar-sections .sidebar-section-link,
@@ -454,15 +467,15 @@ html.ingenic-nav-first .sidebar-sections {
     color: #2b6cb0;
   }
 
+  // These three are the marks in `ingenic/category-marks.js`, to the digit.
+  // The row, the card, the breadcrumb and the flyout all read one table, so a
+  // section cannot arrive in one hue in the column and another on its page.
   &--announcements .d-icon {
-    color: #c05621;
+    color: #ef8a2b;
   }
 
-  // Teal, and its home-page card is tuned to land on the same value. Home is
-  // the one blue in the primary navigation; the sections beside it each keep a
-  // colour of their own.
   &--discussions .d-icon {
-    color: #2c7a7b;
+    color: #369687;
   }
 
   &--docs .d-icon {
@@ -470,7 +483,7 @@ html.ingenic-nav-first .sidebar-sections {
   }
 
   &--open-source .d-icon {
-    color: #6b46c1;
+    color: #7b61d6;
   }
 
   &--downloads .d-icon {
@@ -509,6 +522,109 @@ html.ingenic-nav-first .sidebar-sections {
   &:focus {
     background: color-mix(in srgb, var(--tertiary) 88%, #000);
     color: #fff;
+  }
+}
+
+// The sub-category flyout. Panels are placed by the component with fixed
+// coordinates measured from the row that opened them, so the stylesheet only
+// decides what a panel looks like. The wrapper itself draws nothing and takes
+// no space in the column; `display: contents` keeps it out of the card layout.
+.ingenic-sidebar-flyout-root {
+  display: contents;
+}
+
+.ingenic-sidebar-flyout__panel {
+  position: fixed;
+  z-index: 1200;
+  max-height: calc(100vh - 1rem);
+  overflow-y: auto;
+  padding: 0.4rem;
+  border: 1px solid var(--ingenic-panel-border);
+  border-radius: 0.7rem;
+  background: var(--secondary);
+  box-shadow: 0 12px 32px rgb(18 38 58 / 16%);
+  animation: ingenic-flyout-in 0.12s ease-out;
+}
+
+@keyframes ingenic-flyout-in {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ingenic-sidebar-flyout__panel {
+    animation: none;
+  }
+}
+
+.ingenic-sidebar-flyout__title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.15rem 0.35rem 0.4rem;
+  color: var(--primary-medium);
+  font-size: var(--font-down-2);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ingenic-sidebar-flyout__title-icon {
+  display: inline-flex;
+
+  .d-icon {
+    color: var(--ingenic-category);
+  }
+}
+
+.ingenic-sidebar-flyout__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// A row in the panel is the same destination the category page shows, so it
+// echoes the sidebar row: semibold near-black text and the section's own hue on
+// the glyph, rather than another line of blue links.
+.ingenic-sidebar-flyout__row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 6px;
+  color: var(--primary);
+  font-size: var(--font-down-1);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--ingenic-sky-50);
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .d-icon {
+    color: var(--ingenic-category);
+  }
+}
+
+.ingenic-sidebar-flyout__row-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ingenic-sidebar-flyout__chevron {
+  display: inline-flex;
+
+  .d-icon {
+    color: var(--primary-medium);
   }
 }
 
@@ -558,8 +674,8 @@ html.ingenic-nav-first .sidebar-sections {
     color: #6b46c1; // MCP
   }
 
-  .d-icon-comments {
-    color: #0e7490; // Site Feedback
+  .d-icon-comment-dots {
+    color: #d6539a; // Site Feedback
   }
 
   .d-icon-list {
@@ -1160,10 +1276,10 @@ body:has(.ingenic-homepage) {
     height: 1.75rem;
     border-radius: 0.45rem;
     background: color-mix(in srgb, var(--ingenic-category) 16%, var(--secondary));
-    // The category colour itself is chosen to sit on white as a dot; as a
-    // glyph on its own tint it can wash out. Mixing it towards the navy keeps
-    // the hue and gives the shape an edge.
-    color: color-mix(in srgb, var(--ingenic-category) 70%, var(--ingenic-navy));
+    // The section's own colour, not a blend of it: the same glyph on the
+    // category page is drawn in this exact value, and a card that mixed it
+    // would be a second hue for one section.
+    color: var(--ingenic-category);
     overflow: hidden;
   }
 
