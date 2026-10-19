@@ -4,9 +4,9 @@
 # layout around it.
 
 ingenic_sidebar_width:
-  default: 240
+  default: 288
   type: integer
-  description: "Width in pixels of the navigation sidebar on desktop. Values above 240 are capped so the content column keeps its room; below the large breakpoint Discourse's own narrower width is used instead."
+  description: "Width in pixels of the navigation sidebar on desktop. Values above 288 are capped so the content column keeps its room; below the large breakpoint Discourse's own narrower width is used instead."
 
 ingenic_sidebar_position:
   default: "left"

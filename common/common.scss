@@ -136,11 +136,11 @@
   // at the desktop breakpoint below.
   --d-max-width: calc(1680px - var(--d-sidebar-width));
 
-  // Capped as well as configured: this setting shipped at 272px, and a theme
-  // update keeps the stored value, so the default alone would leave an
-  // existing forum with the wide sidebar the setting was meant to fix. An
-  // editor can still make it narrower.
-  --d-sidebar-width: min(#{$ingenic_sidebar_width}px, 240px);
+  // Capped as well as configured: the cap is what stops a mistyped value from
+  // squeezing the reading column. The cap now matches the default, because the
+  // longest row label — "SDK & Firmware Downloads" — needs the extra pixels to
+  // fit without an ellipsis. An editor can still make it narrower.
+  --d-sidebar-width: min(#{$ingenic_sidebar_width}px, 288px);
 
   @include viewport.until(lg) {
     --d-sidebar-width: #{$d-sidebar-narrow-width};
@@ -707,11 +707,12 @@ body:has(.ingenic-homepage) {
     // The discussion feed down the left and the shorter lists in a rail. The
     // feed spans the two rows the rail's cards occupy, so the pair reads as
     // one block rather than as a card with a hole under it. The rail keeps a
-    // fixed floor: the extra page width goes to the feed, not to a wider rail.
-    // Its cards are separate surfaces with the page between them, so the row
-    // gap is the same as the gap under the hero.
+    // fixed floor, now wide enough for a card heading and its excerpt to sit
+    // without a squeeze: the extra page width still goes to the feed, not to a
+    // rail that grows without limit. Its cards are separate surfaces with the
+    // page between them, so the row gap is the same as the gap under the hero.
     &--with-rail {
-      grid-template-columns: minmax(0, 1.65fr) minmax(18rem, 0.6fr);
+      grid-template-columns: minmax(0, 1.65fr) minmax(20rem, 0.6fr);
       // The cards are separate surfaces, so the page shows between them, but
       // only enough to part them: the tinted page does most of the work now,
       // and a wider gap made the column read as four islands.
