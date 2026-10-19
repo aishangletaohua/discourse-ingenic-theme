@@ -807,7 +807,7 @@ body:has(.ingenic-homepage) {
       radial-gradient(circle at 82% 8%, var(--ingenic-sky-100), transparent 46%),
       linear-gradient(180deg, var(--ingenic-sky-50), var(--secondary));
     color: var(--primary);
-    text-align: left;
+    text-align: center;
 
     // One line, read first, then the search directly under it: the greeting
     // names the page and the search is the page's first action. An eyebrow
@@ -827,9 +827,11 @@ body:has(.ingenic-homepage) {
   // them in one surface is what makes the group read as the page's first
   // action rather than as two unrelated rows.
   &__search-panel {
-    max-width: 44rem;
-    margin-top: 1rem;
-    padding: 0.3rem 0.35rem 0;
+    // Centred under the greeting, and narrower than the column: the search is
+    // the page's first action, not a form that fills it.
+    max-width: 36rem;
+    margin: 1rem auto 0;
+    padding: 0.25rem 0.3rem 0;
     border: 1px solid var(--ingenic-surface-border);
     border-radius: 0.85rem;
     background: var(--secondary);
@@ -847,7 +849,7 @@ body:has(.ingenic-homepage) {
     align-items: center;
     gap: 0.5rem;
     margin: 0;
-    padding: 0.15rem 0.1rem 0.55rem 0.75rem;
+    padding: 0.1rem 0.1rem 0.45rem 0.7rem;
 
     &-icon {
       display: inline-flex;
@@ -868,10 +870,13 @@ body:has(.ingenic-homepage) {
     &-input[type="search"] {
       flex: 1;
       min-width: 0;
-      height: 2.75rem;
-      min-height: 2.75rem;
+      height: 2.5rem;
+      min-height: 2.5rem;
       margin: 0;
       padding: 0.25rem;
+      // The band is centred; what is typed into the field is still read from
+      // the left, like every other text field on the site.
+      text-align: left;
       border: 0;
       border-radius: 0;
       background: transparent;
@@ -892,11 +897,11 @@ body:has(.ingenic-homepage) {
       flex: 0 0 auto;
       align-items: center;
       justify-content: center;
-      min-height: 2.75rem;
+      min-height: 2.5rem;
       margin: 0;
-      border-radius: 0.6rem;
+      border-radius: 0.55rem;
       padding-block: 0;
-      padding-inline: 1.15rem;
+      padding-inline: 1rem;
     }
   }
 
@@ -906,7 +911,7 @@ body:has(.ingenic-homepage) {
   &__quick {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start;
+    justify-content: center;
     gap: 0.35rem 1.2rem;
     margin: 0;
     padding: 0.6rem 0.8rem 0.7rem;
