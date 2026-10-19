@@ -43,7 +43,11 @@ settings behind them — see the plugin's usage guide:
 - an admin-configurable homepage assembled from blocks
 - a documentation reader: a two-level product picker (series, then a flyout of
   its chips), a version selector, full-text search, a collapsible contents tree,
-  the rendered Markdown body and previous/next navigation
+  the rendered Markdown body and previous/next navigation. The reader is a fixed
+  workspace rather than a long page: the contents and the article scroll in
+  their own columns, and the previous/next bar sits at the foot of the article
+  column, in view whatever the length of the page. Opening another page starts
+  it at the top. A narrower screen falls back to scrolling the whole page.
 - a download centre with product / type / version / platform filters, showing
   the right prompt and button for each of the three access tiers — and, for a
   resource that is priced, **Unlock for N points** when the reader can afford it
