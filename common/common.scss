@@ -640,14 +640,15 @@ body:has(.ingenic-homepage) {
   // reader scroll past its own introduction to reach the forum.
   &__hero {
     margin-bottom: 1.4rem;
-    padding: clamp(1rem, 2.2vw, 1.6rem) 1rem 1.15rem;
+    padding: clamp(1rem, 2.2vw, 1.6rem) clamp(1rem, 2vw, 1.75rem)
+      clamp(1rem, 1.8vw, 1.35rem);
     border-radius: var(--ingenic-radius);
     background:
       radial-gradient(circle at 18% 0%, var(--ingenic-sky-200), transparent 42%),
       radial-gradient(circle at 82% 8%, var(--ingenic-sky-100), transparent 46%),
       linear-gradient(180deg, var(--ingenic-sky-50), var(--secondary));
     color: var(--primary);
-    text-align: center;
+    text-align: left;
 
     h1 {
       margin: 0.2rem 0 0.3rem;
@@ -655,13 +656,20 @@ body:has(.ingenic-homepage) {
       font-size: clamp(1.45rem, 2.6vw, 2rem);
       line-height: 1.15;
     }
+  }
 
-    > p {
-      max-width: 42rem;
-      margin: 0 auto;
-      color: var(--primary-high);
-      font-size: var(--font-0);
-    }
+  // The greeting and the search step left together, the way the reference
+  // page read: the title is read first, the search is the action under it,
+  // and the three resource links are part of the same search panel.
+  &__intro {
+    max-width: 44rem;
+  }
+
+  &__intro p {
+    max-width: 42rem;
+    margin: 0;
+    color: var(--primary-high);
+    font-size: var(--font-0);
   }
 
   &__eyebrow {
@@ -673,67 +681,107 @@ body:has(.ingenic-homepage) {
     text-transform: uppercase;
   }
 
+  // The search and the three resource links share one white panel: the input
+  // and its button on the first row, the links on a rule underneath. Keeping
+  // them in one surface is what makes the group read as the page's first
+  // action rather than as two unrelated rows.
+  &__search-panel {
+    max-width: 44rem;
+    margin-top: 1rem;
+    padding: 0.3rem 0.35rem 0;
+    border: 1px solid var(--ingenic-surface-border);
+    border-radius: 0.85rem;
+    background: var(--secondary);
+    box-shadow: 0 8px 22px rgb(18 38 58 / 7%);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:focus-within {
+      border-color: color-mix(in srgb, var(--ingenic-link) 55%, transparent);
+      box-shadow: 0 8px 24px rgb(18 38 58 / 10%);
+    }
+  }
+
   &__search {
     display: flex;
+    align-items: center;
     gap: 0.5rem;
-    max-width: 38rem;
-    margin: 0.8rem auto 0;
+    margin: 0;
+    padding: 0.15rem 0.1rem 0.55rem 0.75rem;
+
+    &-icon {
+      display: inline-flex;
+      flex: none;
+      color: var(--primary-medium);
+
+      .d-icon {
+        width: 1em;
+        height: 1em;
+      }
+    }
 
     &-input {
       flex: 1;
       min-width: 0;
-      min-height: 2.35rem;
-      padding: 0.35rem 1rem;
-      border: 1px solid var(--ingenic-surface-border);
-      border-radius: 999px;
-      background: var(--secondary);
+      min-height: 2.5rem;
+      padding: 0.25rem;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+
+      &:focus,
+      &:focus-visible {
+        outline: none;
+      }
     }
 
     .btn {
       flex: 0 0 auto;
-      border-radius: 999px;
-      padding-inline: 1.1rem;
+      border-radius: 0.6rem;
+      padding-inline: 1.15rem;
     }
   }
 
-  // The three resource centres, directly under the search. Small pills rather
-  // than cards: they repeat the sidebar's developer section, so they are a way
-  // through to those pages, not a second description of them.
+  // The three resource centres, under the search. They are links, not cards:
+  // the sidebar already describes these destinations, and the reference page
+  // makes them a quiet footer to the search rather than a second module.
   &__quick {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.45rem 0.55rem;
-    max-width: 44rem;
-    margin: 0.85rem auto 0;
+    justify-content: flex-start;
+    gap: 0.35rem 1.2rem;
+    margin: 0;
+    padding: 0.6rem 0.8rem 0.7rem;
+    border-top: 1px solid var(--ingenic-divider);
   }
 
   &__quick-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.28rem 0.75rem;
-    border: 1px solid color-mix(in srgb, var(--ingenic-link) 22%, transparent);
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--secondary) 72%, transparent);
+    gap: 0.3rem;
+    padding: 0;
+    border: 0;
+    background: none;
     color: var(--primary-high);
     font-size: var(--font-down-1);
     font-weight: 600;
     text-decoration: none;
-    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 
     .d-icon {
-      width: 0.85em;
-      height: 0.85em;
-      color: var(--ingenic-link);
+      width: 0.75em;
+      height: 0.75em;
+      color: var(--primary-medium);
+      transition: transform 0.15s ease, color 0.15s ease;
     }
 
     &:hover,
     &:focus-visible {
-      border-color: var(--ingenic-link);
-      background: var(--secondary);
       color: var(--ingenic-link);
       text-decoration: none;
+
+      .d-icon {
+        color: currentColor;
+        transform: translateX(2px);
+      }
     }
   }
 
@@ -932,10 +980,6 @@ body:has(.ingenic-homepage) {
   --ingenic-section-accent: #c53030;
 }
 
-.ingenic-section--sections {
-  --ingenic-section-accent: #2b6cb0;
-}
-
 .ingenic-promotions .ingenic-section__icon {
   color: #c05621;
 }
@@ -964,7 +1008,7 @@ body:has(.ingenic-homepage) {
   color: #c53030;
 }
 
-.ingenic-section--sections .ingenic-section__icon {
+.ingenic-sections-block .ingenic-section__icon {
   color: #2b6cb0;
 }
 
@@ -992,16 +1036,45 @@ body:has(.ingenic-homepage) {
   }
 }
 
-// The forum's sections on the front page. Meta draws these as a row of cards
-// with a coloured icon and the section's name; the same shape is used here.
-// The cards name the section and give its topic count, and nothing more: a
-// front-page card is a way into a section, not an introduction to it.
-// The sections are a module like the rest: one titled card holding the three
-// entrances and a way through to the full list. The cards inside it are tinted
-// so they read as choices within the module rather than as modules themselves.
-.ingenic-section--sections {
-  .ingenic-section__header {
-    margin-bottom: 1rem;
+// The forum's sections on the front page. The reference page puts the heading
+// on the page and the three entrances under it as their own cards, so the
+// block is a heading row and a grid rather than another framed module: the
+// cards themselves are the modules here.
+.ingenic-sections-block {
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      margin: 0;
+      font-size: var(--font-up-1);
+    }
+  }
+
+  &__all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--ingenic-link);
+    font-size: var(--font-down-1);
+    font-weight: 600;
+    white-space: nowrap;
+    text-decoration: none;
+
+    .d-icon {
+      width: 0.8em;
+      height: 0.8em;
+    }
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 
@@ -1011,32 +1084,7 @@ body:has(.ingenic-homepage) {
   // description that used to make them tall is gone, because a front-page
   // card is a way in, not an introduction to the section.
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.7rem;
-
-  // Centred under the cards and read as "on to the list": the arrow turns the
-  // line into a direction rather than a label. Full width so the centring is
-  // against the section, not against the width of the words.
-  &__all {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.35rem;
-    margin-top: 0.25rem;
-    padding-top: 0.65rem;
-    color: var(--primary-medium);
-    font-size: var(--font-down-1);
-
-    &:hover,
-    &:focus {
-      color: var(--ingenic-link);
-      text-decoration: none;
-    }
-  }
-
-  &__all-arrow {
-    font-size: var(--font-up-1);
-    line-height: 1;
-  }
+  gap: 0.85rem;
 
   &__card {
     --ingenic-category: var(--tertiary);
@@ -1044,18 +1092,19 @@ body:has(.ingenic-homepage) {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.7rem;
-    border: 1px solid transparent;
-    border-radius: 0.6rem;
-    background: var(--ingenic-surface-tint);
+    gap: 0.6rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: 0.7rem;
+    background: var(--secondary);
+    box-shadow: 0 4px 14px rgb(18 38 58 / 5%);
     color: var(--primary);
-    transition: background 0.15s ease, border-color 0.15s ease;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
     &:hover,
     &:focus {
-      border-color: var(--ingenic-surface-border);
-      background: var(--secondary);
+      border-color: color-mix(in srgb, var(--ingenic-category) 45%, transparent);
+      box-shadow: 0 7px 18px rgb(18 38 58 / 9%);
       text-decoration: none;
     }
   }
@@ -1083,23 +1132,35 @@ body:has(.ingenic-homepage) {
 
   &__text {
     display: flex;
-    flex-direction: column;
-    gap: 0.05rem;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 0.45rem;
     min-width: 0;
   }
 
+  // The name wraps rather than clipping: at a third of the page's width a long
+  // section name ("Technical Discussions") loses its last word to an ellipsis,
+  // and a jump card that does not say where it goes is no use.
   &__name {
-    overflow: hidden;
+    min-width: 0;
     color: var(--primary);
-    font-size: var(--font-down-1);
+    font-size: var(--font-0);
     font-weight: 600;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
   }
 
+  // The topic count sits beside the name as a small badge, the way the
+  // reference cards carry theirs: one line, no description under it.
   &__count {
+    flex: none;
+    padding: 0.06rem 0.45rem;
+    border-radius: 999px;
+    background: var(--ingenic-surface-tint);
     color: var(--primary-medium);
     font-size: var(--font-down-2);
+    font-weight: 600;
+    white-space: nowrap;
   }
 }
 

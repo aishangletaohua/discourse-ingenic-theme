@@ -70,7 +70,7 @@ en:
       quick:
         label: "Developer resources"
         docs: "Browse documentation"
-        downloads: "Download SDKs"
+        downloads: "Download the SDK"
         boards: "Find a board"
       empty: "Nothing here yet."
       topics:

@@ -150,12 +150,19 @@ export default class IngenicBlockCategories extends Component {
   }
 
   <template>
-    <section class="ingenic-section ingenic-section--sections">
-      <header class="ingenic-section__header">
+    <section class="ingenic-sections-block">
+      <header class="ingenic-sections-block__header">
         <h2>
           <span class="ingenic-section__icon">{{dIcon "layer-group"}}</span>
           {{i18n (themePrefix "ingenic.home.sections.title")}}
         </h2>
+
+        {{#if this.showAll}}
+          <a class="ingenic-sections-block__all" href="/categories">
+            {{i18n (themePrefix "ingenic.home.sections.all")}}
+            {{dIcon "arrow-right"}}
+          </a>
+        {{/if}}
       </header>
 
       {{#if this.cards.length}}
@@ -198,13 +205,6 @@ export default class IngenicBlockCategories extends Component {
         <p class="ingenic-section__subtitle">
           {{i18n (themePrefix "ingenic.home.sections.empty")}}
         </p>
-      {{/if}}
-
-      {{#if this.showAll}}
-        <a class="ingenic-section__footer" href="/categories">
-          {{i18n (themePrefix "ingenic.home.sections.all")}}
-          {{dIcon "arrow-right"}}
-        </a>
       {{/if}}
     </section>
   </template>

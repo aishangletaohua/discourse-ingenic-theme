@@ -121,19 +121,16 @@ export default class IngenicHomepage extends Component {
       {
         key: "docs",
         href: getURL("/ingenic/docs"),
-        icon: "book",
         label: i18n(themePrefix("ingenic.home.quick.docs")),
       },
       {
         key: "downloads",
         href: getURL("/ingenic/downloads"),
-        icon: "download",
         label: i18n(themePrefix("ingenic.home.quick.downloads")),
       },
       {
         key: "boards",
         href: getURL("/ingenic/boards"),
-        icon: "microchip",
         label: i18n(themePrefix("ingenic.home.quick.boards")),
       },
     ];
@@ -142,41 +139,48 @@ export default class IngenicHomepage extends Component {
   <template>
     <div class="ingenic-homepage">
       <section class="ingenic-homepage__hero">
-        <p class="ingenic-homepage__eyebrow">
-          {{i18n (themePrefix "ingenic.home.eyebrow")}}
-        </p>
-        <h1>{{this.heroTitle}}</h1>
-        <p>{{this.heroSubtitle}}</p>
+        <div class="ingenic-homepage__intro">
+          <p class="ingenic-homepage__eyebrow">
+            {{i18n (themePrefix "ingenic.home.eyebrow")}}
+          </p>
+          <h1>{{this.heroTitle}}</h1>
+          <p>{{this.heroSubtitle}}</p>
+        </div>
 
-        <form
-          class="ingenic-homepage__search"
-          action={{getURL "/search"}}
-          method="get"
-          role="search"
-        >
-          <input
-            type="search"
-            name="q"
-            class="ingenic-homepage__search-input"
-            placeholder={{i18n (themePrefix "ingenic.home.search_placeholder")}}
-            aria-label={{i18n (themePrefix "ingenic.home.search_placeholder")}}
-          />
-          <button class="btn btn-primary" type="submit">
-            {{i18n (themePrefix "ingenic.home.search")}}
-          </button>
-        </form>
+        <div class="ingenic-homepage__search-panel">
+          <form
+            class="ingenic-homepage__search"
+            action={{getURL "/search"}}
+            method="get"
+            role="search"
+          >
+            <span class="ingenic-homepage__search-icon" aria-hidden="true">
+              {{dIcon "search"}}
+            </span>
+            <input
+              type="search"
+              name="q"
+              class="ingenic-homepage__search-input"
+              placeholder={{i18n (themePrefix "ingenic.home.search_placeholder")}}
+              aria-label={{i18n (themePrefix "ingenic.home.search_placeholder")}}
+            />
+            <button class="btn btn-primary" type="submit">
+              {{i18n (themePrefix "ingenic.home.search")}}
+            </button>
+          </form>
 
-        <nav
-          class="ingenic-homepage__quick"
-          aria-label={{i18n (themePrefix "ingenic.home.quick.label")}}
-        >
-          {{#each this.quickLinks as |link|}}
-            <a class="ingenic-homepage__quick-link" href={{link.href}}>
-              {{dIcon link.icon}}
-              {{link.label}}
-            </a>
-          {{/each}}
-        </nav>
+          <nav
+            class="ingenic-homepage__quick"
+            aria-label={{i18n (themePrefix "ingenic.home.quick.label")}}
+          >
+            {{#each this.quickLinks as |link|}}
+              <a class="ingenic-homepage__quick-link" href={{link.href}}>
+                {{link.label}}
+                {{dIcon "arrow-right"}}
+              </a>
+            {{/each}}
+          </nav>
+        </div>
       </section>
 
       <div
