@@ -2,6 +2,8 @@ import { themePrefix } from "virtual:theme";
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
+import { fn } from "@ember/helper";
+import { on } from "@ember/modifier";
 import { service } from "@ember/service";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import getURL from "discourse/lib/get-url";
@@ -39,6 +41,10 @@ export default class IngenicBlockFeed extends Component {
   // card draws placeholder rows, so the list does not announce "nothing here"
   // while it is still being fetched.
   @tracked loaded = false;
+  // Which rows the reader asked for. The whole list is fetched once and
+  // filtered in the browser: Discourse has no "unanswered" feed to ask for, and
+  // 已解决 is a tag on the topic rather than a filter the server understands.
+  @tracked filter = "all";
   requested = false;
 
   get type() {
@@ -47,6 +53,12 @@ export default class IngenicBlockFeed extends Component {
 
   get isHot() {
     return this.type === "hot";
+  }
+
+  // The latest block is the page's table; hot is a compact "what is trending"
+  // rail card.
+  get isTable() {
+    return !this.isHot;
   }
 
   get limit() {
@@ -73,8 +85,21 @@ export default class IngenicBlockFeed extends Component {
     );
   }
 
+  // The latest list is the table on the page and "View all" goes to the same
+  // feed without the card's limit. Hot keeps its own address.
   get allPath() {
-    return getURL("/hot");
+    return getURL(this.isHot ? "/hot" : "/latest");
+  }
+
+  get filterOptions() {
+    return [
+      { key: "all", label: i18n(themePrefix("ingenic.home.filters.all")) },
+      {
+        key: "unanswered",
+        label: i18n(themePrefix("ingenic.home.filters.unanswered")),
+      },
+      { key: "solved", label: i18n(themePrefix("ingenic.home.filters.solved")) },
+    ].map((option) => ({ ...option, active: option.key === this.filter }));
   }
 
   // Topic keeps the payload's own names — `category_id`, `posts_count`,
@@ -98,6 +123,12 @@ export default class IngenicBlockFeed extends Component {
       postsCount: topic.posts_count,
       views: topic.views,
       lastPostedAt: topic.last_posted_at,
+      // No answer yet. `posts_count` includes the opening post, so one post is
+      // an unanswered question and two is a conversation.
+      unanswered: (topic.posts_count ?? 0) <= 1,
+      solved: (topic.tags ?? []).some(
+        (tag) => (typeof tag === "string" ? tag : tag.name) === "已解决",
+      ),
       category: categoryFor(topic),
       categoryUrl: categoryFor(topic)?.url,
       tags: (topic.tags ?? []).map((tag) =>
@@ -114,6 +145,19 @@ export default class IngenicBlockFeed extends Component {
             },
       ),
     }));
+  }
+
+  get visibleRows() {
+    if (this.isHot || this.filter === "all") {
+      return this.rows;
+    }
+
+    return this.rows.filter((row) => row[this.filter]);
+  }
+
+  @action
+  chooseFilter(key) {
+    this.filter = key;
   }
 
   // One placeholder per row the real list will hold, so the card keeps its
@@ -145,7 +189,7 @@ export default class IngenicBlockFeed extends Component {
 
   <template>
     <section
-      class="ingenic-section ingenic-feed {{if this.isHot 'ingenic-feed--hot'}}"
+      class="ingenic-section ingenic-feed {{if this.isHot 'ingenic-feed--hot'}} {{if this.isTable 'ingenic-feed--table'}}"
       {{didInsert this.load}}
     >
       <header class="ingenic-section__header">
@@ -153,57 +197,128 @@ export default class IngenicBlockFeed extends Component {
           <span class="ingenic-section__icon">{{dIcon this.icon}}</span>
           {{this.title}}
         </h2>
+
+        {{#unless this.isHot}}
+          <div class="ingenic-feed__filters" role="group">
+            {{#each this.filterOptions as |option|}}
+              <button
+                type="button"
+                class="ingenic-feed__filter {{if option.active 'is-active'}}"
+                aria-pressed={{option.active}}
+                {{on "click" (fn this.chooseFilter option.key)}}
+              >
+                {{option.label}}
+              </button>
+            {{/each}}
+          </div>
+        {{/unless}}
       </header>
 
-      {{#if this.rows.length}}
+      {{#if this.isTable}}
+        <div class="ingenic-feed__table-head" aria-hidden="true">
+          <span class="ingenic-feed__col ingenic-feed__col--topic">
+            {{i18n (themePrefix "ingenic.home.topics.topic")}}
+          </span>
+          <span class="ingenic-feed__col">
+            {{i18n (themePrefix "ingenic.home.topics.replies_short")}}
+          </span>
+          <span class="ingenic-feed__col">
+            {{i18n (themePrefix "ingenic.home.topics.views_short")}}
+          </span>
+          <span class="ingenic-feed__col">
+            {{i18n (themePrefix "ingenic.home.topics.activity")}}
+          </span>
+        </div>
+      {{/if}}
+
+      {{#if this.visibleRows.length}}
         <ol class="ingenic-feed__list">
-          {{#each this.rows as |row|}}
-            <li class="ingenic-feed__item">
-              <div class="ingenic-feed__headline">
-                {{#if this.isHot}}
-                  <span class="ingenic-feed__rank" aria-hidden="true">{{row.rank}}</span>
-                {{/if}}
-                <a class="ingenic-feed__title" href={{row.url}}>{{row.title}}</a>
-              </div>
+          {{#each this.visibleRows as |row|}}
+            {{#if this.isTable}}
+              <li class="ingenic-feed__item ingenic-feed__item--row">
+                <div class="ingenic-feed__cell ingenic-feed__cell--topic">
+                  <a class="ingenic-feed__title" href={{row.url}}>{{row.title}}</a>
 
-              {{#if row.tags.length}}
-                <div class="ingenic-feed__tags discourse-tags">
-                  {{#each row.tags as |tag|}}
+                  {{#if row.tags.length}}
+                    <div class="ingenic-feed__tags discourse-tags">
+                      {{#each row.tags as |tag|}}
+                        <a
+                          class="discourse-tag simple"
+                          href={{tag.url}}
+                          data-tag-name={{tag.key}}
+                        >{{tag.name}}</a>
+                      {{/each}}
+                    </div>
+                  {{/if}}
+
+                  {{#if row.category}}
                     <a
-                      class="discourse-tag simple"
-                      href={{tag.url}}
-                      data-tag-name={{tag.key}}
-                    >{{tag.name}}</a>
-                  {{/each}}
+                      class="ingenic-feed__category"
+                      href={{row.categoryUrl}}
+                      style="--ingenic-category: #{{row.category.color}}"
+                    >
+                      <span
+                        class="ingenic-feed__dot"
+                        style="background-color: #{{row.category.color}}"
+                        aria-hidden="true"
+                      ></span>
+                      {{row.category.name}}
+                    </a>
+                  {{/if}}
                 </div>
-              {{/if}}
 
-              <div class="ingenic-feed__meta">
-                {{#if row.category}}
-                  <a
-                    class="ingenic-feed__category"
-                    href={{row.categoryUrl}}
-                    style="--ingenic-category: #{{row.category.color}}"
-                  >
-                    <span
-                      class="ingenic-feed__dot"
-                      style="background-color: #{{row.category.color}}"
-                      aria-hidden="true"
-                    ></span>
-                    {{row.category.name}}
-                  </a>
-                {{/if}}
-                <span class="ingenic-feed__count">
-                  {{i18n (themePrefix "ingenic.home.topics.replies") count=row.postsCount}}
-                </span>
-                <span class="ingenic-feed__count">
-                  {{i18n (themePrefix "ingenic.home.topics.views") count=row.views}}
-                </span>
-                <span class="ingenic-feed__time">
+                <span class="ingenic-feed__cell ingenic-feed__cell--count">{{row.postsCount}}</span>
+                <span class="ingenic-feed__cell ingenic-feed__cell--count">{{row.views}}</span>
+                <span class="ingenic-feed__cell ingenic-feed__cell--time">
                   {{dFormatDate row.lastPostedAt leaveAgo="true"}}
                 </span>
-              </div>
-            </li>
+              </li>
+            {{else}}
+              <li class="ingenic-feed__item">
+                <div class="ingenic-feed__headline">
+                  <span class="ingenic-feed__rank" aria-hidden="true">{{row.rank}}</span>
+                  <a class="ingenic-feed__title" href={{row.url}}>{{row.title}}</a>
+                </div>
+
+                {{#if row.tags.length}}
+                  <div class="ingenic-feed__tags discourse-tags">
+                    {{#each row.tags as |tag|}}
+                      <a
+                        class="discourse-tag simple"
+                        href={{tag.url}}
+                        data-tag-name={{tag.key}}
+                      >{{tag.name}}</a>
+                    {{/each}}
+                  </div>
+                {{/if}}
+
+                <div class="ingenic-feed__meta">
+                  {{#if row.category}}
+                    <a
+                      class="ingenic-feed__category"
+                      href={{row.categoryUrl}}
+                      style="--ingenic-category: #{{row.category.color}}"
+                    >
+                      <span
+                        class="ingenic-feed__dot"
+                        style="background-color: #{{row.category.color}}"
+                        aria-hidden="true"
+                      ></span>
+                      {{row.category.name}}
+                    </a>
+                  {{/if}}
+                  <span class="ingenic-feed__count">
+                    {{i18n (themePrefix "ingenic.home.topics.replies") count=row.postsCount}}
+                  </span>
+                  <span class="ingenic-feed__count">
+                    {{i18n (themePrefix "ingenic.home.topics.views") count=row.views}}
+                  </span>
+                  <span class="ingenic-feed__time">
+                    {{dFormatDate row.lastPostedAt leaveAgo="true"}}
+                  </span>
+                </div>
+              </li>
+            {{/if}}
           {{/each}}
         </ol>
       {{else if this.loaded}}
@@ -221,12 +336,10 @@ export default class IngenicBlockFeed extends Component {
         </ol>
       {{/if}}
 
-      {{#if this.isHot}}
-        <a class="ingenic-section__footer" href={{this.allPath}}>
-          {{i18n (themePrefix "ingenic.home.show_all")}}
-          {{dIcon "arrow-right"}}
-        </a>
-      {{/if}}
+      <a class="ingenic-section__footer" href={{this.allPath}}>
+        {{i18n (themePrefix "ingenic.home.view_all")}}
+        {{dIcon "arrow-right"}}
+      </a>
     </section>
   </template>
 }

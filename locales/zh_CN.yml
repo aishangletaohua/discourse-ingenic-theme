@@ -57,11 +57,25 @@ zh_CN:
       quick_links: "君正快速链接"
       search_placeholder: "搜索论坛"
       search: "搜索"
+      start_discussion: "发起讨论"
       show_all: "显示全部"
+      view_all: "查看全部"
+      quick:
+        docs: "在线文档"
+        downloads: "下载中心"
+        boards: "开发板"
+      filters:
+        all: "全部"
+        unanswered: "未回复"
+        solved: "已解决"
       empty: "暂无内容。"
       topics:
         latest: "最新讨论"
         hot: "热门帖子"
+        topic: "主题"
+        replies_short: "回复"
+        views_short: "浏览"
+        activity: "最近活动"
         replies:
           one: "%{count} 条回复"
           other: "%{count} 条回复"
@@ -81,12 +95,32 @@ zh_CN:
     header_links:
       label: "君正链接"
     promotions:
+      title: "推广活动"
+    activity:
       title: "最新活动"
+    popular:
+      title: "热门帖子"
+      subtitle: "近 %{days} 天点赞最多的帖子。点赞优先，浏览数用于并列时排序。"
+      empty: "这段时间还没有热门帖子。"
+      loading: "加载中…"
+      likes:
+        one: "%{count} 个赞"
+        other: "%{count} 个赞"
+      views:
+        one: "%{count} 次浏览"
+        other: "%{count} 次浏览"
     leaderboard:
       title: "每周贡献排行"
       points: "积分"
       empty: "本周还没有产生贡献积分。"
       loading: "加载中…"
+      page_title: "每周贡献排行"
+      subtitle: "本周的贡献——写下的与回答的，而非花掉的。"
+      rank: "排名"
+      member: "成员"
+      contribution: "贡献"
+      you: "你"
+      board_empty: "本周还没有人产生贡献，来成为第一个。"
     locale:
       title: "切换站点语言"
     footer:

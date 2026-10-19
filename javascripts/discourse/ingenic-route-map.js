@@ -28,4 +28,6 @@ export default function () {
   this.route("ingenic-mcp", { path: "/ingenic/mcp" });
   this.route("ingenic-bounties", { path: "/ingenic/bounties" });
   this.route("ingenic-points", { path: "/ingenic/points" });
+  this.route("ingenic-popular", { path: "/ingenic/popular" });
+  this.route("ingenic-leaderboard", { path: "/ingenic/leaderboard" });
 }

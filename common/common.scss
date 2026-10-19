@@ -754,6 +754,14 @@ body:has(.ingenic-homepage) {
   // a third card.
   &__blocks--with-rail &__block--main {
     grid-row: span var(--ingenic-rail-cards, 2);
+    // With four rail cards the rail is taller than ten topic rows. Stretching
+    // the feed to match would leave a blank panel under its last row, so the
+    // feed keeps its own height and the page shows below it instead.
+    align-self: start;
+  }
+
+  &__blocks--with-rail &__block--main > .ingenic-section {
+    height: auto;
   }
 }
 
@@ -3377,5 +3385,450 @@ body:has(.ingenic-homepage) {
 
   .ingenic-product-card__body {
     gap: 0.6rem;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Home page v2: the hero's two ways in, the table-shaped discussion feed, and
+// the rail's two new cards. The section frame, the footer and the page surface
+// are unchanged — these are the parts the layout itself needed.
+// ---------------------------------------------------------------------------
+
+.ingenic-homepage {
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem 1rem;
+    margin-top: 0.9rem;
+  }
+
+  &__start {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 999px;
+    padding-inline: 1.1rem;
+  }
+
+  &__quick {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.45rem;
+  }
+
+  &__quick-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.32rem 0.75rem;
+    border: 1px solid var(--ingenic-surface-border);
+    border-radius: 999px;
+    background: var(--secondary);
+    color: var(--primary-high);
+    font-size: var(--font-down-1);
+    font-weight: 500;
+
+    .d-icon {
+      width: 0.95em;
+      height: 0.95em;
+      color: var(--ingenic-link);
+    }
+
+    &:hover,
+    &:focus-visible {
+      background: var(--ingenic-surface-tint);
+      color: var(--ingenic-link);
+      text-decoration: none;
+    }
+  }
+}
+
+// The latest list as a table: topic, replies, views, activity. A list of bare
+// titles already told a reader what was said; the columns say which of them is
+// worth opening, which is the question the card is actually asked.
+.ingenic-feed--table {
+  .ingenic-section__header {
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+  }
+
+  .ingenic-feed__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .ingenic-feed__filter {
+    padding: 0.22rem 0.7rem;
+    border: 1px solid var(--ingenic-surface-border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    line-height: 1.5;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--ingenic-link);
+      color: var(--ingenic-link);
+    }
+
+    &.is-active {
+      border-color: transparent;
+      background: var(--ingenic-link);
+      color: var(--secondary);
+    }
+  }
+
+  .ingenic-feed__table-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 4.5rem 4.5rem 6.5rem;
+    gap: 0.6rem;
+    padding: 0 0.25rem 0.5rem;
+    border-bottom: 1px solid var(--ingenic-divider);
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    font-weight: 600;
+  }
+
+  .ingenic-feed__col--topic {
+    padding-left: 0.25rem;
+  }
+
+  .ingenic-feed__item--row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 4.5rem 4.5rem 6.5rem;
+    gap: 0.6rem;
+    align-items: center;
+    padding: 0.6rem 0.25rem;
+
+    &:first-child {
+      padding-top: 0.6rem;
+    }
+  }
+
+  .ingenic-feed__cell--topic {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+
+    .ingenic-feed__category {
+      font-size: var(--font-down-1);
+    }
+  }
+
+  .ingenic-feed__cell--count {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+
+  .ingenic-feed__cell--time {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    text-align: right;
+  }
+}
+
+@media (width <= 700px) {
+  .ingenic-feed--table {
+    .ingenic-feed__table-head {
+      display: none;
+    }
+
+    .ingenic-feed__item--row {
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas:
+        "topic time"
+        "counts counts";
+    }
+
+    .ingenic-feed__cell--topic {
+      grid-area: topic;
+    }
+
+    .ingenic-feed__cell--time {
+      grid-area: time;
+      text-align: right;
+    }
+
+    .ingenic-feed__cell--count {
+      display: none;
+    }
+  }
+}
+
+// Latest activity: three written items, each with the day it went up. No
+// excerpt — the card is a signpost to the announcement, and an announcement
+// summarised badly is worse than one not summarised at all.
+.ingenic-activity {
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--ingenic-divider);
+
+    &:first-child {
+      padding-top: 0;
+    }
+
+    &:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  &__title {
+    color: var(--primary);
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  &__when {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+}
+
+// Popular posts in the rail: rank, title, likes and views. The counts are the
+// whole point of the card — a popular list without them is a second latest
+// list with a different order.
+.ingenic-popular {
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--ingenic-divider);
+
+    &:first-child {
+      padding-top: 0;
+    }
+
+    &:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  &__rank {
+    display: inline-flex;
+    flex: 0 0 1.35rem;
+    align-items: center;
+    justify-content: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    margin-top: 0.1rem;
+    border-radius: 50%;
+    background: var(--ingenic-surface-tint);
+    color: var(--primary-medium);
+    font-size: var(--font-down-2);
+    font-weight: 700;
+
+    &.is-top {
+      background: var(--ingenic-link);
+      color: var(--secondary);
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  &__title {
+    color: var(--primary);
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  &__meta {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+}
+
+// The page behind the popular card. Same rows, more of them, with the section
+// name kept so a reader knows where to follow one.
+.ingenic-popular-page {
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 2.1rem minmax(0, 1fr) 4.5rem 4.5rem;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--ingenic-divider);
+
+    &:first-child {
+      padding-top: 0.2rem;
+    }
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  &__rank {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 50%;
+    background: var(--ingenic-surface-tint);
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    font-weight: 700;
+
+    &.is-top {
+      background: var(--ingenic-link);
+      color: var(--secondary);
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  &__title {
+    color: var(--primary);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  &__category {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+
+  &__stat {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.3rem;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    font-variant-numeric: tabular-nums;
+
+    .d-icon {
+      width: 0.9em;
+      height: 0.9em;
+    }
+  }
+}
+
+// The full weekly board. The viewer's own line sits in the header because the
+// question that brings someone here is usually "where am I", not "who won".
+.ingenic-leaderboard-page {
+  &__you {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: var(--ingenic-surface-tint);
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    white-space: nowrap;
+
+    strong {
+      color: var(--primary);
+    }
+  }
+
+  &__you-points {
+    color: var(--ingenic-link);
+    font-weight: 700;
+  }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 2.1rem 2rem minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--ingenic-divider);
+
+    &:first-child {
+      padding-top: 0.2rem;
+    }
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  &__rank {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+
+    &.is-top {
+      color: var(--ingenic-link);
+      font-weight: 700;
+    }
+  }
+
+  &__avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--ingenic-surface-tint);
+  }
+
+  &__user {
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  &__points {
+    color: var(--ingenic-link);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__unit {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    font-weight: 500;
   }
 }

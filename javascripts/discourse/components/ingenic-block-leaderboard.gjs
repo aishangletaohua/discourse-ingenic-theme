@@ -43,10 +43,10 @@ export default class IngenicBlockLeaderboard extends Component {
     );
   }
 
-  // The native user directory, filtered to the same week the card counts, is
-  // where "all contributors" already lives.
+  // The board's own page: the ranking continues past the five the card shows,
+  // and the page also tells the viewer where they stand this week.
   get allPath() {
-    return getURL("/u?period=weekly");
+    return getURL("/ingenic/leaderboard");
   }
 
   get placeholders() {
@@ -147,7 +147,7 @@ export default class IngenicBlockLeaderboard extends Component {
       {{/if}}
 
       <a class="ingenic-section__footer" href={{this.allPath}}>
-        {{i18n (themePrefix "ingenic.home.show_all")}}
+        {{i18n (themePrefix "ingenic.home.view_all")}}
         {{dIcon "arrow-right"}}
       </a>
     </section>

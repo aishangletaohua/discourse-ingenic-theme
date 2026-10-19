@@ -59,11 +59,25 @@ en:
       quick_links: "Ingenic quick links"
       search_placeholder: "Search the forum"
       search: "Search"
+      start_discussion: "Start a discussion"
       show_all: "Show all"
+      view_all: "View all"
+      quick:
+        docs: "Documentation"
+        downloads: "Downloads"
+        boards: "Boards"
+      filters:
+        all: "All"
+        unanswered: "Unanswered"
+        solved: "Solved"
       empty: "Nothing here yet."
       topics:
         latest: "Latest discussions"
         hot: "Popular posts"
+        topic: "Topic"
+        replies_short: "Replies"
+        views_short: "Views"
+        activity: "Activity"
         replies:
           one: "%{count} reply"
           other: "%{count} replies"
@@ -81,12 +95,32 @@ en:
     header_links:
       label: "Ingenic links"
     promotions:
+      title: "Promotions"
+    activity:
       title: "Latest activity"
+    popular:
+      title: "Popular posts"
+      subtitle: "Most liked in the last %{days} days. Likes come first; views break ties."
+      empty: "No popular topics in this window yet."
+      loading: "Loading…"
+      likes:
+        one: "%{count} like"
+        other: "%{count} likes"
+      views:
+        one: "%{count} view"
+        other: "%{count} views"
     leaderboard:
       title: "Weekly contributors"
       points: "pts"
       empty: "No contribution points have been earned this week yet."
       loading: "Loading…"
+      page_title: "Weekly contributors"
+      subtitle: "This week's contribution — what people wrote and answered, not what they spent."
+      rank: "Rank"
+      member: "Member"
+      contribution: "Contribution"
+      you: "You"
+      board_empty: "No one has contributed this week yet. Be the first."
     locale:
       title: "Change site language"
     footer:
