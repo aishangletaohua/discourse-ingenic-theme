@@ -580,6 +580,20 @@ html.ingenic-nav-first .sidebar-sections {
   display: none;
 }
 
+// Chat is the one header control that opens a live conversation rather than a
+// page of settings. It keeps the green users already know from WeChat: as a
+// grey utility icon it read as a third item in the language-and-account row,
+// which is not what it is.
+.d-header-icons .header-dropdown-toggle.chat-header-icon {
+  .d-icon {
+    color: #07c160;
+  }
+
+  &:hover .d-icon {
+    color: #059a4c;
+  }
+}
+
 // The home page's cards are white. On a white page the only thing separating
 // them is their shadow, which at rest is a faint line; the reference layout
 // puts a pale wash behind the whole page so the cards' own edges do the work.
