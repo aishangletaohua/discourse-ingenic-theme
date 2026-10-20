@@ -5923,6 +5923,14 @@ body:has(.ingenic-homepage) {
 }
 
 .ingenic-homepage__search-panel {
+  // The header turns into a white strip with the first scroll, and the search
+  // panel sits directly beneath it: at the default order the strip slides over
+  // the field and the reader loses it halfway down. Raised above the header,
+  // the panel stays whole and usable while it passes over the strip. The
+  // header's own controls are at its ends, so nothing of them is covered.
+  position: relative;
+  z-index: z("header") + 1;
+
   border-color: var(--ingenic-glass-edge);
   background: var(--ingenic-glass-fill-strong);
   box-shadow:
