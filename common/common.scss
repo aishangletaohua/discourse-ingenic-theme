@@ -5863,12 +5863,12 @@ body:has(.ingenic-homepage) {
   transition: box-shadow 0.18s ease;
 
   // At the top of the page the header is a wash and the page begins below it.
-  // Once the page has scrolled, the account controls and the language switcher
-  // are still pinned up there with the page passing underneath them, and a
-  // transparent strip makes them look loose. This layer gives them a surface:
-  // it fades in with the first scroll and leaves the top of the page exactly
-  // as it was. It sits behind the wash, so the two blend instead of stacking
-  // into a second, darker band.
+  // On the home page the wash becomes a surface exactly when the search
+  // reaches the top; the search and the links under it are then held there,
+  // and this layer grows to their height so the white box ends where the
+  // block ends. On the other pages it fades in with the first scroll. It sits
+  // behind the wash, so the two blend instead of stacking into a second,
+  // darker band.
   &::after {
     content: "";
     position: absolute;
@@ -5891,6 +5891,34 @@ body:has(.ingenic-homepage) {
 
   &::after {
     opacity: 0.94;
+  }
+}
+
+// On the home page the search and its three links are held at the top of the
+// screen once the search reaches it, and the white behind them reaches exactly
+// as far down as they do: the surface is extended by the block's height above
+// the header's own, so the top and bottom edges of the box and the block line
+// up. The shadow moves to that lower edge; where the header ends is now the
+// middle of the surface, not its foot.
+.ingenic-search-docked {
+  .d-header {
+    box-shadow: none;
+
+    &::after {
+      bottom: calc(-1 * var(--ingenic-search-overhang, 0px));
+      opacity: 1;
+      box-shadow:
+        0 1px 0 var(--ingenic-surface-border),
+        0 8px 24px rgb(24 58 92 / 8%);
+    }
+  }
+
+  .ingenic-homepage__search-panel {
+    // The translate is the distance the page has travelled since the search
+    // arrived. The panel stays in the layout, so nothing below it moves and
+    // the page does not jump at the moment it is caught.
+    transform: translateY(var(--ingenic-dock-shift, 0px));
+    will-change: transform;
   }
 }
 
@@ -5923,11 +5951,10 @@ body:has(.ingenic-homepage) {
 }
 
 .ingenic-homepage__search-panel {
-  // The header turns into a white strip with the first scroll, and the search
-  // panel sits directly beneath it: at the default order the strip slides over
-  // the field and the reader loses it halfway down. Raised above the header,
-  // the panel stays whole and usable while it passes over the strip. The
-  // header's own controls are at its ends, so nothing of them is covered.
+  // The panel is held at the top once the reader reaches it (see
+  // `.ingenic-search-docked`), so it has to stay above the header: at the
+  // default order the sticky header would slide over the field and hide it.
+  // The header's own controls are at its ends, so nothing of them is covered.
   position: relative;
   z-index: z("header") + 1;
 

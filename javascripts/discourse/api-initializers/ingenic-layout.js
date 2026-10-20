@@ -42,7 +42,7 @@ import {
  */
 export default apiInitializer((api) => {
   applyIngenicLayout();
-  watchHeaderSurface();
+  watchHeaderSurface(api);
   registerIngenicSidebarSections(api);
   registerIngenicCommunityLinks(api);
 
