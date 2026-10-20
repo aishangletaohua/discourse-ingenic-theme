@@ -267,6 +267,18 @@ export default class IngenicFooter extends Component {
             </nav>
           {{/if}}
         </div>
+
+        <div class="ingenic-footer__bottom">
+          <div class="ingenic-footer__bottom-inner">
+            <p>{{i18n (themePrefix "ingenic.footer.copyright")}}</p>
+            <a
+              class="ingenic-footer__icp"
+              href="https://beian.miit.gov.cn/"
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+            >{{i18n (themePrefix "ingenic.footer.icp")}}</a>
+          </div>
+        </div>
       </footer>
     {{/if}}
   </template>
