@@ -198,7 +198,14 @@
   // left the logo indented past the navigation below it. The row is a brand on
   // the left and an account on the right; the middle is empty now that the
   // external links live in the footer.
-  body.has-sidebar-page .d-header .wrap {
+  //
+  // Keyed to the rail itself rather than to `has-sidebar-page`: collapsing the
+  // navigation removes that class from the body, and the header then fell back
+  // to the narrower, centred wrap while the rail was still on the page — the
+  // toggle and the wordmark jumped inward and stopped being flush left. The
+  // rail element stays mounted when collapsed (as a zero-width column), so it
+  // is the thing that says this page owns a header row of this shape.
+  body:has(.sidebar-wrapper) .d-header .wrap {
     max-width: none;
     padding-inline: 0.5rem;
   }
@@ -213,33 +220,33 @@
   // rather than a lid on it: a rule here — or a 1px shadow standing in for one —
   // cut the page into bands, which is exactly what the surface is meant not to
   // do.
-  body.has-sidebar-page .d-header {
+  body:has(.sidebar-wrapper) .d-header {
     border-bottom: 0;
   }
 
   // The collapse control is the leftmost thing in the row, then the wordmark
   // and the two external buttons. Core's document order already puts the
   // toggle first; the order here is explicit so the run does not depend on it.
-  body.has-sidebar-page .d-header .home-logo-wrapper-outlet {
+  body:has(.sidebar-wrapper) .d-header .home-logo-wrapper-outlet {
     order: 1;
   }
 
-  body.has-sidebar-page .d-header .before-header-panel-outlet {
+  body:has(.sidebar-wrapper) .d-header .before-header-panel-outlet {
     display: flex;
     align-items: center;
     order: 2;
     min-width: 0;
   }
 
-  body.has-sidebar-page .d-header .header-sidebar-toggle {
+  body:has(.sidebar-wrapper) .d-header .header-sidebar-toggle {
     order: 0;
   }
 
-  body.has-sidebar-page .d-header .panel {
+  body:has(.sidebar-wrapper) .d-header .panel {
     order: 3;
   }
 
-  body.has-sidebar-page .d-header .after-header-panel-outlet {
+  body:has(.sidebar-wrapper) .d-header .after-header-panel-outlet {
     order: 4;
   }
 
@@ -852,6 +859,28 @@ html.ingenic-nav-first
 // matter.
 .d-header-icons .header-dropdown-toggle.search-dropdown {
   display: none;
+}
+
+// The collapse control opens the navigation, but core draws it at the palest
+// ink in the header, where the three lines read as a smudge on the page rather
+// than a control. It takes the wordmark's ink and the icon row's hover surface,
+// so it is as visible as the account controls beside it and responds the same
+// way.
+.d-header .header-sidebar-toggle button {
+  color: var(--primary-high);
+
+  .d-icon {
+    color: var(--primary-high);
+  }
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--ingenic-control-fill-hover);
+
+    .d-icon {
+      color: var(--ingenic-link);
+    }
+  }
 }
 
 // Chat is the one header control that opens a live conversation rather than a
