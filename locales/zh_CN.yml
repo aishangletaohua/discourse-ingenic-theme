@@ -116,6 +116,10 @@ zh_CN:
     footer:
       platforms: "关注我们"
       close: "关闭"
+      badge: "技术论坛"
+      slogan: "专为 AIoT、智能安防、机器视觉打造的算力平台与开发者交流生态。"
+      copyright: "© 2026 北京君正集成电路股份有限公司 版权所有."
+      icp: "皖ICP备18010739号-1"
     docs:
       version: "版本"
       latest: "最新"
