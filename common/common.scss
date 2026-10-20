@@ -3524,13 +3524,17 @@ body:has(.ingenic-homepage) {
       white-space: nowrap;
     }
 
+    // The column is an index, not a set of links: every row carries the same
+    // ink, and the current page is told apart by weight and a tinted row
+    // rather than by a second colour. Blue here read as a different kind of
+    // text and broke the column into highlighted and unhighlighted rows.
     &:hover {
-      color: var(--ingenic-link);
+      color: var(--ingenic-navy);
       text-decoration: none;
     }
 
     &.is-current {
-      color: var(--ingenic-link);
+      color: var(--ingenic-navy);
       font-weight: 700;
     }
 
@@ -3589,7 +3593,7 @@ body:has(.ingenic-homepage) {
     display: block;
     padding: 0.35rem var(--ingenic-toc-gutter) 0.35rem var(--ingenic-toc-text);
     border-radius: 6px;
-    color: var(--primary-medium);
+    color: var(--ingenic-navy);
     font-size: var(--font-down-1);
     line-height: 1.4;
 
@@ -3599,13 +3603,13 @@ body:has(.ingenic-homepage) {
 
     &:hover {
       background: var(--ingenic-sky-100);
-      color: var(--ingenic-link);
+      color: var(--ingenic-navy);
       text-decoration: none;
     }
 
     &.is-active {
       background: var(--ingenic-sky-100);
-      color: var(--ingenic-link);
+      color: var(--ingenic-navy);
       font-weight: 600;
     }
 
