@@ -5598,3 +5598,284 @@ body:has(.ingenic-homepage) {
     font-weight: 500;
   }
 }
+
+// ===========================================================================
+// Glass gradient layer
+// ===========================================================================
+//
+// A visual layer only. Every rule below changes a surface's colour, its edge,
+// its shadow or the blur behind it. None of them touches display, position,
+// size, spacing or order, so the pages keep exactly the geometry they had
+// before this block: the same navigation, the same buttons in the same places,
+// the same modules. Removing this block returns the theme to its flat palette.
+//
+// Three things to know before editing it:
+//
+// 1. The gradient lives on `body` and nowhere else. `background` does not
+//    create a containing block, but `filter`, `backdrop-filter` and `transform`
+//    do — and the assistant is rendered inside the outlet at the end of
+//    `#main-outlet`. A blur on `body`, `#main-outlet`, `.wrap` or
+//    `.ingenic-homepage` would stop `position: fixed` from reaching the
+//    viewport and leave the robot stranded in the page. Panels inside those
+//    containers are safe; the containers themselves are not.
+//
+// 2. `--secondary` is left alone. It is the surface colour, but six rules also
+//    read it as an ink. Surfaces are restyled by the rules below instead, so a
+//    glass card never turns a heading translucent.
+//
+// 3. A border would add two pixels to boxes that were never measured for one.
+//    The hero and the panels that had no border take their glass edge from an
+//    inset shadow, which costs no layout.
+
+:root {
+  // How much white sits on a surface, and how much of what is behind it shows
+  // through. The fill is deliberately below half: the gradient has to still be
+  // a gradient after the panel is drawn on it.
+  --ingenic-glass-fill: rgb(255 255 255 / 42%);
+  --ingenic-glass-fill-strong: rgb(255 255 255 / 58%);
+  --ingenic-glass-fill-soft: rgb(255 255 255 / 26%);
+
+  // The edge of a pane of glass is a highlight, not a line: white, and a
+  // little stronger than the fill so the boundary is legible on pale pages.
+  --ingenic-glass-edge: rgb(255 255 255 / 78%);
+  --ingenic-glass-hairline: rgb(150 182 208 / 34%);
+
+  --ingenic-glass-blur: 18px;
+  --ingenic-glass-inner: inset 0 1px 0 rgb(255 255 255 / 85%);
+  --ingenic-glass-shadow: 0 10px 34px rgb(24 58 92 / 9%);
+
+  // The page gradient, named once because the home page's own rule has to
+  // repeat it at a higher specificity.
+  --ingenic-page-gradient:
+    radial-gradient(58rem 40rem at 4% -10%, rgb(132 196 255 / 82%), transparent 62%),
+    radial-gradient(46rem 34rem at 98% -6%, rgb(190 172 255 / 70%), transparent 60%),
+    radial-gradient(44rem 32rem at 70% 30%, rgb(170 212 255 / 60%), transparent 62%),
+    radial-gradient(64rem 46rem at 46% 112%, rgb(140 230 213 / 74%), transparent 64%),
+    linear-gradient(158deg, #eef8ff 0%, #e2eefc 46%, #eee7ff 100%);
+}
+
+body {
+  background-color: #eef6fd;
+  background-image: var(--ingenic-page-gradient);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+// The home page used to set a flat sky. Same gradient as every other page, so
+// moving between routes does not change the light in the room.
+body:has(.ingenic-homepage) {
+  background-color: #eef6fd;
+  background-image: var(--ingenic-page-gradient);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+// --- Frame ----------------------------------------------------------------
+
+.d-header {
+  background: rgb(255 255 255 / 62%);
+  border-bottom-color: var(--ingenic-glass-edge);
+  box-shadow:
+    0 1px 0 var(--ingenic-glass-hairline),
+    0 8px 26px rgb(24 58 92 / 7%);
+  backdrop-filter: blur(var(--ingenic-glass-blur)) saturate(155%);
+}
+
+// The navigation column lets the gradient through; only its cards are glass.
+.sidebar-wrapper {
+  background: transparent;
+  border-right-color: var(--ingenic-glass-hairline);
+}
+
+.sidebar-sections > .sidebar-section-wrapper > .sidebar-section-content,
+.sidebar-custom-sections > .sidebar-section-wrapper > .sidebar-section-content {
+  border-color: var(--ingenic-glass-edge);
+  background: var(--ingenic-glass-fill);
+  box-shadow:
+    var(--ingenic-glass-inner),
+    0 6px 20px rgb(24 58 92 / 7%);
+  backdrop-filter: blur(14px) saturate(145%);
+}
+
+// --- Home page ------------------------------------------------------------
+
+.ingenic-homepage__hero {
+  // The greeting band keeps its two-corner wash and gains the third colour of
+  // the gradient at the foot, so the band belongs to the page rather than
+  // sitting on it.
+  background:
+    radial-gradient(circle at 16% -12%, rgb(122 197 255 / 62%), transparent 56%),
+    radial-gradient(circle at 88% -6%, rgb(196 178 255 / 52%), transparent 54%),
+    radial-gradient(circle at 50% 124%, rgb(132 231 215 / 46%), transparent 62%),
+    linear-gradient(160deg, rgb(255 255 255 / 76%), rgb(255 255 255 / 44%));
+  box-shadow:
+    var(--ingenic-glass-inner),
+    var(--ingenic-glass-shadow),
+    inset 0 0 0 1px rgb(255 255 255 / 62%);
+  backdrop-filter: blur(16px) saturate(150%);
+}
+
+.ingenic-homepage__search-panel {
+  border-color: var(--ingenic-glass-edge);
+  background: var(--ingenic-glass-fill-strong);
+  box-shadow:
+    var(--ingenic-glass-inner),
+    0 8px 24px rgb(24 58 92 / 8%);
+  backdrop-filter: blur(14px) saturate(140%);
+
+  &:focus-within {
+    border-color: rgb(255 255 255 / 92%);
+    box-shadow:
+      var(--ingenic-glass-inner),
+      0 10px 28px rgb(24 58 92 / 11%),
+      0 0 0 3px rgb(47 193 255 / 16%);
+  }
+}
+
+// --- Panels shared by the three resource pages ----------------------------
+
+.ingenic-section,
+.ingenic-sections__card,
+.ingenic-card,
+.ingenic-product-card {
+  border-color: var(--ingenic-glass-edge);
+  background: var(--ingenic-glass-fill);
+  box-shadow:
+    var(--ingenic-glass-inner),
+    0 8px 26px rgb(24 58 92 / 7%);
+  backdrop-filter: blur(16px) saturate(145%);
+}
+
+.ingenic-product-card {
+  &:hover,
+  &:focus-visible {
+    border-color: var(--ingenic-glass-edge);
+    box-shadow:
+      var(--ingenic-glass-inner),
+      0 14px 32px rgb(24 58 92 / 13%);
+  }
+
+  &__media {
+    border-bottom-color: var(--ingenic-glass-hairline);
+    background:
+      radial-gradient(circle at 30% 0%, rgb(255 255 255 / 70%), transparent 60%),
+      rgb(226 240 251 / 52%);
+  }
+}
+
+// The endpoints and notices drawn as tinted strips keep the tint, so the type
+// on them is unchanged; only its edge becomes glass.
+.ingenic-mcp__endpoint {
+  border-color: var(--ingenic-glass-edge);
+  background: var(--ingenic-glass-fill-soft);
+  box-shadow: var(--ingenic-glass-inner);
+  backdrop-filter: blur(12px) saturate(140%);
+}
+
+// --- Documentation reader -------------------------------------------------
+
+.ingenic-docs {
+  border-color: var(--ingenic-glass-edge);
+  background: var(--ingenic-glass-fill);
+  box-shadow:
+    var(--ingenic-glass-inner),
+    0 14px 44px rgb(24 58 92 / 10%);
+  backdrop-filter: blur(20px) saturate(150%);
+}
+
+.ingenic-docs__toolbar {
+  border-bottom-color: var(--ingenic-glass-hairline);
+  background:
+    linear-gradient(
+      180deg,
+      rgb(255 255 255 / 74%),
+      rgb(255 255 255 / 46%)
+    );
+}
+
+.ingenic-doctoc {
+  border-right-color: var(--ingenic-glass-hairline);
+  background: rgb(255 255 255 / 30%);
+}
+
+.ingenic-docsearch__form {
+  border-color: var(--ingenic-glass-edge);
+  background: var(--ingenic-glass-fill-strong);
+}
+
+.ingenic-docpicker {
+  // The chip picker's own surfaces are tinted; lifting them all to glass at
+  // once keeps the toolbar from reading as a row of mismatched materials.
+  .ingenic-docpicker__trigger {
+    border-color: var(--ingenic-glass-edge);
+    background: var(--ingenic-glass-fill-strong);
+    backdrop-filter: blur(18px) saturate(150%);
+  }
+
+  // The panel lists chip names over the article behind it: near-opaque, for
+  // the same reason as the assistant's.
+  .ingenic-docpicker__panel {
+    border-color: var(--ingenic-glass-edge);
+    background: linear-gradient(160deg, #ffffff, #f7fbff);
+    backdrop-filter: blur(20px) saturate(150%);
+  }
+}
+
+.ingenic-doc__pagecard {
+  border-color: var(--ingenic-glass-edge);
+  background: var(--ingenic-glass-fill-soft);
+}
+
+.ingenic-doc__pager {
+  border-top-color: var(--ingenic-glass-hairline);
+  background: transparent;
+}
+
+// --- Native forum surfaces ------------------------------------------------
+
+// The same material on the two lists the forum has always had, so a reader
+// arriving from the developer centre does not step back into flat white.
+.topic-list {
+  background: var(--ingenic-glass-fill-soft);
+  backdrop-filter: blur(12px) saturate(140%);
+}
+
+// Core paints every row and the header strip white on top of the list, which
+// would hide the one glass surface underneath them. The row keeps its own
+// hover and visited tints; only its resting fill steps aside.
+.topic-list .topic-list-item,
+.topic-list .topic-list-header {
+  background: transparent;
+}
+
+.topic-body {
+  background: var(--ingenic-glass-fill-soft);
+}
+
+// --- Assistant ------------------------------------------------------------
+
+// The robot sits inside `#main-outlet`, so it takes the material itself and
+// nothing above it is blurred. Its geometry — position, size, the bob — is
+// untouched.
+.ingenic-assistant__launcher {
+  border-color: var(--ingenic-glass-edge);
+  background: var(--ingenic-glass-fill-strong);
+  box-shadow:
+    var(--ingenic-glass-inner),
+    0 10px 28px rgb(24 58 92 / 16%);
+  backdrop-filter: blur(12px) saturate(150%);
+}
+
+// A surface that carries a paragraph of text over a busy page cannot take the
+// same fill as a card. The panel keeps the blur and the edge, and steps up to
+// near-opaque so the feed behind it never reads through the copy.
+.ingenic-assistant__panel {
+  border-color: var(--ingenic-glass-edge);
+  background: linear-gradient(160deg, #ffffff, #f7fbff);
+  box-shadow:
+    var(--ingenic-glass-inner),
+    0 16px 40px rgb(24 58 92 / 18%);
+  backdrop-filter: blur(20px) saturate(150%);
+}
