@@ -4586,7 +4586,7 @@ body:has(.ingenic-homepage) {
     gap: 1rem 3rem;
     max-width: 1280px;
     margin: 0 auto;
-    padding: 2.5rem 1rem 1.75rem;
+    padding: 2.5rem 1rem 2rem;
   }
 
   &__lockup {
@@ -4784,34 +4784,6 @@ body:has(.ingenic-homepage) {
     }
   }
 
-  // The copyright and the filing number on the last line. They belong to the
-  // footer as a whole rather than to the brand column, so they sit under both
-  // and are set quietly: the reader looks for them only when they want them.
-  &__bottom-inner {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    max-width: 1280px;
-    margin: 0 auto;
-    // The floating assistant sits in the bottom-right corner, over the last
-    // line of the page. The filing number would run under it, so the line
-    // keeps clear of that corner.
-    padding: 0 6rem 1.6rem 1rem;
-    color: var(--primary-medium);
-    font-size: var(--font-down-2);
-
-    p {
-      margin: 0;
-    }
-  }
-
-  &__icp {
-    color: inherit;
-
-    &:hover {
-      color: var(--ingenic-link);
-    }
-  }
 }
 
 @include viewport.until(md) {
@@ -4830,11 +4802,6 @@ body:has(.ingenic-homepage) {
 
     &__columns {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    &__bottom-inner {
-      flex-direction: column;
-      gap: 0.35rem;
     }
 
     &__qr {

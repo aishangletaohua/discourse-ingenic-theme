@@ -119,8 +119,6 @@ en:
       close: "Close"
       badge: "Community"
       slogan: "An intelligent computing platform and developer community built for AIoT, intelligent security and machine vision."
-      copyright: "© 2026 Beijing Ingenic Semiconductor Co., Ltd. All rights reserved."
-      icp: "皖ICP备18010739号-1"
     docs:
       version: "Version"
       latest: "latest"
