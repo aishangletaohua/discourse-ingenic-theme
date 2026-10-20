@@ -8,7 +8,7 @@ import IngenicComposerBounty from "../components/ingenic-composer-bounty";
 import IngenicFooter from "../components/ingenic-footer";
 import IngenicLocaleSwitcher from "../components/ingenic-locale-switcher";
 import { rebaseLocalUrl } from "../ingenic/asset-url";
-import { applyIngenicLayout } from "../ingenic/layout";
+import { applyIngenicLayout, watchHeaderSurface } from "../ingenic/layout";
 import {
   registerIngenicCommunityLinks,
   registerIngenicSidebarSections,
@@ -42,6 +42,7 @@ import {
  */
 export default apiInitializer((api) => {
   applyIngenicLayout();
+  watchHeaderSurface();
   registerIngenicSidebarSections(api);
   registerIngenicCommunityLinks(api);
 

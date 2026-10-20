@@ -5826,10 +5826,43 @@ body:has(.ingenic-homepage) {
   // backdrop is the combination browsers repaint badly, and the band flashes
   // as soon as the page is scrolled. The wash alone is what dissolves the
   // edge, and it does that without a compositing layer to recompute.
+  position: relative;
   background: linear-gradient(180deg, rgb(255 255 255 / 72%), rgb(255 255 255 / 0%));
   border-bottom: 0;
   box-shadow: none;
   backdrop-filter: none;
+  transition: box-shadow 0.18s ease;
+
+  // At the top of the page the header is a wash and the page begins below it.
+  // Once the page has scrolled, the account controls and the language switcher
+  // are still pinned up there with the page passing underneath them, and a
+  // transparent strip makes them look loose. This layer gives them a surface:
+  // it fades in with the first scroll and leaves the top of the page exactly
+  // as it was. It sits behind the wash, so the two blend instead of stacking
+  // into a second, darker band.
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: #fff;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    pointer-events: none;
+  }
+}
+
+// The scroll state the initializer sets on <html>. A hairline and a short
+// shadow give the strip a foot of its own — the reader has left the top of the
+// page, so the header may now look like a header rather than part of it.
+.ingenic-header-surface .d-header {
+  box-shadow:
+    0 1px 0 var(--ingenic-surface-border),
+    0 8px 24px rgb(24 58 92 / 8%);
+
+  &::after {
+    opacity: 0.94;
+  }
 }
 
 // The navigation column lets the gradient through; only its cards are glass.
