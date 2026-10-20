@@ -240,60 +240,6 @@
   }
 }
 
-// The official site and GitHub, directly beside the wordmark. They are drawn
-// as buttons rather than bare links: each is a destination outside the forum,
-// and the edge says so before the pointer reaches it. The names stay visible;
-// the icons are there to be recognised, not to replace the words.
-.ingenic-header-links {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-inline-start: 0.6rem;
-
-  &__link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.3rem 0.65rem;
-    border: 1px solid var(--ingenic-surface-border);
-    border-radius: 0.5rem;
-    background: var(--secondary);
-    color: var(--primary-high);
-    font-size: var(--font-down-1);
-    font-weight: 600;
-    white-space: nowrap;
-    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
-
-    .d-icon {
-      color: var(--primary-medium);
-    }
-
-    &:hover,
-    &:focus {
-      border-color: var(--tertiary);
-      background: var(--tertiary-very-low);
-      color: var(--ingenic-link);
-      text-decoration: none;
-
-      .d-icon {
-        color: inherit;
-      }
-    }
-  }
-
-  &__image {
-    width: 1.15rem;
-    height: 1.15rem;
-    object-fit: contain;
-  }
-}
-
-@media (max-width: 1023px) {
-  .ingenic-header-links {
-    display: none;
-  }
-}
-
 // The header gives back a little of its height and draws its own edge. Core's
 // white strip otherwise ends in a shadow, which is the one horizontal line on
 // the page that does not read as a border.
@@ -906,6 +852,21 @@ body:has(.ingenic-homepage) {
   background: var(--ingenic-sky-50);
 }
 
+// The greeting is the one place on the site where the type is allowed to be
+// warm. Every other heading is the page talking about its contents; this one
+// is the forum saying hello, so it is set in a rounded face — heavy enough to
+// carry the band, open enough not to read as another notice. The face is
+// bundled rather than fetched from a font CDN: the forum is read from mainland
+// China, where those CDNs are not reachable. The file is a Latin subset and
+// the licence sits beside it in assets/fonts.
+@font-face {
+  font-family: "Ingenic Display";
+  src: url($ingenic_display_font) format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 .ingenic-homepage {
   // The wrap already holds the page at 88vw; a cap here would pull the home
   // page inside the header's edges on a wide screen.
@@ -938,15 +899,17 @@ body:has(.ingenic-homepage) {
     // and a supporting sentence made the band read as a banner to get past.
     h1 {
       margin: 0;
-      // Semibold rather than bold, and a little more open than the rest of the
-      // page's headings: this is a welcome, not a notice. The navy is the same
-      // ink the documentation headings use, so the two pages read as one site
-      // without the greeting going black and heavy.
+      // The display face does the welcoming; the ink stays the navy the
+      // documentation headings use, so the greeting is friendly without the
+      // page turning into a different site. Inter is the fallback for the
+      // moment before the bundled font has loaded and for the Chinese
+      // greeting, which the Latin subset does not cover.
       color: var(--ingenic-navy);
+      font-family: "Ingenic Display", var(--font-family, Inter);
       font-size: clamp(1.9rem, 3.1vw, 2.55rem);
-      font-weight: 600;
+      font-weight: 800;
       line-height: 1.2;
-      letter-spacing: -0.018em;
+      letter-spacing: 0.005em;
       text-wrap: balance;
     }
   }

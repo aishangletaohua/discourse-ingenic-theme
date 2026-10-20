@@ -3,7 +3,9 @@
   "about_url": "https://forum.ingenic.com",
   "license_url": null,
   "component": false,
-  "assets": {},
+  "assets": {
+    "ingenic_display_font": "assets/fonts/nunito-800-latin.woff2"
+  },
   "color_schemes": {
     "Ingenic Light": {
       "primary": "12263a",

@@ -6,7 +6,6 @@ import IngenicAssistant from "../components/ingenic-assistant";
 import IngenicBounty from "../components/ingenic-bounty";
 import IngenicComposerBounty from "../components/ingenic-composer-bounty";
 import IngenicFooter from "../components/ingenic-footer";
-import IngenicHeaderLinks from "../components/ingenic-header-links";
 import IngenicLocaleSwitcher from "../components/ingenic-locale-switcher";
 import { rebaseLocalUrl } from "../ingenic/asset-url";
 import { applyIngenicLayout } from "../ingenic/layout";
@@ -53,11 +52,6 @@ export default apiInitializer((api) => {
   api.headerIcons.add("ingenic-locale", IngenicLocaleSwitcher, {
     before: "user-menu",
   });
-
-  // The official site and GitHub sit directly after the wordmark. The outlet
-  // is the header's empty middle; the stylesheet gives it the room, and the
-  // two buttons keep their names so a reader does not have to guess a glyph.
-  api.renderInOutlet("before-header-panel", IngenicHeaderLinks);
 
   api.renderInOutlet("topic-above-posts", IngenicBounty);
 

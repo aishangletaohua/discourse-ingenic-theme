@@ -48,10 +48,10 @@ export default class IngenicFooter extends Component {
   }
 
   // The official site and the code host are entries the Ingenic team controls
-  // from Admin → Site content → Footer buttons. They join the partner strip
+  // from Admin → Site content → External buttons. They join the partner strip
   // rather than a row of their own, and a link that already stands in the
   // strip is not drawn twice: the official site is both a partner platform and
-  // a footer button on a seeded forum.
+  // an external button on a seeded forum.
   get headerLinks() {
     const seen = new Set(this.socialLinks.map((link) => this.#hrefKey(link.href)));
     return (this.site.ingenic_header_links ?? []).filter(
