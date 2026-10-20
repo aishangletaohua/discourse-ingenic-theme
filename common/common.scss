@@ -115,7 +115,12 @@
   // Core's own frames — the sidebar, the topic list, every table and input —
   // read these, so recolouring them here reaches the whole forum rather than
   // only the theme's components.
-  --d-sidebar-border-color: var(--ingenic-surface-border);
+  //
+  // The sidebar carries no rule. Its column sits on the page gradient with the
+  // cards' own edges inside it, and the 1px line down its right side was the
+  // other half of the seam under the header: together they cut the page into
+  // panes. The gap between the column and the content does the separating.
+  --d-sidebar-border-color: transparent;
   --d-sidebar-section-border-color: var(--ingenic-surface-border);
   --content-border-color: var(--ingenic-surface-border);
   --table-border-color: var(--ingenic-surface-border);
@@ -202,20 +207,15 @@
   // The wordmark starts on the same line as the cards below it, the toggle
   // moves to the rail's right edge instead of standing in front of the brand,
   // and the first card rises to meet the header instead of starting a row
-  // under it. The header's edge is drawn only from the rail rightwards, so
-  // nothing cuts across the column where brand and navigation meet.
+  // under it.
+  //
+  // The header draws no edge of its own. It is a pane of glass floating over
+  // the page gradient, and a 1px rule under it cut the gradient in two: on a
+  // pale page the line is darker than both sides, so it read as a seam
+  // rather than as a border. The glass fill and the soft shadow below it
+  // already separate the header from whatever scrolls underneath.
   body.has-sidebar-page .d-header {
     border-bottom: 0;
-
-    &::after {
-      content: "";
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      left: var(--d-sidebar-width);
-      height: 1px;
-      background: var(--ingenic-surface-border);
-    }
   }
 
   // The collapse control is the leftmost thing in the row, then the wordmark
@@ -4241,10 +4241,6 @@ body:has(.ingenic-homepage) {
       display: none;
     }
 
-    .d-header::after {
-      left: 0;
-    }
-
     .header-sidebar-toggle {
       display: none;
     }
@@ -5708,9 +5704,10 @@ body:has(.ingenic-homepage) {
 }
 
 // The navigation column lets the gradient through; only its cards are glass.
+// No edge is drawn around the column itself — see the note on
+// `--d-sidebar-border-color` above.
 .sidebar-wrapper {
   background: transparent;
-  border-right-color: var(--ingenic-glass-hairline);
 }
 
 .sidebar-sections > .sidebar-section-wrapper > .sidebar-section-content,
