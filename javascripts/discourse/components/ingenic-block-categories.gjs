@@ -1,3 +1,4 @@
+import { on } from "@ember/modifier";
 import { themePrefix } from "virtual:theme";
 import Component from "@glimmer/component";
 import { service } from "@ember/service";
@@ -87,6 +88,23 @@ export default class IngenicBlockCategories extends Component {
     return this.args.block?.show_all !== false;
   }
 
+  // The card's spotlight is drawn by CSS; all the stylesheet needs is where
+  // the pointer is. Leaving two custom properties on the element avoids a
+  // component re-render for a value that changes on every frame.
+  trackPointer(event) {
+    const card = event.currentTarget;
+    const bounds = card.getBoundingClientRect();
+
+    card.style.setProperty(
+      "--ingenic-pointer-x",
+      `${event.clientX - bounds.left}px`
+    );
+    card.style.setProperty(
+      "--ingenic-pointer-y",
+      `${event.clientY - bounds.top}px`
+    );
+  }
+
   cardFromConfig(card) {
     if (card.category) {
       return this.cardFromCategory(
@@ -132,6 +150,7 @@ export default class IngenicBlockCategories extends Component {
               class="ingenic-sections__card"
               href={{card.href}}
               style={{card.style}}
+              {{on "pointermove" this.trackPointer}}
             >
               <span class="ingenic-sections__icon" aria-hidden="true">
                 {{#if card.image_url}}

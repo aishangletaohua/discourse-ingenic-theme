@@ -5647,11 +5647,11 @@ body:has(.ingenic-homepage) {
   // The page gradient, named once because the home page's own rule has to
   // repeat it at a higher specificity.
   --ingenic-page-gradient:
-    radial-gradient(58rem 40rem at 4% -10%, rgb(132 196 255 / 82%), transparent 62%),
-    radial-gradient(46rem 34rem at 98% -6%, rgb(190 172 255 / 70%), transparent 60%),
-    radial-gradient(44rem 32rem at 70% 30%, rgb(170 212 255 / 60%), transparent 62%),
-    radial-gradient(64rem 46rem at 46% 112%, rgb(140 230 213 / 74%), transparent 64%),
-    linear-gradient(158deg, #eef8ff 0%, #e2eefc 46%, #eee7ff 100%);
+    radial-gradient(58rem 40rem at 4% -10%, rgb(132 196 255 / 68%), transparent 62%),
+    radial-gradient(46rem 34rem at 98% -6%, rgb(190 172 255 / 58%), transparent 60%),
+    radial-gradient(44rem 32rem at 70% 30%, rgb(170 212 255 / 48%), transparent 62%),
+    radial-gradient(64rem 46rem at 46% 112%, rgb(140 230 213 / 62%), transparent 64%),
+    linear-gradient(158deg, #f1f9ff 0%, #e8f1fd 46%, #f1ecff 100%);
 }
 
 body {
@@ -5878,4 +5878,219 @@ body:has(.ingenic-homepage) {
     var(--ingenic-glass-inner),
     0 16px 40px rgb(24 58 92 / 18%);
   backdrop-filter: blur(20px) saturate(150%);
+}
+
+// ===========================================================================
+// Motion layer
+// ===========================================================================
+//
+// The glass palette says what the surfaces are made of; this block is how they
+// answer a pointer. Three rules hold the whole thing together:
+//
+// 1. Nothing moves on its own. Every effect is attached to `:hover`,
+//    `:focus-visible` or `:active`, so a page somebody is reading is still.
+//    The assistant's mascot keeps the one ambient animation it already had.
+// 2. Only `transform`, `opacity` and `box-shadow` animate. No filter is
+//    animated — a blurred surface repaints every frame, and an animated
+//    `backdrop-filter` on an ancestor would also become a containing block
+//    and strand the fixed assistant, as the glass layer explains.
+// 3. All of it sits inside `prefers-reduced-motion: no-preference`. When a
+//    reader asks for less motion, none of these rules exist and the surfaces
+//    fall back to the colour and border shifts they already had.
+//
+// Geometry is untouched. The lift is a transform, the halo is painted outside
+// the button by a pseudo-element, and the spotlight is painted inside the
+// card's own box; at rest every element measures what it measured before.
+
+@media (prefers-reduced-motion: no-preference) {
+  :root {
+    --ingenic-ease-lift: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  // --- The home page's three doorways -------------------------------------
+  //
+  // They are the first thing a visitor points at, so they answer three ways:
+  // the card rises 2px, its glyph takes a slow breath, and a light follows the
+  // pointer across the glass. The light is a pseudo-element rather than a
+  // filter: the card stays cheap to composite, and nothing above it gains a
+  // containing block.
+  .ingenic-sections__card {
+    position: relative;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.25s var(--ingenic-ease-lift);
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.22s ease;
+      background: radial-gradient(
+        170px circle at var(--ingenic-pointer-x, 50%)
+          var(--ingenic-pointer-y, 50%),
+        rgb(255 255 255 / 52%),
+        rgb(255 255 255 / 16%) 48%,
+        transparent 72%
+      );
+    }
+
+    &:hover,
+    &:focus-visible {
+      transform: translateY(-2px);
+      box-shadow:
+        var(--ingenic-glass-inner),
+        0 14px 30px rgb(24 58 92 / 13%);
+
+      &::after {
+        opacity: 1;
+      }
+
+      .ingenic-sections__icon {
+        animation: ingenic-icon-breathe 1.9s ease-in-out infinite;
+      }
+    }
+  }
+
+  @keyframes ingenic-icon-breathe {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(1.09);
+    }
+  }
+
+  // --- Resource cards -----------------------------------------------------
+  //
+  // The same 2px as the doorways; on a card this size the deepening shadow is
+  // what makes the rise read. It is one motion at two scales rather than two
+  // unrelated ones.
+  .ingenic-card,
+  .ingenic-product-card {
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.25s ease,
+      transform 0.25s var(--ingenic-ease-lift);
+  }
+
+  .ingenic-card:hover,
+  .ingenic-card:focus-visible,
+  .ingenic-product-card:hover,
+  .ingenic-product-card:focus-visible {
+    transform: translateY(-2px);
+    box-shadow:
+      var(--ingenic-glass-inner),
+      0 14px 34px rgb(24 58 92 / 14%);
+  }
+
+  // A board's picture gets one sweep of light when the card is entered. The
+  // animation belongs to `:hover`, so it plays once per visit rather than
+  // looping while the pointer rests — a light that never stops reads as a
+  // loading state.
+  .ingenic-product-card__media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(-120%);
+    background: linear-gradient(
+      105deg,
+      transparent 30%,
+      rgb(255 255 255 / 80%) 44%,
+      rgb(126 196 255 / 30%) 52%,
+      transparent 70%
+    );
+  }
+
+  .ingenic-product-card:hover .ingenic-product-card__media::after,
+  .ingenic-product-card:focus-visible .ingenic-product-card__media::after {
+    animation: ingenic-sheen 1.15s var(--ingenic-ease-lift) 0.05s 1;
+  }
+
+  @keyframes ingenic-sheen {
+    0% {
+      transform: translateX(-120%);
+      opacity: 0;
+    }
+
+    12% {
+      opacity: 1;
+    }
+
+    78% {
+      transform: translateX(120%);
+      opacity: 1;
+    }
+
+    100% {
+      transform: translateX(120%);
+      opacity: 0;
+    }
+  }
+
+  // --- Buttons ------------------------------------------------------------
+  //
+  // A press shrinks the button by 4% and lets it settle back. Core ships no
+  // button transition at all (`--d-button-transition: none`), so adding one
+  // for `transform` here changes nothing else about the button.
+  .ingenic-homepage .btn,
+  .ingenic-docs .btn,
+  .ingenic-downloads .btn,
+  .ingenic-boards .btn,
+  .ingenic-mcp .btn,
+  .ingenic-card .btn,
+  .ingenic-board-dialog .btn {
+    transition: transform 0.14s ease-out;
+
+    &:active:not(:disabled) {
+      transform: scale(0.96);
+    }
+  }
+
+  // --- The assistant ------------------------------------------------------
+  //
+  // The robot already bobs; on hover a ring leaves it once and again while
+  // the pointer stays, which reads as "press here" without moving the button
+  // itself out from under the pointer.
+  .ingenic-assistant__launcher {
+    position: relative;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: -0.45rem;
+      border: 2px solid rgb(47 193 255 / 55%);
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    &:hover::after,
+    &:focus-visible::after {
+      animation: ingenic-halo 1.9s ease-out infinite;
+    }
+  }
+
+  @keyframes ingenic-halo {
+    0% {
+      opacity: 0;
+      transform: scale(0.86);
+    }
+
+    30% {
+      opacity: 0.85;
+    }
+
+    100% {
+      opacity: 0;
+      transform: scale(1.16);
+    }
+  }
 }
