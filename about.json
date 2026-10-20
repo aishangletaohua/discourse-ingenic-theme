@@ -8,12 +8,12 @@
   },
   "color_schemes": {
     "Ingenic Light": {
-      "primary": "12263a",
+      "primary": "000000",
       "secondary": "ffffff",
       "tertiary": "2fc1ff",
       "quaternary": "0cbbff",
       "header_background": "f2f9fd",
-      "header_primary": "12263a",
+      "header_primary": "000000",
       "highlight": "cfe8fb",
       "danger": "d64545",
       "success": "2f9e63",
