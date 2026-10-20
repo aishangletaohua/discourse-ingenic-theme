@@ -156,7 +156,7 @@ zh_CN:
       go_to_forum: "在论坛提问"
     downloads:
       title: "下载中心"
-      subtitle: "SDK、固件、手册与工具。部分资源在提供文件前需要确认您的身份。"
+      subtitle: "SDK 发布包、产品简介、算法平台、算法应用、数据手册与版本说明。部分资源在提供文件前需要确认您的身份。"
       all_series: "全部系列"
       all_products: "不限"
       all_resources: "全部资源"

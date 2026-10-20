@@ -2680,11 +2680,15 @@ body:has(.ingenic-homepage) {
   // Every option is a button, selected or not: a row of bare words gives no
   // sign that the words can be clicked, and the selected one was the only box
   // on the row. The frame is always drawn; the fill is what says "chosen".
+  // An unchosen option is a pale sky button, not a white one. On a white
+  // card a white button is a hairline and nothing else; the tint is what
+  // says "this is a control" before the pointer arrives. The hover deepens
+  // to the same sky the label chips use.
   &__option {
     padding: 0.18rem 0.6rem;
     border: 1px solid var(--ingenic-surface-border);
     border-radius: 7px;
-    background: var(--secondary);
+    background: var(--ingenic-sky-50);
     color: var(--primary);
     font-size: var(--font-down-1);
     line-height: 1.35;
@@ -2698,7 +2702,7 @@ body:has(.ingenic-homepage) {
     &:hover,
     &:focus-visible {
       border-color: var(--tertiary);
-      background: var(--ingenic-sky-50);
+      background: var(--ingenic-sky-100);
       color: var(--ingenic-link);
     }
 
@@ -2889,15 +2893,17 @@ body:has(.ingenic-homepage) {
     select {
       appearance: none;
       box-sizing: border-box;
-      width: 100%;
+      // The picker's exact width. Both controls are told the same number
+      // rather than each growing to its own text, which is what left the
+      // version box narrower than the chip button beside it.
+      width: 9.75rem;
       height: var(--ingenic-control-height);
-      min-width: 9.75rem;
       max-width: 13rem;
       margin: 0;
       padding: 0 2rem 0 0.75rem;
-      border: 1px solid var(--ingenic-panel-border);
+      border: 1px solid var(--ingenic-surface-border);
       border-radius: var(--ingenic-control-radius);
-      background: var(--secondary);
+      background: var(--ingenic-sky-50);
       color: var(--primary);
       font-size: var(--font-down-1);
       font-weight: 600;
@@ -2906,6 +2912,7 @@ body:has(.ingenic-homepage) {
 
       &:hover {
         border-color: var(--tertiary);
+        background: var(--ingenic-sky-100);
       }
     }
   }
@@ -2929,11 +2936,17 @@ body:has(.ingenic-homepage) {
     padding: 0 0.8rem;
     border: 1px solid var(--ingenic-panel-border);
     border-radius: var(--ingenic-control-radius);
-    background: var(--secondary);
+    background: var(--ingenic-sky-50);
     color: var(--primary);
     font-size: var(--font-down-1);
     font-weight: 600;
     cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      border-color: var(--tertiary);
+      background: var(--ingenic-sky-100);
+    }
 
     .d-icon {
       color: var(--ingenic-link);
@@ -3141,11 +3154,15 @@ body:has(.ingenic-homepage) {
     box-sizing: border-box;
     gap: 0.45rem;
     height: var(--ingenic-control-height);
+    // The same width as the version select beside it, so the two controls
+    // read as a pair rather than as a button and a box that happen to sit on
+    // one line. The value still truncates when a chip name is long.
+    width: 9.75rem;
     max-width: 13rem;
     padding: 0 0.75rem;
-    border: 1px solid var(--ingenic-panel-border);
+    border: 1px solid var(--ingenic-surface-border);
     border-radius: var(--ingenic-control-radius);
-    background: var(--secondary);
+    background: var(--ingenic-sky-50);
     color: var(--primary);
     font-size: var(--font-down-1);
     font-weight: 600;
@@ -3154,6 +3171,7 @@ body:has(.ingenic-homepage) {
     &:hover,
     .is-open & {
       border-color: var(--tertiary);
+      background: var(--ingenic-sky-100);
     }
   }
 
@@ -3456,16 +3474,12 @@ body:has(.ingenic-homepage) {
 // --- Contents --------------------------------------------------------------
 
 .ingenic-doctoc {
-  // One gutter runs down the column: the Documentation link, CONTENTS, every
-  // group title and every article start on the same vertical line. The glyph
-  // column is part of the measurement, not an afterthought, so a page title
-  // and a folder title do not drift apart.
+  // The tree's own measurements. The gutter is where the trunk stands; every
+  // level of the contents steps in by one column of the same width, so the
+  // guide lines of different depths stack instead of wandering.
   --ingenic-toc-gutter: 0.5rem;
-  --ingenic-toc-glyph: 1rem;
-  --ingenic-toc-gap: 0.4rem;
-  --ingenic-toc-text: calc(
-    var(--ingenic-toc-gutter) + var(--ingenic-toc-glyph) + var(--ingenic-toc-gap)
-  );
+  --ingenic-toc-depth: 0.9rem;
+  --ingenic-toc-line: color-mix(in srgb, var(--ingenic-navy) 26%, transparent);
 
   align-self: stretch;
   height: 100%;
@@ -3474,39 +3488,9 @@ body:has(.ingenic-homepage) {
   border-right: 1px solid var(--ingenic-divider);
   background: color-mix(in srgb, var(--ingenic-sky-50) 42%, var(--secondary));
 
-  &__home {
-    display: flex;
-    align-items: center;
-    gap: var(--ingenic-toc-gap);
-    margin-bottom: 0.9rem;
-    padding: 0.45rem var(--ingenic-toc-gutter);
-    border-radius: 6px;
-    color: var(--ingenic-navy);
-    font-size: var(--font-down-1);
-    font-weight: 600;
-
-    .d-icon {
-      flex: none;
-      width: var(--ingenic-toc-glyph);
-      color: var(--ingenic-link);
-    }
-
-    &:hover {
-      background: var(--ingenic-sky-100);
-      text-decoration: none;
-    }
-
-    // Core styles `a:visited` and gives it the link colour, which outranks a
-    // bare class selector: without this the entries the reader has already
-    // opened turned blue again and the column was two colours.
-    &:visited {
-      color: var(--ingenic-navy);
-    }
-  }
-
   &__title {
-    margin: 0 0 0.4rem;
-    padding-left: var(--ingenic-toc-text);
+    margin: 0 0 0.55rem;
+    padding-left: var(--ingenic-toc-gutter);
     color: var(--ingenic-navy);
     font-size: var(--font-down-2);
     font-weight: 700;
@@ -3514,176 +3498,155 @@ body:has(.ingenic-homepage) {
     text-transform: uppercase;
   }
 
-  &__group + &__group {
-    margin-top: 0.2rem;
+  // The contents are a tree, not a list of groups. A page nested under a
+  // folder is drawn one column deeper and joined to its parent by a line, so
+  // the reader can see the shape of the manual — and a page the team files
+  // two levels down tomorrow shows as two levels down without a style change.
+  &__tree {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    // The length of trunk between the heading and the first row. Without it
+    // the first elbow hangs in space and the diagram does not read as growing
+    // out of CONTENTS.
+    &::before {
+      content: "";
+      position: absolute;
+      top: -0.55rem;
+      left: var(--ingenic-toc-gutter);
+      height: 0.55rem;
+      border-left: 1px solid var(--ingenic-toc-line);
+    }
   }
 
-  &__group-head {
+  &__node {
+    position: relative;
+  }
+
+  // One column per ancestor, then the elbow into the row. The guides are
+  // absolutely placed so they can run the full height of the row and meet the
+  // next one.
+  &__guides {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--ingenic-toc-gutter);
+    display: flex;
+    pointer-events: none;
+  }
+
+  &__guide {
+    flex: none;
+    width: var(--ingenic-toc-depth);
+    border-left: 1px solid transparent;
+
+    // An ancestor that still has a sibling below it keeps its line running.
+    &.is-on {
+      border-left-color: var(--ingenic-toc-line);
+    }
+  }
+
+  &__elbow {
+    position: relative;
+    flex: none;
+    width: var(--ingenic-toc-depth);
+
+    &::before,
+    &::after {
+      content: "";
+      position: absolute;
+    }
+
+    // The vertical stroke of "├".
+    &::before {
+      top: 0;
+      bottom: 0;
+      left: 0;
+      border-left: 1px solid var(--ingenic-toc-line);
+    }
+
+    // The horizontal stroke into the row's text.
+    &::after {
+      top: 50%;
+      left: 0;
+      width: 50%;
+      border-top: 1px solid var(--ingenic-toc-line);
+    }
+
+    // The last sibling in a list turns the corner: "└".
+    &.is-last::before {
+      bottom: 50%;
+    }
+  }
+
+  &__row {
     display: flex;
     align-items: center;
-    gap: 0.15rem;
+    gap: 0.35rem;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.35rem var(--ingenic-toc-gutter) 0.35rem
+      calc(
+        var(--ingenic-toc-gutter) +
+          (var(--ingenic-toc-level, 0) + 1) * var(--ingenic-toc-depth)
+      );
+    border: 0;
     border-radius: 6px;
+    background: transparent;
+    color: var(--ingenic-navy);
+    font-size: var(--font-down-1);
+    font-weight: 400;
+    line-height: 1.4;
+    text-align: left;
+
+    &--folder {
+      font-weight: 600;
+    }
+
+    &--toggle {
+      cursor: pointer;
+    }
 
     &:hover {
       background: var(--ingenic-sky-100);
-    }
-  }
-
-  &__group-title {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    gap: var(--ingenic-toc-gap);
-    min-width: 0;
-    padding: 0.42rem var(--ingenic-toc-gutter);
-    border-radius: 6px;
-    color: var(--ingenic-navy);
-    font-size: var(--font-down-1);
-    font-weight: 600;
-    line-height: 1.35;
-
-    // The folder glyph is part of the column's ink, not an accent: left in
-    // link blue it was the one blue mark on an otherwise navy list.
-    .d-icon {
-      color: var(--ingenic-navy);
-      opacity: 0.6;
-      font-size: var(--font-down-2);
-    }
-
-    > span:last-child {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    // The column is an index, not a set of links: every row carries the same
-    // ink, and the current page is told apart by weight and a tinted row
-    // rather than by a second colour. Blue here read as a different kind of
-    // text and broke the column into highlighted and unhighlighted rows.
-    &:hover {
       color: var(--ingenic-navy);
       text-decoration: none;
     }
 
     &.is-current {
-      color: var(--ingenic-navy);
+      background: var(--ingenic-sky-100);
       font-weight: 700;
     }
 
+    // Core gives every link the link colour, and `a:visited` outranks a bare
+    // class selector. The column is an index, so every row keeps one ink.
     &:visited {
       color: var(--ingenic-navy);
     }
-
-    // A folder heads a section but has no article of its own; the plugin
-    // refuses to serve one, so this row is a label rather than a link.
-    &--folder {
-      cursor: default;
-
-      &:hover {
-        color: var(--ingenic-navy);
-      }
-    }
   }
 
-  // The icon column. It is always present — empty for a page — so the title
-  // beside it starts in the same place whether the row is a folder or an
-  // article.
-  &__group-glyph {
-    display: grid;
-    flex: none;
-    width: var(--ingenic-toc-glyph);
-    place-items: center;
-    color: var(--ingenic-navy);
+  &__label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  &__group-toggle {
-    display: grid;
-    flex: none;
-    width: 1.6rem;
-    height: 1.6rem;
-    place-items: center;
-    border: 0;
-    border-radius: 4px;
-    background: transparent;
-    color: var(--ingenic-navy);
-    opacity: 0.6;
-    cursor: pointer;
-
-    &:hover,
-    &:focus-visible {
-      opacity: 1;
-      background: var(--ingenic-sky-100);
-    }
-  }
-
+  // The folder's open/closed mark. It is part of the row rather than a
+  // separate control: the row is the button, so the mark can no longer vanish
+  // when it is the only thing left that would reopen the folder.
   &__chev {
-    display: inline-block;
+    flex: none;
+    color: var(--ingenic-navy);
     font-size: 0.65rem;
+    opacity: 0.6;
     transition: transform 0.15s ease;
 
     &:not(.is-open) {
       transform: rotate(-90deg);
-    }
-  }
-
-  &__items {
-    margin: 0 0 0.35rem;
-    padding: 0;
-    list-style: none;
-  }
-
-  &__link {
-    display: block;
-    padding: 0.35rem var(--ingenic-toc-gutter) 0.35rem var(--ingenic-toc-text);
-    border-radius: 6px;
-    color: var(--ingenic-navy);
-    font-size: var(--font-down-1);
-    line-height: 1.4;
-
-    &--indent-1 { padding-left: calc(var(--ingenic-toc-text) + 0.55rem); }
-    &--indent-2 { padding-left: calc(var(--ingenic-toc-text) + 1.1rem); }
-    &--indent-3 { padding-left: calc(var(--ingenic-toc-text) + 1.65rem); }
-
-    &:hover {
-      background: var(--ingenic-sky-100);
-      color: var(--ingenic-navy);
-      text-decoration: none;
-    }
-
-    &.is-active {
-      background: var(--ingenic-sky-100);
-      color: var(--ingenic-navy);
-      font-weight: 600;
-    }
-
-    &:visited {
-      color: var(--ingenic-navy);
-    }
-
-    // A nested folder is a heading inside its group, like the group title
-    // above. Its glyph sits in the indent gutter, so the label itself still
-    // lines up with the articles below it.
-    &--folder {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      color: var(--ingenic-navy);
-      font-weight: 600;
-      cursor: default;
-
-      .d-icon {
-        flex: none;
-        width: 0.9rem;
-        margin-left: -1.25rem;
-        color: var(--ingenic-navy);
-        opacity: 0.6;
-        font-size: var(--font-down-2);
-      }
-
-      &:hover {
-        background: transparent;
-        color: var(--ingenic-navy);
-      }
     }
   }
 
@@ -5123,7 +5086,7 @@ body:has(.ingenic-homepage) {
     padding: 0.22rem 0.7rem;
     border: 1px solid var(--ingenic-surface-border);
     border-radius: 999px;
-    background: transparent;
+    background: var(--ingenic-sky-50);
     color: var(--primary-medium);
     font-size: var(--font-down-1);
     line-height: 1.5;
@@ -5131,6 +5094,7 @@ body:has(.ingenic-homepage) {
 
     &:hover {
       border-color: var(--ingenic-link);
+      background: var(--ingenic-sky-100);
       color: var(--ingenic-link);
     }
 
@@ -5828,12 +5792,23 @@ body:has(.ingenic-homepage) {
 }
 
 .ingenic-docpicker {
-  // The chip picker's own surfaces are tinted; lifting them all to glass at
-  // once keeps the toolbar from reading as a row of mismatched materials.
+  // The chip picker shares the version select's frame. Lifting it to the
+  // glass edge and glass fill turned it white-on-white, which is what made
+  // the two controls beside each other look like they came from different
+  // toolbars: one had a visible border and a pale sky fill, the other had
+  // neither.
   .ingenic-docpicker__trigger {
-    border-color: var(--ingenic-glass-edge);
-    background: var(--ingenic-glass-fill-strong);
+    border-color: var(--ingenic-surface-border);
+    background: color-mix(in srgb, var(--ingenic-sky-50) 92%, transparent);
     backdrop-filter: blur(18px) saturate(150%);
+  }
+
+  // This layer sits below the base rules, so the hover and open fills have to
+  // be restated or the trigger would keep its resting tint under the pointer.
+  .ingenic-docpicker__trigger:hover,
+  &.is-open .ingenic-docpicker__trigger {
+    border-color: var(--tertiary);
+    background: var(--ingenic-sky-100);
   }
 
   // The panel lists chip names over the article behind it: near-opaque, for

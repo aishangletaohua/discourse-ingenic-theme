@@ -157,7 +157,7 @@ en:
       go_to_forum: "Ask in the forum"
     downloads:
       title: "Downloads"
-      subtitle: "SDKs, firmware, manuals and tools. Some resources ask who you are before they hand over a file."
+      subtitle: "SDK releases, product briefs, algorithm packages, datasheets and version notes. Some resources ask who you are before they hand over a file."
       all_series: "All series"
       all_products: "Any model"
       all_resources: "All resources"

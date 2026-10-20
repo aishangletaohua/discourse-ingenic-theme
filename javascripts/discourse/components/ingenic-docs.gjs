@@ -8,7 +8,7 @@ import { fn } from "@ember/helper";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import didUpdate from "@ember/render-modifiers/modifiers/did-update";
 import { trustHTML } from "@ember/template";
-import { i18n } from "discourse-i18n";
+import I18n, { i18n } from "discourse-i18n";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import getURL from "discourse/lib/get-url";
 
@@ -157,74 +157,87 @@ export default class IngenicDocs extends Component {
     }));
   }
 
-  get tocGroups() {
-    const groups = [];
-    // Set while walking the subtree of a collapsed folder. The pages are a
-    // depth-first list, so every following row deeper than the folder belongs
-    // to it; the first row at its own depth or above ends the subtree.
-    let hiddenDepth = null;
+  // The contents flattened into the rows a tree draws, in the order they
+  // appear on screen.
+  //
+  // The plugin sends a depth-first list with a `depth` on every entry. That is
+  // enough to rebuild the tree: a row belongs to the nearest row above it
+  // that is shallower. Once the tree exists, a row knows its level and
+  // whether each of its ancestors still has siblings below — which is exactly
+  // where the guide lines go. Deriving that from a fixed set of indent
+  // classes could only ever show the depths the stylesheet anticipated.
+  get tocRows() {
+    const rows = [];
+
+    const walk = (nodes, ancestors) => {
+      for (const node of nodes) {
+        const collapsed =
+          node.isFolder && this.collapsedGroups.includes(node.slug);
+
+        rows.push({
+          ...node,
+          level: ancestors.length,
+          // One flag per vertical guide column: the line beside this row
+          // continues from an ancestor that still has a sibling to come.
+          guides: ancestors.map((ancestor) => !ancestor.isLast),
+          hasChildren: node.children.length > 0,
+          isOpen: !collapsed,
+        });
+
+        // A closed folder still carries `children`, so its toggle has
+        // something to reopen; only the rows are withheld.
+        if (!collapsed) {
+          walk(node.children, [...ancestors, node]);
+        }
+      }
+    };
+
+    walk(this.#tocTree(), []);
+    return rows;
+  }
+
+  // Depth-first entries into a tree of nodes, with each sibling list marked so
+  // the last one can draw a corner instead of a continuing line.
+  #tocTree() {
+    const roots = [];
+    const stack = [];
 
     for (const entry of this.pages) {
       const depth = entry.depth ?? 0;
 
-      if (hiddenDepth !== null) {
-        if (depth > hiddenDepth) {
-          // Collapsed, but the row still has to know it has contents: the
-          // toggle is what reopens it, and it is drawn only for a group with
-          // children. Recording the hidden entries gives the row that fact
-          // without drawing them — the list renders only while the group is
-          // open, and expanding recomputes this walk from the full list.
-          groups[groups.length - 1]?.children.push({
-            slug: entry.slug,
-            title: entry.title,
-            isFolder: entry.kind === "folder",
-            href: entry.kind === "folder" ? null : this.hrefFor(entry.slug),
-            isActive: entry.slug === this.urlPageSlug,
-            indent: Math.min(depth - 1, 3),
-          });
-          continue;
-        }
-
-        hiddenDepth = null;
+      while (stack.length && stack[stack.length - 1].depth >= depth) {
+        stack.pop();
       }
 
       // A folder is a heading in the contents, not a destination: the plugin
       // refuses to serve one as a page, so a link to it is a 404.
-      const isFolder = entry.kind === "folder";
-      const collapsed =
-        isFolder && this.collapsedGroups.includes(entry.slug);
+      const node = {
+        slug: entry.slug,
+        title: entry.title,
+        isFolder: entry.kind === "folder",
+        href: entry.kind === "folder" ? null : this.hrefFor(entry.slug),
+        isActive: entry.slug === this.urlPageSlug,
+        children: [],
+      };
 
-      if (depth === 0 || groups.length === 0) {
-        groups.push({
-          slug: entry.slug,
-          title: entry.title,
-          isFolder,
-          href: isFolder ? null : this.hrefFor(entry.slug),
-          isActive: entry.slug === this.urlPageSlug,
-          isOpen: !collapsed,
-          children: [],
-        });
+      if (stack.length) {
+        stack[stack.length - 1].node.children.push(node);
       } else {
-        const group = groups[groups.length - 1];
-        group.children.push({
-          slug: entry.slug,
-          title: entry.title,
-          isFolder,
-          href: isFolder ? null : this.hrefFor(entry.slug),
-          isActive: entry.slug === this.urlPageSlug,
-          indent: Math.min(depth - 1, 3),
-        });
+        roots.push(node);
       }
 
-      if (collapsed) {
-        hiddenDepth = depth;
-      }
+      stack.push({ depth, node });
     }
 
-    return groups.map((group) => ({
-      ...group,
-      hasActiveChild: group.children.some((child) => child.isActive),
-    }));
+    const markLast = (nodes) => {
+      nodes.forEach((node, index) => {
+        node.isLast = index === nodes.length - 1;
+        markLast(node.children);
+      });
+    };
+    markLast(roots);
+
+    return roots;
   }
 
   get searchHits() {
@@ -268,7 +281,14 @@ export default class IngenicDocs extends Component {
       return "";
     }
 
-    return new Intl.DateTimeFormat(undefined, {
+    // The date follows the forum's language, not the browser's. Left to
+    // `undefined` the formatter reads the operating system, so an English
+    // page opened on a Chinese desktop said "2026年10月17日" beside an
+    // English "Updated". Discourse locales use an underscore; Intl wants a
+    // hyphen.
+    const locale = I18n.currentLocale?.()?.replace(/_/g, "-");
+
+    return new Intl.DateTimeFormat(locale || undefined, {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -1133,84 +1153,66 @@ export default class IngenicDocs extends Component {
 
         <div class="ingenic-docs__panes {{if this.page 'ingenic-docs__panes--rail'}}">
           <aside class="ingenic-doctoc {{unless this.treeOpen 'is-collapsed'}}">
-            <a class="ingenic-doctoc__home" href={{getURL "/ingenic/docs"}}>
-              {{dIcon "book-open"}}
-              {{i18n (themePrefix "ingenic.docs.documentation")}}
-            </a>
-
             <p class="ingenic-doctoc__title">
               {{i18n (themePrefix "ingenic.docs.contents")}}
             </p>
 
-            <div class="ingenic-doctoc__groups">
-              {{#each this.tocGroups as |group|}}
-                <div class="ingenic-doctoc__group {{if group.hasActiveChild 'is-active'}}">
-                  <div class="ingenic-doctoc__group-head">
-                    {{#if group.isFolder}}
+            {{#if this.tocRows.length}}
+              <ul class="ingenic-doctoc__tree">
+                {{#each this.tocRows as |row|}}
+                  <li
+                    class="ingenic-doctoc__node"
+                    style="--ingenic-toc-level: {{row.level}}"
+                  >
+                    {{! The tree is drawn, not decorated: one column per
+                        ancestor level, then the elbow into this row. }}
+                    <span class="ingenic-doctoc__guides" aria-hidden="true">
+                      {{#each row.guides as |continues|}}
+                        <span
+                          class="ingenic-doctoc__guide {{if continues 'is-on'}}"
+                        ></span>
+                      {{/each}}
                       <span
-                        class="ingenic-doctoc__group-title ingenic-doctoc__group-title--folder"
-                      >
-                        <span class="ingenic-doctoc__group-glyph" aria-hidden="true">
-                          {{dIcon "folder"}}
+                        class="ingenic-doctoc__elbow {{if row.isLast 'is-last'}}"
+                      ></span>
+                    </span>
+
+                    {{#if row.isFolder}}
+                      {{#if row.hasChildren}}
+                        <button
+                          type="button"
+                          class="ingenic-doctoc__row ingenic-doctoc__row--folder ingenic-doctoc__row--toggle"
+                          aria-expanded={{if row.isOpen "true" "false"}}
+                          {{on "click" (fn this.toggleGroup row.slug)}}
+                        >
+                          <span class="ingenic-doctoc__label">{{row.title}}</span>
+                          <span
+                            class="ingenic-doctoc__chev {{if row.isOpen 'is-open'}}"
+                            aria-hidden="true"
+                          >▾</span>
+                        </button>
+                      {{else}}
+                        <span class="ingenic-doctoc__row ingenic-doctoc__row--folder">
+                          <span class="ingenic-doctoc__label">{{row.title}}</span>
                         </span>
-                        <span>{{group.title}}</span>
-                      </span>
+                      {{/if}}
                     {{else}}
                       <a
-                        class="ingenic-doctoc__group-title {{if group.isActive 'is-current'}}"
-                        href={{group.href}}
-                        {{on "click" (fn this.openPage group)}}
+                        class="ingenic-doctoc__row {{if row.isActive 'is-current'}}"
+                        href={{row.href}}
+                        {{on "click" (fn this.openPage row)}}
                       >
-                        {{! The gutter is kept even for a page, so every title in
-                            the column starts on the same line. }}
-                        <span class="ingenic-doctoc__group-glyph" aria-hidden="true"></span>
-                        <span>{{group.title}}</span>
+                        <span class="ingenic-doctoc__label">{{row.title}}</span>
                       </a>
                     {{/if}}
-
-                    {{#if group.children.length}}
-                      <button
-                        type="button"
-                        class="ingenic-doctoc__group-toggle"
-                        aria-expanded={{if group.isOpen "true" "false"}}
-                        {{on "click" (fn this.toggleGroup group.slug)}}
-                      >
-                        <span class="ingenic-doctoc__chev {{if group.isOpen 'is-open'}}" aria-hidden="true">▾</span>
-                      </button>
-                    {{/if}}
-                  </div>
-
-                  {{#if group.isOpen}}
-                    <ul class="ingenic-doctoc__items">
-                      {{#each group.children as |entry|}}
-                        <li>
-                          {{#if entry.isFolder}}
-                            <span
-                              class="ingenic-doctoc__link ingenic-doctoc__link--folder ingenic-doctoc__link--indent-{{entry.indent}}"
-                            >
-                              {{dIcon "folder"}}
-                              <span>{{entry.title}}</span>
-                            </span>
-                          {{else}}
-                            <a
-                              class="ingenic-doctoc__link ingenic-doctoc__link--indent-{{entry.indent}} {{if entry.isActive 'is-active'}}"
-                              href={{entry.href}}
-                              {{on "click" (fn this.openPage entry)}}
-                            >
-                              <span>{{entry.title}}</span>
-                            </a>
-                          {{/if}}
-                        </li>
-                      {{/each}}
-                    </ul>
-                  {{/if}}
-                </div>
-              {{else}}
-                <p class="ingenic-doctoc__empty">
-                  {{i18n (themePrefix "ingenic.docs.empty")}}
-                </p>
-              {{/each}}
-            </div>
+                  </li>
+                {{/each}}
+              </ul>
+            {{else}}
+              <p class="ingenic-doctoc__empty">
+                {{i18n (themePrefix "ingenic.docs.empty")}}
+              </p>
+            {{/if}}
           </aside>
 
           <main class="ingenic-docs__main">
