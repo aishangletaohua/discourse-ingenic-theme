@@ -4,7 +4,7 @@
   "license_url": null,
   "component": false,
   "assets": {
-    "ingenic_display_font": "assets/fonts/nunito-800-latin.woff2"
+    "ingenic_display_font": "assets/fonts/gabarito-800-latin.woff2"
   },
   "color_schemes": {
     "Ingenic Light": {

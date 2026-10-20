@@ -854,11 +854,11 @@ body:has(.ingenic-homepage) {
 
 // The greeting is the one place on the site where the type is allowed to be
 // warm. Every other heading is the page talking about its contents; this one
-// is the forum saying hello, so it is set in a rounded face — heavy enough to
-// carry the band, open enough not to read as another notice. The face is
-// bundled rather than fetched from a font CDN: the forum is read from mainland
-// China, where those CDNs are not reachable. The file is a Latin subset and
-// the licence sits beside it in assets/fonts.
+// is the forum saying hello. The face is a heavy squarish geometric: round
+// counters let it bounce, square skeletons keep it reading as an engineering
+// product rather than a children's book. It is bundled rather than fetched
+// from a font CDN — the forum is read from mainland China, where those CDNs
+// are not reachable — and the licence sits beside the file in assets/fonts.
 @font-face {
   font-family: "Ingenic Display";
   src: url($ingenic_display_font) format("woff2");
