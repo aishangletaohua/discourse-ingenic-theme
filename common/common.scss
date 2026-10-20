@@ -4564,9 +4564,9 @@ body:has(.ingenic-homepage) {
 // lands. `ingenic-` prefixed throughout: Discourse draws a footer of its own and
 // a bare `footer` here would be a claim on its markup.
 // The footer follows the Chinese forum's shape — wordmark, slogan and partner
-// icons on the left, three editable columns on the right, the copyright and
-// filing number on a last line — but it is painted by the page rather than laid
-// on top of it. The wash starts transparent and thickens towards the foot, so
+// icons on the left, three editable columns on the right — but it is painted by
+// the page rather than laid on top of it. The wash starts transparent and
+// thickens towards the foot, so
 // there is no top edge to see: the gradient runs straight into the footer.
 .ingenic-footer {
   margin-top: 2.5rem;

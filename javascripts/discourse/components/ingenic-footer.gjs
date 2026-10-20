@@ -15,10 +15,9 @@ import { loadSiteContent } from "../ingenic/site-content";
  * The site footer: the brand, the partner strip, and the footer's link columns.
  *
  * The shape follows the Chinese forum: the wordmark and its slogan on the left,
- * the editable link columns on the right, and the copyright and filing number
- * on a last line. The columns are what the Ingenic team edits, which is the
- * point — a chip family is a category link this month and a download filter the
- * next, and neither should need a theme release to change.
+ * the editable link columns on the right. The columns are what the team edits,
+ * which is the point — a chip family is a category link this month and a
+ * download filter the next, and neither should need a theme release to change.
  *
  * A platform is one of two shapes. A link opens somewhere; a QR code opens a
  * panel over the page showing the image, because a code that navigates is a
