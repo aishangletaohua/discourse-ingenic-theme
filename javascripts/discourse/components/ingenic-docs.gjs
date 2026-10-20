@@ -1137,7 +1137,9 @@ export default class IngenicDocs extends Component {
                       <span
                         class="ingenic-doctoc__group-title ingenic-doctoc__group-title--folder"
                       >
-                        {{dIcon "folder"}}
+                        <span class="ingenic-doctoc__group-glyph" aria-hidden="true">
+                          {{dIcon "folder"}}
+                        </span>
                         <span>{{group.title}}</span>
                       </span>
                     {{else}}
@@ -1146,7 +1148,9 @@ export default class IngenicDocs extends Component {
                         href={{group.href}}
                         {{on "click" (fn this.openPage group)}}
                       >
-                        {{dIcon "folder"}}
+                        {{! The gutter is kept even for a page, so every title in
+                            the column starts on the same line. }}
+                        <span class="ingenic-doctoc__group-glyph" aria-hidden="true"></span>
                         <span>{{group.title}}</span>
                       </a>
                     {{/if}}

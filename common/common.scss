@@ -938,11 +938,16 @@ body:has(.ingenic-homepage) {
     // and a supporting sentence made the band read as a banner to get past.
     h1 {
       margin: 0;
-      color: inherit;
-      font-size: clamp(1.75rem, 3vw, 2.35rem);
-      font-weight: 700;
-      line-height: 1.15;
-      letter-spacing: -0.01em;
+      // Semibold rather than bold, and a little more open than the rest of the
+      // page's headings: this is a welcome, not a notice. The navy is the same
+      // ink the documentation headings use, so the two pages read as one site
+      // without the greeting going black and heavy.
+      color: var(--ingenic-navy);
+      font-size: clamp(1.9rem, 3.1vw, 2.55rem);
+      font-weight: 600;
+      line-height: 1.2;
+      letter-spacing: -0.018em;
+      text-wrap: balance;
     }
   }
 
@@ -1363,7 +1368,7 @@ body:has(.ingenic-homepage) {
   // The cards are a row of three, not a wall: the inset and the wider gap let
   // the page's own surface show between them.
   margin-inline: 1rem;
-  gap: 1.5rem;
+  gap: 2.25rem;
 
   &__card {
     --ingenic-category: var(--tertiary);
@@ -1372,12 +1377,11 @@ body:has(.ingenic-homepage) {
     flex-direction: row;
     align-items: center;
     gap: 0.7rem;
-    // Short and wide would read as a toolbar; the card is a doorway, so it
-    // gets the height of one at both edges rather than only the width. The
+    // A doorway, not a banner: enough height to be easy to hit, no more. The
     // box is border-box because the page's own reset does not set one here.
     box-sizing: border-box;
-    min-height: 5rem;
-    padding: 1.15rem 1rem;
+    min-height: 4.15rem;
+    padding: 0.85rem 1rem;
     border: 1px solid var(--ingenic-panel-border);
     border-radius: 0.7rem;
     background: var(--secondary);
@@ -1439,6 +1443,9 @@ body:has(.ingenic-homepage) {
 @media (width <= 700px) {
   .ingenic-sections {
     grid-template-columns: minmax(0, 1fr);
+    // Stacked, the gap is vertical: the wide desktop gutter would put a hole
+    // between one card and the next.
+    gap: 0.75rem;
   }
 }
 
@@ -2802,6 +2809,13 @@ body:has(.ingenic-homepage) {
 // with its own navigation.
 
 .ingenic-docs {
+  // Every control in the toolbar is one size: the same height, radius, border
+  // and type. Before this, the chip picker, the version select and the search
+  // box were each a few pixels apart, which is what makes a row of controls
+  // look assembled rather than designed.
+  --ingenic-control-height: 2.5rem;
+  --ingenic-control-radius: 8px;
+
   min-height: 70vh;
   // Wide enough for three columns at a desktop width, and no wider: past
   // this the page is a band of text between two margins of empty sky, and
@@ -2826,8 +2840,9 @@ body:has(.ingenic-homepage) {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.55rem 0.75rem;
-    padding: 0.85rem 1.15rem;
+    gap: 0.5rem 0.6rem;
+    min-height: calc(var(--ingenic-control-height) + 1.2rem);
+    padding: 0.6rem 1.1rem;
     border-bottom: 1px solid var(--ingenic-panel-border);
     background: color-mix(in srgb, var(--ingenic-sky-50) 55%, var(--secondary));
     border-radius: 12px 12px 0 0;
@@ -2838,18 +2853,18 @@ body:has(.ingenic-homepage) {
   // a chip changes are both stated here.
   &__crumbs {
     display: flex;
-    align-items: baseline;
-    gap: 0.45rem;
+    align-items: center;
+    gap: 0.4rem;
     min-width: 0;
     color: #5c7389;
     font-size: var(--font-down-1);
-    font-weight: 700;
-    letter-spacing: 0.01em;
+    font-weight: 600;
+    line-height: 1.3;
     white-space: nowrap;
 
     a {
       color: #5c7389;
-      font-weight: 700;
+      font-weight: 600;
 
       &:hover {
         color: var(--ingenic-link);
@@ -2866,7 +2881,7 @@ body:has(.ingenic-homepage) {
   &__crumb-current {
     overflow: hidden;
     color: var(--ingenic-navy);
-    font-weight: 800;
+    font-weight: 700;
     text-overflow: ellipsis;
   }
 
@@ -2874,17 +2889,27 @@ body:has(.ingenic-homepage) {
     position: relative;
     display: inline-flex;
     align-items: center;
+    height: var(--ingenic-control-height);
+    // Core gives a label a bottom margin, which lifted this control out of
+    // the row's centre line.
+    margin: 0;
 
     select {
       appearance: none;
-      min-width: 9.5rem;
-      padding: 0.42rem 2rem 0.42rem 0.7rem;
+      box-sizing: border-box;
+      width: 100%;
+      height: var(--ingenic-control-height);
+      min-width: 9.75rem;
+      max-width: 13rem;
+      margin: 0;
+      padding: 0 2rem 0 0.75rem;
       border: 1px solid var(--ingenic-panel-border);
-      border-radius: 7px;
+      border-radius: var(--ingenic-control-radius);
       background: var(--secondary);
       color: var(--primary);
       font-size: var(--font-down-1);
-      font-weight: 700;
+      font-weight: 600;
+      line-height: 1;
       cursor: pointer;
 
       &:hover {
@@ -2895,9 +2920,9 @@ body:has(.ingenic-homepage) {
 
   &__version-caret {
     position: absolute;
-    right: 0.65rem;
+    right: 0.7rem;
     color: var(--primary-medium);
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     pointer-events: none;
   }
 
@@ -2906,14 +2931,16 @@ body:has(.ingenic-homepage) {
   &__toc-toggle {
     display: none;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.42rem 0.65rem;
+    box-sizing: border-box;
+    gap: 0.4rem;
+    height: var(--ingenic-control-height);
+    padding: 0 0.8rem;
     border: 1px solid var(--ingenic-panel-border);
-    border-radius: 7px;
+    border-radius: var(--ingenic-control-radius);
     background: var(--secondary);
     color: var(--primary);
     font-size: var(--font-down-1);
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
 
     .d-icon {
@@ -2960,9 +2987,9 @@ body:has(.ingenic-homepage) {
 
     h2 {
       margin: 0;
-      color: var(--primary);
+      color: var(--ingenic-navy);
       font-size: var(--font-up-1);
-      font-weight: 800;
+      font-weight: 700;
     }
 
     p {
@@ -2992,10 +3019,10 @@ body:has(.ingenic-homepage) {
   }
 
   &__rail-title {
-    margin: 0 0 0.6rem 0.7rem;
+    margin: 0 0 0.5rem 0.7rem;
     color: #5c7389;
     font-size: var(--font-down-2);
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
@@ -3038,8 +3065,9 @@ body:has(.ingenic-homepage) {
     line-height: 1.5;
 
     b {
-      color: var(--primary);
+      color: var(--ingenic-navy);
       font-size: var(--font-down-1);
+      font-weight: 700;
     }
 
     span {
@@ -3118,15 +3146,17 @@ body:has(.ingenic-homepage) {
     z-index: 100;
     display: inline-flex;
     align-items: center;
+    box-sizing: border-box;
     gap: 0.45rem;
-    max-width: 15rem;
-    padding: 0.42rem 0.7rem;
+    height: var(--ingenic-control-height);
+    max-width: 13rem;
+    padding: 0 0.75rem;
     border: 1px solid var(--ingenic-panel-border);
-    border-radius: 7px;
+    border-radius: var(--ingenic-control-radius);
     background: var(--secondary);
     color: var(--primary);
     font-size: var(--font-down-1);
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
 
     &:hover,
@@ -3179,7 +3209,7 @@ body:has(.ingenic-homepage) {
     margin: 0.15rem 0.5rem 0.45rem;
     color: #5c7389;
     font-size: var(--font-down-2);
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: 0.07em;
     text-transform: uppercase;
 
@@ -3252,7 +3282,7 @@ body:has(.ingenic-homepage) {
     &.is-current {
       background: var(--ingenic-sky-100);
       color: var(--ingenic-link);
-      font-weight: 800;
+      font-weight: 700;
     }
   }
 
@@ -3271,18 +3301,22 @@ body:has(.ingenic-homepage) {
 
 .ingenic-docsearch {
   position: relative;
-  flex: 1 1 15rem;
-  min-width: 0;
-  max-width: 26rem;
+  flex: 0 1 21rem;
+  min-width: 14rem;
   margin-left: auto;
 
+  // One field: the icon, the text and the shortcut hint share a single
+  // border. The hint used to sit in a bordered keycap of its own, which read
+  // as a second input inside the first.
   &__form {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
-    padding: 0 0.55rem;
+    box-sizing: border-box;
+    gap: 0.5rem;
+    height: var(--ingenic-control-height);
+    padding: 0 0.75rem;
     border: 1px solid var(--ingenic-panel-border);
-    border-radius: 7px;
+    border-radius: var(--ingenic-control-radius);
     background: var(--secondary);
 
     &:focus-within {
@@ -3293,29 +3327,37 @@ body:has(.ingenic-homepage) {
 
   &__icon {
     display: grid;
+    flex: none;
     place-items: center;
     color: var(--primary-medium);
+    font-size: var(--font-down-1);
   }
 
-  &__input {
+  &__input,
+  &__input[type="search"] {
     flex: 1;
     min-width: 0;
+    height: 100%;
     margin: 0;
-    padding: 0.45rem 0;
+    padding: 0;
     border: 0;
     background: transparent;
     color: var(--primary);
     font-size: var(--font-down-1);
+    line-height: 1.3;
     box-shadow: none;
 
-    &:focus {
+    &:focus,
+    &:focus-visible {
       outline: none;
+      border: 0;
       box-shadow: none;
     }
   }
 
   &__clear {
     display: grid;
+    flex: none;
     place-items: center;
     padding: 0.2rem;
     border: 0;
@@ -3324,14 +3366,18 @@ body:has(.ingenic-homepage) {
     cursor: pointer;
   }
 
+  // The keyboard hint is a label, not a key: no border, no fill, no second
+  // box inside the field.
   &__kbd {
-    padding: 0.08rem 0.32rem;
-    border: 1px solid var(--ingenic-divider);
-    border-radius: 4px;
-    background: var(--ingenic-sky-50);
-    color: var(--primary-medium);
+    flex: none;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--primary-low);
     font-family: inherit;
     font-size: var(--font-down-2);
+    font-weight: 600;
+    letter-spacing: 0.04em;
   }
 
   &__panel {
@@ -3418,9 +3464,20 @@ body:has(.ingenic-homepage) {
 // --- Contents --------------------------------------------------------------
 
 .ingenic-doctoc {
+  // One gutter runs down the column: the Documentation link, CONTENTS, every
+  // group title and every article start on the same vertical line. The glyph
+  // column is part of the measurement, not an afterthought, so a page title
+  // and a folder title do not drift apart.
+  --ingenic-toc-gutter: 0.5rem;
+  --ingenic-toc-glyph: 1rem;
+  --ingenic-toc-gap: 0.4rem;
+  --ingenic-toc-text: calc(
+    var(--ingenic-toc-gutter) + var(--ingenic-toc-glyph) + var(--ingenic-toc-gap)
+  );
+
   align-self: stretch;
   height: 100%;
-  padding: 1.15rem 0.85rem 2rem;
+  padding: 1rem 0.85rem 2rem;
   overflow-y: auto;
   border-right: 1px solid var(--ingenic-divider);
   background: color-mix(in srgb, var(--ingenic-sky-50) 42%, var(--secondary));
@@ -3428,15 +3485,17 @@ body:has(.ingenic-homepage) {
   &__home {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
-    margin-bottom: 1.1rem;
-    padding: 0.45rem 0.55rem;
+    gap: var(--ingenic-toc-gap);
+    margin-bottom: 0.9rem;
+    padding: 0.45rem var(--ingenic-toc-gutter);
     border-radius: 6px;
-    color: var(--primary);
+    color: var(--ingenic-navy);
     font-size: var(--font-down-1);
-    font-weight: 800;
+    font-weight: 600;
 
     .d-icon {
+      flex: none;
+      width: var(--ingenic-toc-glyph);
       color: var(--ingenic-link);
     }
 
@@ -3447,16 +3506,17 @@ body:has(.ingenic-homepage) {
   }
 
   &__title {
-    margin: 0 0 0.5rem 0.55rem;
+    margin: 0 0 0.4rem;
+    padding-left: var(--ingenic-toc-text);
     color: #5c7389;
     font-size: var(--font-down-2);
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
   &__group + &__group {
-    margin-top: 0.3rem;
+    margin-top: 0.2rem;
   }
 
   &__group-head {
@@ -3474,22 +3534,21 @@ body:has(.ingenic-homepage) {
     display: flex;
     flex: 1;
     align-items: center;
-    gap: 0.4rem;
+    gap: var(--ingenic-toc-gap);
     min-width: 0;
-    padding: 0.45rem 0.5rem;
+    padding: 0.42rem var(--ingenic-toc-gutter);
     border-radius: 6px;
-    color: var(--primary);
+    color: var(--ingenic-navy);
     font-size: var(--font-down-1);
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.35;
 
     .d-icon {
-      flex: none;
       color: var(--ingenic-link);
       font-size: var(--font-down-2);
     }
 
-    span {
+    > span:last-child {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -3502,6 +3561,7 @@ body:has(.ingenic-homepage) {
 
     &.is-current {
       color: var(--ingenic-link);
+      font-weight: 700;
     }
 
     // A folder heads a section but has no article of its own; the plugin
@@ -3510,16 +3570,27 @@ body:has(.ingenic-homepage) {
       cursor: default;
 
       &:hover {
-        color: var(--primary);
+        color: var(--ingenic-navy);
       }
     }
+  }
+
+  // The icon column. It is always present — empty for a page — so the title
+  // beside it starts in the same place whether the row is a folder or an
+  // article.
+  &__group-glyph {
+    display: grid;
+    flex: none;
+    width: var(--ingenic-toc-glyph);
+    place-items: center;
+    color: var(--ingenic-link);
   }
 
   &__group-toggle {
     display: grid;
     flex: none;
-    width: 1.7rem;
-    height: 1.7rem;
+    width: 1.6rem;
+    height: 1.6rem;
     place-items: center;
     border: 0;
     border-radius: 4px;
@@ -3539,23 +3610,22 @@ body:has(.ingenic-homepage) {
   }
 
   &__items {
-    margin: 0.1rem 0 0.4rem;
-    padding: 0 0 0 0.55rem;
+    margin: 0 0 0.35rem;
+    padding: 0;
     list-style: none;
-    border-left: 1px solid var(--ingenic-divider);
   }
 
   &__link {
     display: block;
-    padding: 0.35rem 0.55rem;
-    border-radius: 5px;
+    padding: 0.35rem var(--ingenic-toc-gutter) 0.35rem var(--ingenic-toc-text);
+    border-radius: 6px;
     color: var(--primary-medium);
     font-size: var(--font-down-1);
     line-height: 1.4;
 
-    &--indent-1 { padding-left: 1rem; }
-    &--indent-2 { padding-left: 1.6rem; }
-    &--indent-3 { padding-left: 2.2rem; }
+    &--indent-1 { padding-left: calc(var(--ingenic-toc-text) + 0.55rem); }
+    &--indent-2 { padding-left: calc(var(--ingenic-toc-text) + 1.1rem); }
+    &--indent-3 { padding-left: calc(var(--ingenic-toc-text) + 1.65rem); }
 
     &:hover {
       background: var(--ingenic-sky-100);
@@ -3566,34 +3636,37 @@ body:has(.ingenic-homepage) {
     &.is-active {
       background: var(--ingenic-sky-100);
       color: var(--ingenic-link);
-      font-weight: 700;
+      font-weight: 600;
     }
 
     // A nested folder is a heading inside its group, like the group title
-    // above, and is drawn here so its articles keep their indentation.
+    // above. Its glyph sits in the indent gutter, so the label itself still
+    // lines up with the articles below it.
     &--folder {
       display: flex;
       align-items: center;
       gap: 0.35rem;
-      color: var(--primary);
-      font-weight: 700;
+      color: var(--ingenic-navy);
+      font-weight: 600;
       cursor: default;
 
       .d-icon {
         flex: none;
+        width: 0.9rem;
+        margin-left: -1.25rem;
         color: var(--ingenic-link);
         font-size: var(--font-down-2);
       }
 
       &:hover {
         background: transparent;
-        color: var(--primary);
+        color: var(--ingenic-navy);
       }
     }
   }
 
   &__empty {
-    padding: 0.4rem 0.55rem;
+    padding: 0.4rem var(--ingenic-toc-gutter);
     color: var(--primary-medium);
     font-size: var(--font-down-2);
   }
@@ -3670,7 +3743,7 @@ body:has(.ingenic-homepage) {
 
     b {
       font-size: 0.95rem;
-      font-weight: 800;
+      font-weight: 700;
       letter-spacing: 0.02em;
     }
 
@@ -3688,10 +3761,10 @@ body:has(.ingenic-homepage) {
 
     h1 {
       margin: 0;
-      color: var(--primary);
+      color: var(--ingenic-navy);
       font-size: clamp(1.2rem, 1.7vw, 1.5rem);
-      font-weight: 800;
-      line-height: 1.2;
+      font-weight: 700;
+      line-height: 1.25;
     }
   }
 
@@ -3796,7 +3869,7 @@ body:has(.ingenic-homepage) {
     h3,
     h4 {
       position: relative;
-      color: var(--primary);
+      color: var(--ingenic-navy);
       line-height: 1.3;
       scroll-margin-top: 1.5rem;
     }
@@ -3806,7 +3879,7 @@ body:has(.ingenic-homepage) {
       padding-top: 1.2rem;
       border-top: 1px solid var(--ingenic-divider);
       font-size: var(--font-up-2);
-      font-weight: 800;
+      font-weight: 700;
     }
 
     > h2:first-child {
@@ -3818,7 +3891,7 @@ body:has(.ingenic-homepage) {
     h3 {
       margin: 1.9rem 0 0.7rem;
       font-size: var(--font-up-1);
-      font-weight: 800;
+      font-weight: 700;
     }
 
     h4 {
@@ -3966,7 +4039,7 @@ body:has(.ingenic-homepage) {
   &__codelang {
     color: #5c7389;
     font-size: var(--font-down-2);
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
@@ -4034,7 +4107,7 @@ body:has(.ingenic-homepage) {
     border-bottom: 1px solid var(--ingenic-panel-border);
     background: var(--ingenic-sky-50);
     color: #3f566b;
-    font-weight: 800;
+    font-weight: 700;
     text-align: left;
     white-space: nowrap;
   }
@@ -4191,6 +4264,7 @@ body:has(.ingenic-homepage) {
 
     &__version select {
       width: 100%;
+      max-width: none;
     }
 
     &__toc-toggle {
@@ -4247,6 +4321,12 @@ body:has(.ingenic-homepage) {
     flex: 1 1 100%;
     max-width: none;
     margin-left: 0;
+
+    // No physical keyboard on a phone; the hint would only take space from
+    // the field.
+    &__kbd {
+      display: none;
+    }
   }
 
   .ingenic-docpicker {
