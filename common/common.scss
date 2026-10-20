@@ -453,6 +453,24 @@ html.ingenic-nav-first .sidebar-sections {
   }
 }
 
+// Core fastens a keyboard-shortcuts button to the foot of the column with a
+// sticky bar painted in the sidebar's background. That bar is wider than the
+// last card and square-cornered, so it reads as a second panel laid over the
+// first, with the button as its only content. The column here ends with the
+// community card: the bar keeps no fill or fade, and the button — the only
+// thing in it — is not shown. Shortcuts still open with "?".
+.sidebar-footer-wrapper {
+  background: transparent;
+
+  .sidebar-footer-container::before {
+    display: none;
+  }
+}
+
+.sidebar-footer-actions-keyboard-shortcuts {
+  display: none;
+}
+
 // The third block reads Site Feedback · Topics · Bounties · Points · All
 // Categories · More. Topics and More are core's children of its community
 // section, and the public API only appends to that list, so the order is set
@@ -892,14 +910,12 @@ body:has(.ingenic-homepage) {
   // it is a heading rather than a banner: meta's front page does not make a
   // reader scroll past its own introduction to reach the forum.
   &__hero {
+    // No fill and no edge: the greeting is set directly on the page gradient.
+    // A panel here drew a rounded rectangle around the words, which read as a
+    // card to step past rather than as the page introducing itself.
     margin-bottom: 1rem;
     padding: clamp(1rem, 2.2vw, 1.6rem) clamp(1rem, 2vw, 1.75rem)
       clamp(1rem, 1.8vw, 1.35rem);
-    border-radius: var(--ingenic-radius);
-    background:
-      radial-gradient(circle at 18% 0%, var(--ingenic-sky-200), transparent 42%),
-      radial-gradient(circle at 82% 8%, var(--ingenic-sky-100), transparent 46%),
-      linear-gradient(180deg, var(--ingenic-sky-50), var(--secondary));
     color: var(--primary);
     text-align: center;
 
@@ -5723,19 +5739,12 @@ body:has(.ingenic-homepage) {
 // --- Home page ------------------------------------------------------------
 
 .ingenic-homepage__hero {
-  // The greeting band keeps its two-corner wash and gains the third colour of
-  // the gradient at the foot, so the band belongs to the page rather than
-  // sitting on it.
-  background:
-    radial-gradient(circle at 16% -12%, rgb(122 197 255 / 62%), transparent 56%),
-    radial-gradient(circle at 88% -6%, rgb(196 178 255 / 52%), transparent 54%),
-    radial-gradient(circle at 50% 124%, rgb(132 231 215 / 46%), transparent 62%),
-    linear-gradient(160deg, rgb(255 255 255 / 76%), rgb(255 255 255 / 44%));
-  box-shadow:
-    var(--ingenic-glass-inner),
-    var(--ingenic-glass-shadow),
-    inset 0 0 0 1px rgb(255 255 255 / 62%);
-  backdrop-filter: blur(16px) saturate(150%);
+  // The glass layer leaves the greeting alone: no wash, no inner ring, no
+  // blur. The page gradient runs straight through it, so the band is painted
+  // by the same surface as everything behind it.
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .ingenic-homepage__search-panel {
