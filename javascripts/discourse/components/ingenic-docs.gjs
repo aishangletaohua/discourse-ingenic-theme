@@ -169,6 +169,19 @@ export default class IngenicDocs extends Component {
 
       if (hiddenDepth !== null) {
         if (depth > hiddenDepth) {
+          // Collapsed, but the row still has to know it has contents: the
+          // toggle is what reopens it, and it is drawn only for a group with
+          // children. Recording the hidden entries gives the row that fact
+          // without drawing them — the list renders only while the group is
+          // open, and expanding recomputes this walk from the full list.
+          groups[groups.length - 1]?.children.push({
+            slug: entry.slug,
+            title: entry.title,
+            isFolder: entry.kind === "folder",
+            href: entry.kind === "folder" ? null : this.hrefFor(entry.slug),
+            isActive: entry.slug === this.urlPageSlug,
+            indent: Math.min(depth - 1, 3),
+          });
           continue;
         }
 

@@ -20,11 +20,11 @@ const ENDPOINT = "/ingenic/boards";
  *
  * The filters are three levels, drawn like the download centre's: the kind of
  * thing — a board or a sample — then the series, then the chip inside that
- * series. A level with nothing behind it is not drawn, so a catalogue whose
- * boards share one series does not spend a row on a control that cannot
- * narrow anything. Words rather than selects, because the rows are short
- * enough to read at once and a visitor should see what the catalogue holds
- * before choosing anything.
+ * series. Every level keeps its row even before it has options: the row is
+ * where a visitor learns that the catalogue can be narrowed, and a row that
+ * appears only once there is something behind it reads as the page changing
+ * shape under the pointer. Words rather than selects, because the rows are
+ * short enough to read at once.
  *
  * Everything is loaded once and filtered here. A catalogue is a handful of
  * rows, and a filter that asks the server again on every click makes the
@@ -124,18 +124,6 @@ export default class IngenicBoards extends Component {
         active: item.slug === this.chip,
       })),
     ];
-  }
-
-  // A row whose only option is "All series" cannot narrow anything: it is a
-  // control with one answer. The catalogue is small enough that this happens
-  // whenever its boards sit in one series or name no chip, and on those pages
-  // the row only pushed the cards further down.
-  get showsSeries() {
-    return this.seriesButtons.length > 1;
-  }
-
-  get showsChips() {
-    return this.chipButtons.length > 1;
   }
 
   get visibleBoards() {
@@ -322,55 +310,51 @@ export default class IngenicBoards extends Component {
           </div>
         </div>
 
-        {{#if this.showsSeries}}
-          <div
-            class="ingenic-downloads__filter"
-            role="group"
-            aria-label={{i18n (themePrefix "ingenic.boards.series_filter")}}
-          >
-            <span class="ingenic-downloads__filter-label">
-              {{i18n (themePrefix "ingenic.boards.series_filter")}}
-            </span>
-            <div class="ingenic-downloads__options">
-              {{#each this.seriesButtons as |item|}}
-                <button
-                  class="ingenic-downloads__option {{if item.active 'is-current'}}"
-                  type="button"
-                  aria-pressed={{item.active}}
-                  disabled={{this.loading}}
-                  {{on "click" (fn this.pickSeries item.slug)}}
-                >
-                  {{item.label}}
-                </button>
-              {{/each}}
-            </div>
+        <div
+          class="ingenic-downloads__filter"
+          role="group"
+          aria-label={{i18n (themePrefix "ingenic.boards.series_filter")}}
+        >
+          <span class="ingenic-downloads__filter-label">
+            {{i18n (themePrefix "ingenic.boards.series_filter")}}
+          </span>
+          <div class="ingenic-downloads__options">
+            {{#each this.seriesButtons as |item|}}
+              <button
+                class="ingenic-downloads__option {{if item.active 'is-current'}}"
+                type="button"
+                aria-pressed={{item.active}}
+                disabled={{this.loading}}
+                {{on "click" (fn this.pickSeries item.slug)}}
+              >
+                {{item.label}}
+              </button>
+            {{/each}}
           </div>
-        {{/if}}
+        </div>
 
-        {{#if this.showsChips}}
-          <div
-            class="ingenic-downloads__filter"
-            role="group"
-            aria-label={{i18n (themePrefix "ingenic.boards.chip_filter")}}
-          >
-            <span class="ingenic-downloads__filter-label">
-              {{i18n (themePrefix "ingenic.boards.chip_filter")}}
-            </span>
-            <div class="ingenic-downloads__options">
-              {{#each this.chipButtons as |item|}}
-                <button
-                  class="ingenic-downloads__option {{if item.active 'is-current'}}"
-                  type="button"
-                  aria-pressed={{item.active}}
-                  disabled={{this.loading}}
-                  {{on "click" (fn this.pickChip item.slug)}}
-                >
-                  {{item.label}}
-                </button>
-              {{/each}}
-            </div>
+        <div
+          class="ingenic-downloads__filter"
+          role="group"
+          aria-label={{i18n (themePrefix "ingenic.boards.chip_filter")}}
+        >
+          <span class="ingenic-downloads__filter-label">
+            {{i18n (themePrefix "ingenic.boards.chip_filter")}}
+          </span>
+          <div class="ingenic-downloads__options">
+            {{#each this.chipButtons as |item|}}
+              <button
+                class="ingenic-downloads__option {{if item.active 'is-current'}}"
+                type="button"
+                aria-pressed={{item.active}}
+                disabled={{this.loading}}
+                {{on "click" (fn this.pickChip item.slug)}}
+              >
+                {{item.label}}
+              </button>
+            {{/each}}
           </div>
-        {{/if}}
+        </div>
       </div>
 
       {{#if this.cards.length}}

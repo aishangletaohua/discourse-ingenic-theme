@@ -2252,7 +2252,7 @@ body:has(.ingenic-homepage) {
 // label column, the same words-as-options — because the two pages ask the same
 // kind of question and should not look like two different sites. Only the
 // number of rows differs: a board is either a board or a sample, and then it
-// has a chip. A level with nothing behind it is not drawn.
+// has a chip.
 .ingenic-boards {
   &__filters {
     margin-bottom: 0.9rem;
@@ -2617,14 +2617,22 @@ body:has(.ingenic-homepage) {
   // The rows are compact on purpose. This block is a control for the cards
   // below it, not the page: at full-size buttons and generous row gaps it took
   // a third of the first screen before any resource was visible.
+  //
+  // A grid rather than two flex columns: the label is a tag of its own width,
+  // and the option column has to keep the same left edge in every row even
+  // when a long label is wider than the one above it.
   &__filter {
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
+    display: grid;
+    // Wide enough for "RESOURCE TYPE", the longest label at the widest of the
+    // two locales. A narrower column let the chip run under the first option,
+    // which clipped the one label that names the row's purpose.
+    grid-template-columns: 8.4rem minmax(0, 1fr);
+    align-items: start;
+    column-gap: 0.85rem;
     padding: 0.12rem 0;
 
     & + & {
-      margin-top: 0.4rem;
+      margin-top: 0.45rem;
     }
 
     &:last-of-type {
@@ -2632,17 +2640,31 @@ body:has(.ingenic-homepage) {
     }
   }
 
-  // The label column is fixed so the rows start their options on the same
-  // vertical line, and the micro-caps give it the weight a caption needs:
-  // as sentence-case text in the body colour it read as part of the options
-  // rather than as the name of the row.
+  // The label is a tag, not a caption: a tinted chip with an accent edge, set
+  // in micro-caps. As sentence-case body text it read as one more option on
+  // the row; the chip is what makes it the name of the row at a glance.
+  //
+  // It sits at the top of the row rather than its centre, so it lines up with
+  // the first line of options when the row wraps to two.
+  //
+  // It is also the same height as an option button and starts on the same
+  // line, so the label and the choices it names share one top edge. A chip
+  // sized to its text alone floated a couple of pixels off the button row and
+  // read as misaligned.
   &__filter-label {
-    flex: 0 0 6.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    min-height: 1.7rem;
+    padding: 0 0.45rem;
+    border-left: 3px solid var(--tertiary);
+    border-radius: 3px;
+    background: var(--ingenic-sky-100);
     color: var(--ingenic-navy);
     font-size: var(--font-down-2);
     font-weight: 700;
     letter-spacing: 0.07em;
-    line-height: 1.25;
+    line-height: 1.5;
     text-transform: uppercase;
     white-space: nowrap;
   }
@@ -2714,8 +2736,8 @@ body:has(.ingenic-homepage) {
     }
 
     &__filter-label {
-      display: block;
-      padding: 0 0 0.3rem;
+      display: inline-flex;
+      margin: 0 0 0.35rem;
     }
   }
 
@@ -3473,12 +3495,19 @@ body:has(.ingenic-homepage) {
       background: var(--ingenic-sky-100);
       text-decoration: none;
     }
+
+    // Core styles `a:visited` and gives it the link colour, which outranks a
+    // bare class selector: without this the entries the reader has already
+    // opened turned blue again and the column was two colours.
+    &:visited {
+      color: var(--ingenic-navy);
+    }
   }
 
   &__title {
     margin: 0 0 0.4rem;
     padding-left: var(--ingenic-toc-text);
-    color: #5c7389;
+    color: var(--ingenic-navy);
     font-size: var(--font-down-2);
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -3513,8 +3542,11 @@ body:has(.ingenic-homepage) {
     font-weight: 600;
     line-height: 1.35;
 
+    // The folder glyph is part of the column's ink, not an accent: left in
+    // link blue it was the one blue mark on an otherwise navy list.
     .d-icon {
-      color: var(--ingenic-link);
+      color: var(--ingenic-navy);
+      opacity: 0.6;
       font-size: var(--font-down-2);
     }
 
@@ -3538,6 +3570,10 @@ body:has(.ingenic-homepage) {
       font-weight: 700;
     }
 
+    &:visited {
+      color: var(--ingenic-navy);
+    }
+
     // A folder heads a section but has no article of its own; the plugin
     // refuses to serve one, so this row is a label rather than a link.
     &--folder {
@@ -3557,7 +3593,7 @@ body:has(.ingenic-homepage) {
     flex: none;
     width: var(--ingenic-toc-glyph);
     place-items: center;
-    color: var(--ingenic-link);
+    color: var(--ingenic-navy);
   }
 
   &__group-toggle {
@@ -3569,8 +3605,15 @@ body:has(.ingenic-homepage) {
     border: 0;
     border-radius: 4px;
     background: transparent;
-    color: var(--primary-medium);
+    color: var(--ingenic-navy);
+    opacity: 0.6;
     cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      opacity: 1;
+      background: var(--ingenic-sky-100);
+    }
   }
 
   &__chev {
@@ -3613,6 +3656,10 @@ body:has(.ingenic-homepage) {
       font-weight: 600;
     }
 
+    &:visited {
+      color: var(--ingenic-navy);
+    }
+
     // A nested folder is a heading inside its group, like the group title
     // above. Its glyph sits in the indent gutter, so the label itself still
     // lines up with the articles below it.
@@ -3628,7 +3675,8 @@ body:has(.ingenic-homepage) {
         flex: none;
         width: 0.9rem;
         margin-left: -1.25rem;
-        color: var(--ingenic-link);
+        color: var(--ingenic-navy);
+        opacity: 0.6;
         font-size: var(--font-down-2);
       }
 
