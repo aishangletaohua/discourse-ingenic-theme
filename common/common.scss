@@ -4557,7 +4557,7 @@ body:has(.ingenic-homepage) {
     gap: 1rem 3rem;
     max-width: 1280px;
     margin: 0 auto;
-    padding: 2.5rem 1rem 1.75rem;
+    padding: 2.5rem 1rem 2rem;
   }
 
   &__lockup {
@@ -4650,6 +4650,39 @@ body:has(.ingenic-homepage) {
       }
     }
 
+    // An entry with a name rather than a picture. It is a pill like the icon
+    // buttons, so a strip mixing both still reads as one row.
+    &--text {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.4rem 0.8rem;
+      border: 1px solid var(--ingenic-surface-border);
+      border-radius: 999px;
+      background: var(--ingenic-control-fill);
+      color: var(--primary-medium);
+      font-size: var(--font-down-1);
+      transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+
+      .d-icon {
+        color: var(--primary-medium);
+      }
+
+      &:hover,
+      &:focus-visible {
+        border-color: var(--tertiary);
+        background: var(--ingenic-control-fill-hover);
+        color: var(--ingenic-link);
+
+        .d-icon {
+          color: var(--ingenic-link);
+        }
+      }
+    }
+
     &:hover {
       text-decoration: none;
     }
@@ -4722,28 +4755,6 @@ body:has(.ingenic-homepage) {
     }
   }
 
-  &__bottom-inner {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 1rem 1.6rem;
-    color: var(--primary-medium);
-    font-size: var(--font-down-2);
-
-    p {
-      margin: 0;
-    }
-  }
-
-  &__icp {
-    color: inherit;
-
-    &:hover {
-      color: var(--ingenic-link);
-    }
-  }
 }
 
 @include viewport.until(md) {
@@ -4762,11 +4773,6 @@ body:has(.ingenic-homepage) {
 
     &__columns {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    &__bottom-inner {
-      flex-direction: column;
-      gap: 0.35rem;
     }
 
     &__qr {
@@ -5810,13 +5816,20 @@ body:has(.ingenic-homepage) {
 // --- Frame ----------------------------------------------------------------
 
 .d-header {
-  // A wash that thins towards its foot instead of a filled strip with an edge.
-  // The blur still lifts the wordmark off whatever is behind it, but there is
-  // no hairline and no shadow drawing a line across the page.
-  background: linear-gradient(180deg, rgb(255 255 255 / 72%), rgb(255 255 255 / 24%));
+  // A wash that reaches full transparency at its foot. A fill that still has
+  // an alpha when the header ends draws its own soft edge against the page:
+  // the last row of white is lighter than the gradient below it, which reads as
+  // a rule even with no border. Fading to zero leaves nothing to see.
+  //
+  // No backdrop blur here. The header is sticky and the page behind it is a
+  // fixed gradient; a blurred layer that both sticks and samples a fixed
+  // backdrop is the combination browsers repaint badly, and the band flashes
+  // as soon as the page is scrolled. The wash alone is what dissolves the
+  // edge, and it does that without a compositing layer to recompute.
+  background: linear-gradient(180deg, rgb(255 255 255 / 72%), rgb(255 255 255 / 0%));
   border-bottom: 0;
   box-shadow: none;
-  backdrop-filter: blur(var(--ingenic-glass-blur)) saturate(155%);
+  backdrop-filter: none;
 }
 
 // The navigation column lets the gradient through; only its cards are glass.

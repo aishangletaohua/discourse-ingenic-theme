@@ -60,8 +60,31 @@ export default class IngenicFooter extends Component {
 
   // The wordmark is the one the header already uses. A site that has not
   // uploaded one still gets a readable footer rather than a broken image.
+  //
+  // Uploads are stored with the host they were uploaded on. That host is not
+  // necessarily the one the forum is being read on — a preview tunnel, or a
+  // second domain — and an image pointing at the old host is a broken image.
+  // A local upload is therefore resolved against the page it is drawn on.
   get logoUrl() {
-    return this.siteSettings.site_logo_url;
+    const url = this.siteSettings.site_logo_url;
+
+    if (!url) {
+      return null;
+    }
+
+    let parsed;
+
+    try {
+      parsed = new URL(url, window.location.origin);
+    } catch {
+      return url;
+    }
+
+    if (parsed.pathname.startsWith("/uploads/") && parsed.origin !== window.location.origin) {
+      return parsed.pathname;
+    }
+
+    return url;
   }
 
   get hasPlatforms() {
@@ -148,7 +171,8 @@ export default class IngenicFooter extends Component {
                   <li class="ingenic-footer__platform">
                     {{#if (eq link.kind "qr")}}
                       <button
-                        class="ingenic-footer__link ingenic-footer__link--icon"
+                        class="ingenic-footer__link
+                          {{if link.icon_only 'ingenic-footer__link--icon' 'ingenic-footer__link--text'}}"
                         type="button"
                         aria-expanded={{if (eq this.openQr link.id) "true" "false"}}
                         aria-label={{link.displayLabel}}
@@ -165,6 +189,9 @@ export default class IngenicFooter extends Component {
                         {{else}}
                           {{dIcon "qrcode"}}
                         {{/if}}
+                        {{#unless link.icon_only}}
+                          <span>{{link.displayLabel}}</span>
+                        {{/unless}}
                       </button>
 
                       {{#if (eq this.openQr link.id)}}
@@ -186,7 +213,8 @@ export default class IngenicFooter extends Component {
                       {{/if}}
                     {{else}}
                       <a
-                        class="ingenic-footer__link ingenic-footer__link--icon"
+                        class="ingenic-footer__link
+                          {{if link.icon_only 'ingenic-footer__link--icon' 'ingenic-footer__link--text'}}"
                         href={{link.href}}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -203,6 +231,9 @@ export default class IngenicFooter extends Component {
                         {{else}}
                           {{dIcon (this.iconFor link)}}
                         {{/if}}
+                        {{#unless link.icon_only}}
+                          <span>{{link.displayLabel}}</span>
+                        {{/unless}}
                       </a>
                     {{/if}}
                   </li>
@@ -235,18 +266,6 @@ export default class IngenicFooter extends Component {
               {{/each}}
             </nav>
           {{/if}}
-        </div>
-
-        <div class="ingenic-footer__bottom">
-          <div class="ingenic-footer__bottom-inner">
-            <p>{{i18n (themePrefix "ingenic.footer.copyright")}}</p>
-            <a
-              class="ingenic-footer__icp"
-              href="https://beian.miit.gov.cn/"
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-            >{{i18n (themePrefix "ingenic.footer.icp")}}</a>
-          </div>
         </div>
       </footer>
     {{/if}}
