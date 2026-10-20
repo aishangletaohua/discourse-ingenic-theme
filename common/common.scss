@@ -56,6 +56,13 @@
   // page — notices, the developer-information prompt, the documentation
   // control strip, the frame around a picture that has not loaded.
   --ingenic-surface-tint: var(--ingenic-sky-50);
+  // The resting fill of a control that can be pressed but is not the one in
+  // effect: a filter chip, the version select, the chip picker, the contents
+  // toggle. Sky-50 was tried first, and on a white page it reads as white at a
+  // glance — the tint is only about five per cent away from the paper. One step
+  // deeper is still a pale sky, but it is visibly a fill rather than the page.
+  --ingenic-control-fill: var(--ingenic-sky-100);
+  --ingenic-control-fill-hover: var(--ingenic-sky-200);
   // Borders are read before they are looked at: a hairline two shades off the
   // surface disappears on a bright screen, and every surface then runs into
   // the next. This is the one border colour the whole theme and the core
@@ -1693,6 +1700,14 @@ body:has(.ingenic-homepage) {
 
   &__copy {
     flex: 0 0 auto;
+    border-color: var(--ingenic-surface-border);
+    background: var(--ingenic-control-fill);
+    color: var(--primary);
+
+    &:hover {
+      border-color: var(--tertiary);
+      background: var(--ingenic-control-fill-hover);
+    }
   }
 
   &__steps {
@@ -2221,8 +2236,13 @@ body:has(.ingenic-homepage) {
 
       .btn:not(.btn-primary) {
         border-color: var(--ingenic-surface-border);
-        background: var(--secondary);
+        background: var(--ingenic-control-fill);
         color: var(--primary);
+
+        &:hover {
+          border-color: var(--tertiary);
+          background: var(--ingenic-control-fill-hover);
+        }
       }
     }
   }
@@ -2354,8 +2374,13 @@ body:has(.ingenic-homepage) {
     // rather than the second of two choices. Give it an outline of its own.
     .btn:not(.btn-primary) {
       border-color: var(--ingenic-surface-border);
-      background: var(--secondary);
+      background: var(--ingenic-control-fill);
       color: var(--primary);
+
+      &:hover {
+        border-color: var(--tertiary);
+        background: var(--ingenic-control-fill-hover);
+      }
     }
 
     .btn {
@@ -2587,8 +2612,13 @@ body:has(.ingenic-homepage) {
 
     .btn:not(.btn-primary) {
       border-color: var(--ingenic-surface-border);
-      background: var(--secondary);
+      background: var(--ingenic-control-fill);
       color: var(--primary);
+
+      &:hover {
+        border-color: var(--tertiary);
+        background: var(--ingenic-control-fill-hover);
+      }
     }
 
     .btn {
@@ -2690,7 +2720,7 @@ body:has(.ingenic-homepage) {
     padding: 0.18rem 0.6rem;
     border: 1px solid var(--ingenic-surface-border);
     border-radius: 7px;
-    background: var(--ingenic-sky-50);
+    background: var(--ingenic-control-fill);
     color: var(--primary);
     font-size: var(--font-down-1);
     line-height: 1.35;
@@ -2704,7 +2734,7 @@ body:has(.ingenic-homepage) {
     &:hover,
     &:focus-visible {
       border-color: var(--tertiary);
-      background: var(--ingenic-sky-100);
+      background: var(--ingenic-control-fill-hover);
       color: var(--ingenic-link);
     }
 
@@ -2905,7 +2935,7 @@ body:has(.ingenic-homepage) {
       padding: 0 2rem 0 0.75rem;
       border: 1px solid var(--ingenic-surface-border);
       border-radius: var(--ingenic-control-radius);
-      background: var(--ingenic-sky-50);
+      background: var(--ingenic-control-fill);
       color: var(--primary);
       font-size: var(--font-down-1);
       font-weight: 600;
@@ -2914,7 +2944,7 @@ body:has(.ingenic-homepage) {
 
       &:hover {
         border-color: var(--tertiary);
-        background: var(--ingenic-sky-100);
+        background: var(--ingenic-control-fill-hover);
       }
     }
   }
@@ -2938,7 +2968,7 @@ body:has(.ingenic-homepage) {
     padding: 0 0.8rem;
     border: 1px solid var(--ingenic-panel-border);
     border-radius: var(--ingenic-control-radius);
-    background: var(--ingenic-sky-50);
+    background: var(--ingenic-control-fill);
     color: var(--primary);
     font-size: var(--font-down-1);
     font-weight: 600;
@@ -2947,7 +2977,7 @@ body:has(.ingenic-homepage) {
     &:hover,
     &:focus-visible {
       border-color: var(--tertiary);
-      background: var(--ingenic-sky-100);
+      background: var(--ingenic-control-fill-hover);
     }
 
     .d-icon {
@@ -3164,7 +3194,7 @@ body:has(.ingenic-homepage) {
     padding: 0 0.75rem;
     border: 1px solid var(--ingenic-surface-border);
     border-radius: var(--ingenic-control-radius);
-    background: var(--ingenic-sky-50);
+    background: var(--ingenic-control-fill);
     color: var(--primary);
     font-size: var(--font-down-1);
     font-weight: 600;
@@ -3173,7 +3203,7 @@ body:has(.ingenic-homepage) {
     &:hover,
     .is-open & {
       border-color: var(--tertiary);
-      background: var(--ingenic-sky-100);
+      background: var(--ingenic-control-fill-hover);
     }
   }
 
@@ -4035,7 +4065,10 @@ body:has(.ingenic-homepage) {
     padding: 0.2rem 0.55rem;
     border: 1px solid var(--ingenic-panel-border);
     border-radius: 5px;
-    background: var(--secondary);
+    // The same resting fill as every other unfilled control. It used to be the
+    // secondary colour, so the one button inside a code block was the last
+    // white button on the page.
+    background: var(--ingenic-control-fill);
     color: var(--primary-medium);
     font-size: var(--font-down-2);
     font-weight: 700;
@@ -4043,6 +4076,7 @@ body:has(.ingenic-homepage) {
 
     &:hover {
       border-color: var(--tertiary);
+      background: var(--ingenic-control-fill-hover);
       color: var(--ingenic-link);
     }
   }
@@ -4706,7 +4740,8 @@ body:has(.ingenic-homepage) {
     gap: var(--space-1);
     padding: var(--space-1) var(--space-2);
     margin-right: var(--space-2);
-    border: 1px solid var(--header_primary-low-mid);
+    border: 1px solid var(--ingenic-surface-border);
+    background: var(--ingenic-control-fill);
 
     html.anon & {
       // matches the log-in button's height for anyone signed out
@@ -4723,8 +4758,8 @@ body:has(.ingenic-homepage) {
     .discourse-no-touch & {
       &:hover,
       &:focus {
-        border: 1px solid var(--header_primary-medium);
-        background: var(--d-header-icon-background--hover);
+        border: 1px solid var(--tertiary);
+        background: var(--ingenic-control-fill-hover);
 
         .ingenic-locale__current {
           color: var(--header_primary);
@@ -5088,7 +5123,7 @@ body:has(.ingenic-homepage) {
     padding: 0.22rem 0.7rem;
     border: 1px solid var(--ingenic-surface-border);
     border-radius: 999px;
-    background: var(--ingenic-sky-50);
+    background: var(--ingenic-control-fill);
     color: var(--primary-medium);
     font-size: var(--font-down-1);
     line-height: 1.5;
@@ -5096,7 +5131,7 @@ body:has(.ingenic-homepage) {
 
     &:hover {
       border-color: var(--ingenic-link);
-      background: var(--ingenic-sky-100);
+      background: var(--ingenic-control-fill-hover);
       color: var(--ingenic-link);
     }
 
@@ -5243,7 +5278,7 @@ body:has(.ingenic-homepage) {
   padding: 0 0.55rem;
   border: 1px solid var(--ingenic-surface-border);
   border-radius: 0.55rem;
-  background: transparent;
+  background: var(--ingenic-control-fill);
   color: var(--primary-medium);
   font-size: var(--font-down-1);
   font-weight: 600;
@@ -5258,6 +5293,7 @@ body:has(.ingenic-homepage) {
 
   &:hover:not(:disabled) {
     border-color: var(--ingenic-section-accent, var(--ingenic-link));
+    background: var(--ingenic-control-fill-hover);
     color: var(--ingenic-section-accent, var(--ingenic-link));
   }
 
@@ -5801,7 +5837,7 @@ body:has(.ingenic-homepage) {
   // neither.
   .ingenic-docpicker__trigger {
     border-color: var(--ingenic-surface-border);
-    background: color-mix(in srgb, var(--ingenic-sky-50) 92%, transparent);
+    background: color-mix(in srgb, var(--ingenic-control-fill) 92%, transparent);
     backdrop-filter: blur(18px) saturate(150%);
   }
 
@@ -5810,7 +5846,7 @@ body:has(.ingenic-homepage) {
   .ingenic-docpicker__trigger:hover,
   &.is-open .ingenic-docpicker__trigger {
     border-color: var(--tertiary);
-    background: var(--ingenic-sky-100);
+    background: var(--ingenic-control-fill-hover);
   }
 
   // The panel lists chip names over the article behind it: near-opaque, for
