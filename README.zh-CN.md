@@ -4,9 +4,10 @@ Ingenic 社区论坛的主题，与 `discourse-ingenic` 插件配套；文档、
 
 它有意**不是**任何现成 Discourse 主题的副本。布局只使用 Discourse 公开的主题 API 搭建，因此可以跨版本升级继续工作。
 
+本仓库自己的文档：[部署](DEPLOY.zh-CN.md) · [配置与使用](docs/usage.zh-CN.md)。
 论坛建成后怎么用——会员功能、后台页面和它们背后的设置——见插件的使用指南：
-[English](https://github.com/aishangletaohua/discourse-ingenic-plugin/blob/main/docs/usage.md)
-· [中文](https://github.com/aishangletaohua/discourse-ingenic-plugin/blob/main/docs/usage.zh-CN.md)。
+[English](https://github.com/aishangletaohua/discourse-ingenic-plugin/blob/develop/docs/usage.md)
+· [中文](https://github.com/aishangletaohua/discourse-ingenic-plugin/blob/develop/docs/usage.zh-CN.md)。
 
 English: [README.md](README.md).
 
@@ -28,6 +29,16 @@ English: [README.md](README.md).
 - 标签画成胶囊并按主题着色——芯片名天蓝、技术主题紫色、已解决问题绿色、公告红色——取代核心用逗号连接的灰色文字
 - 中英文字符串，结构上支持以后添加更多语言
 
+## 分支
+
+| 分支 | 内容 |
+| --- | --- |
+| `develop` | 当前版本——所有改动都提交到这里，论坛安装并跟踪的也是这个分支 |
+| `main` | 留给正式版本，两次发布之间保持为空 |
+
+`develop` 是仓库的默认分支，因此直接克隆拿到的就是当前版本。不要从 `main` 安装：
+在发布写入之前，它是空的。
+
 ## 安装
 
 主题从 Git 仓库安装：
@@ -41,11 +52,14 @@ rails c
 ```ruby
 Theme.create_from_git_url(
   url: "https://github.com/aishangletaohua/discourse-ingenic-theme.git",
-  branch: "main"
+  branch: "develop"
 )
 ```
 
-也可以在后台界面操作：**后台 → 自定义 → 主题 → 安装 → 从 Git 仓库安装**。
+也可以在后台界面操作：**后台 → 自定义 → 主题 → 安装 → 从 Git 仓库安装**，分支填
+`develop`。
+
+完整的部署步骤——前置条件、启用、升级、回滚与排错——见 [DEPLOY.zh-CN.md](DEPLOY.zh-CN.md)。
 
 安装后把它设为默认主题，并选择 **Ingenic Light** 配色方案。
 
@@ -132,13 +146,18 @@ Theme.create_from_git_url(
 }
 ```
 
-支持的区块类型：`announcements`、`discussions`、`downloads`、`boards`、`bounties`、`promotions`、`categories`、`html`。
+支持的区块类型：`categories`、`latest`、`hot`、`popular`、`activity`、
+`announcements`、`discussions`、`downloads`、`boards`、`bounties`、`promotions`、
+`leaderboard`。不认识的类型会被跳过，而不会画成空框。
 
 `categories` 区块是让页面成为首页而不是摘要的那一块：它把论坛分区列为卡片，每张卡片链接到对应分类。给它 `"categories": ["announcements", "technical-discussions"]` 可以指定显示哪些分区及顺序；不写则取最活跃的顶级分区，最多 `limit` 个（默认 8）。`"show_all": false` 会去掉区块标题末尾的 **All sections** 链接。
 
 `bounties` 区块列出金额最高的有效悬赏，最多 `limit` 个（默认 5），每个都链接到承载它的问题。没有悬赏时它什么都不画——没有标题，也没有空行——这才让它可以留在尚未流行悬赏的论坛首页上。
 
-留空时，首页显示 `categories` 区块，下面接 `bounties` 面板：分区网格是任何人在决定哪些分区值得占一行之前首页需要的东西，再加上一个开着也不花成本的区块。与导航列表不同，这里的默认值只是默认值：配置过的区块列表会替换它。
+留空时，首页显示主题默认页：栏目卡片、左栏的最新讨论、Official Announcements 的最新动态、热门帖子，以及右栏的悬赏板和每周贡献榜。与导航列表不同，这里的默认值只是默认值：配置过的区块列表会整体替换它。
+
+完整的配置参考——每种类型、布局和它们背后的后台页面——见
+[docs/usage.zh-CN.md](docs/usage.zh-CN.md)。
 
 ## 首页
 

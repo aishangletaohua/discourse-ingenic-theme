@@ -7,10 +7,11 @@ data this theme renders.
 It is deliberately **not** a copy of any existing Discourse theme. The layout is
 built from Discourse's public theme APIs so it keeps working across upgrades.
 
-For how the finished forum is used — member features, the admin screens and the
-settings behind them — see the plugin's usage guide:
-[English](https://github.com/aishangletaohua/discourse-ingenic-plugin/blob/main/docs/usage.md)
-· [中文](https://github.com/aishangletaohua/discourse-ingenic-plugin/blob/main/docs/usage.zh-CN.md).
+This repository's own guides: [Deployment](DEPLOY.md) ·
+[Configuration](docs/usage.md). For member features and the admin screens behind
+them, see the plugin's usage guide:
+[English](https://github.com/aishangletaohua/discourse-ingenic-plugin/blob/develop/docs/usage.md)
+· [中文](https://github.com/aishangletaohua/discourse-ingenic-plugin/blob/develop/docs/usage.zh-CN.md).
 
 中文说明：[README.zh-CN.md](README.zh-CN.md).
 
@@ -76,6 +77,17 @@ settings behind them — see the plugin's usage guide:
   instead of core's comma-separated grey text
 - English and Chinese strings, structured so more locales can be added later
 
+## Branches
+
+| Branch | Holds |
+| --- | --- |
+| `develop` | The current version — every change lands here, and it is what a forum installs and tracks |
+| `main` | Reserved for formal releases; kept empty between them |
+
+`develop` is the repository's default branch, so a plain clone gets the current
+version. Do not install from `main`: it is deliberately empty until a release is
+cut onto it.
+
 ## Installation
 
 The theme is installed from a Git repository:
@@ -89,12 +101,15 @@ rails c
 ```ruby
 Theme.create_from_git_url(
   url: "https://github.com/aishangletaohua/discourse-ingenic-theme.git",
-  branch: "main"
+  branch: "develop"
 )
 ```
 
 Or through the admin UI: **Admin → Customize → Themes → Install → From a git
-repository**.
+repository**, with the branch set to `develop`.
+
+The step-by-step deployment guide — prerequisites, turning the theme on,
+updating, rollback and troubleshooting — is [DEPLOY.md](DEPLOY.md).
 
 After installing, set it as the default theme and select the **Ingenic Light**
 color scheme.
@@ -247,8 +262,9 @@ Homepage block shape:
 }
 ```
 
-Supported block types: `announcements`, `discussions`, `downloads`, `boards`,
-`bounties`, `promotions`, `categories`, `html`.
+Supported block types: `categories`, `latest`, `hot`, `popular`, `activity`,
+`announcements`, `discussions`, `downloads`, `boards`, `bounties`, `promotions`,
+`leaderboard`. An unknown type is skipped rather than drawn as an empty box.
 
 The `categories` block is the one that makes the page a front page rather than a
 digest: it lists the forum's sections as cards, each linking into its category.
@@ -262,11 +278,14 @@ The `bounties` block lists the richest standing offers, up to `limit` (default
 nothing is on offer — no heading, no empty row — which is what lets it sit on the
 front page of a forum that has not taken to bounties yet.
 
-Left empty, the homepage shows the `categories` block with the `bounties` panel
-underneath: the section grid, which is what a front page wants before anyone has
-decided which parts of the forum deserve a row, plus the one block that costs
-nothing to leave on. Unlike the navigation list, the fallback is a fallback: a
-configured list of blocks replaces it.
+Left empty, the homepage shows the theme's default page: the section cards, the
+latest discussions down the main column, activity from Official Announcements,
+popular posts, the bounty board and the weekly contributors table in the rail.
+Unlike the navigation list, the fallback is a fallback: a configured list of
+blocks replaces it whole.
+
+The full reference — every type, its layout, and the screens that feed it — is
+[docs/usage.md](docs/usage.md).
 
 ## The home page
 
