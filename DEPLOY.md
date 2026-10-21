@@ -22,11 +22,11 @@ and verified against.
 | Branch | What it holds |
 | --- | --- |
 | `develop` | The current version. All work lands here; this is what a forum installs and tracks. |
-| `main` | Reserved for formal releases. It is kept empty between releases, so it is deliberately **not** the branch to install from. |
+| `main` | Reserved for formal releases. Between releases it carries only a short note, so it is deliberately **not** the branch to install from. |
 
 The repository's default branch is `develop`. A clone with no `--branch` gets
-the current version; a pin to `main` gets nothing, because `main` is empty until
-a release is cut onto it.
+the current version; a pin to `main` gets a note and no theme, because releases
+are cut onto it only when one is ready.
 
 ---
 
