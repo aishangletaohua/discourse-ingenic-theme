@@ -178,12 +178,12 @@ twice.
   draws the picture alone, with the label as its accessible name.
 - **Footer columns** — the columns on the right of the footer, each with a
   title and a list of links, ordered by position. Links may be internal (a path) or
-  external (opens in a new tab). Column titles, link labels and QR captions each
-  have an English and a Chinese field.
+  external (opens in a new tab).
 
-Both are bilingual field by field: a row with no Chinese spelling falls back to
-the English one rather than disappearing, so a half-translated footer still
-reads.
+Both halves are language-first. Every row belongs to the language chosen on the
+screen, and the other language is a separate set of rows: a footer item that has
+not been written in a language is absent there rather than falling back to the
+other one.
 
 The footer is only drawn when there is something in it — links, columns or both.
 An empty footer is not an empty band at the foot of the page.
@@ -215,10 +215,12 @@ The interface is English and Chinese. The switcher in the header writes the
 visitor's choice; content follows `ingenic_locales` and the site's
 `default_locale`.
 
-Content-level language is stored by the plugin: documentation pages, downloads
-and boards each carry a `locale`, and a page in the reader's language is
-preferred, with `ingenic_default_locale` filling the gaps. Footer and social
-rows carry English and Chinese spellings in separate fields.
+Content-level language is owned by the plugin: the shared product catalogue
+stores every product row in one language. Documentation versions and pages
+inherit it from their product, boards from their chip, and downloads and
+site-content rows carry their own `locale`. A reader is served exactly the
+language they chose — there is no cross-language fallback, so an item that has
+not been translated is absent rather than shown in the other language.
 
 Adding a third interface language: copy `locales/en.yml` to
 `locales/<locale>.yml`, translate the values, keep the keys, and add the code to

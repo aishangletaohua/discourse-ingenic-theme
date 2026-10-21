@@ -7,7 +7,7 @@ import { on } from "@ember/modifier";
 import { fn } from "@ember/helper";
 import { eq } from "discourse/truth-helpers";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
-import I18n, { i18n } from "discourse-i18n";
+import { i18n } from "discourse-i18n";
 import IngenicImage from "./ingenic-image";
 import { loadSiteContent } from "../ingenic/site-content";
 
@@ -54,10 +54,6 @@ export default class IngenicFooter extends Component {
   // own decision about whether a footer is being shown at all.
   get showFooter() {
     return this.args.outletArgs?.showFooter !== false;
-  }
-
-  get isChinese() {
-    return (I18n.currentLocale?.() ?? "").toLowerCase().startsWith("zh");
   }
 
   // The wordmark is the one the header already uses. A site that has not
@@ -129,22 +125,11 @@ export default class IngenicFooter extends Component {
   // something Glimmer binds here; plain fields keep the template to lookups.
   async #load() {
     const payload = await loadSiteContent();
-    const chinese = this.isChinese;
 
-    this.socialLinks = (payload.social_links ?? []).map((link) => ({
-      ...link,
-      displayLabel: (chinese && link.label_zh?.trim()) || link.label,
-      displayCaption: (chinese && link.qr_caption_zh?.trim()) || link.qr_caption,
-    }));
-
-    this.columns = (payload.footer_columns ?? []).map((column) => ({
-      ...column,
-      displayTitle: (chinese && column.title_zh?.trim()) || column.title,
-      links: (column.links ?? []).map((link) => ({
-        ...link,
-        displayLabel: (chinese && link.label_zh?.trim()) || link.label,
-      })),
-    }));
+    // The server answers in the reader's language, and each row is stored in
+    // exactly one: there is no second column to fall back through.
+    this.socialLinks = payload.social_links ?? [];
+    this.columns = payload.footer_columns ?? [];
   }
 
   @action
@@ -195,8 +180,8 @@ export default class IngenicFooter extends Component {
                           {{if link.icon_only 'ingenic-footer__link--icon' 'ingenic-footer__link--text'}}"
                         type="button"
                         aria-expanded={{if (eq this.openQr link.id) "true" "false"}}
-                        aria-label={{link.displayLabel}}
-                        title={{link.displayLabel}}
+                        aria-label={{link.label}}
+                        title={{link.label}}
                         {{on "click" (fn this.toggleQr link)}}
                       >
                         {{#if link.image_url}}
@@ -210,17 +195,17 @@ export default class IngenicFooter extends Component {
                           {{dIcon "qrcode"}}
                         {{/if}}
                         {{#unless link.icon_only}}
-                          <span>{{link.displayLabel}}</span>
+                          <span>{{link.label}}</span>
                         {{/unless}}
                       </button>
 
                       {{#if (eq this.openQr link.id)}}
                         <div class="ingenic-footer__qr">
                           {{#if link.qr_image_url}}
-                            <img src={{link.qr_image_url}} alt={{link.displayLabel}} />
+                            <img src={{link.qr_image_url}} alt={{link.label}} />
                           {{/if}}
-                          {{#if (or link.qr_caption link.qr_caption_zh)}}
-                            <p>{{link.displayCaption}}</p>
+                          {{#if link.qr_caption}}
+                            <p>{{link.qr_caption}}</p>
                           {{/if}}
                           <button
                             class="btn btn-small"
@@ -238,8 +223,8 @@ export default class IngenicFooter extends Component {
                         href={{link.href}}
                         target="_blank"
                         rel="noopener noreferrer"
-                        aria-label={{link.displayLabel}}
-                        title={{link.displayLabel}}
+                        aria-label={{link.label}}
+                        title={{link.label}}
                       >
                         {{#if link.image_url}}
                           <img
@@ -252,7 +237,7 @@ export default class IngenicFooter extends Component {
                           {{dIcon (this.iconFor link)}}
                         {{/if}}
                         {{#unless link.icon_only}}
-                          <span>{{link.displayLabel}}</span>
+                          <span>{{link.label}}</span>
                         {{/unless}}
                       </a>
                     {{/if}}
@@ -294,7 +279,7 @@ export default class IngenicFooter extends Component {
             <nav class="ingenic-footer__columns">
               {{#each this.columns as |column|}}
                 <section class="ingenic-footer__column">
-                  <h2 class="ingenic-footer__heading">{{column.displayTitle}}</h2>
+                  <h2 class="ingenic-footer__heading">{{column.title}}</h2>
                   <ul>
                     {{#each column.links as |link|}}
                       <li>
@@ -303,9 +288,9 @@ export default class IngenicFooter extends Component {
                             href={{link.href}}
                             target="_blank"
                             rel="noopener noreferrer"
-                          >{{link.displayLabel}}</a>
+                          >{{link.label}}</a>
                         {{else}}
-                          <a href={{link.href}}>{{link.displayLabel}}</a>
+                          <a href={{link.href}}>{{link.label}}</a>
                         {{/if}}
                       </li>
                     {{/each}}
