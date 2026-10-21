@@ -21,7 +21,10 @@ import { loadSiteContent } from "../ingenic/site-content";
  *
  * A platform is one of two shapes. A link opens somewhere; a QR code opens a
  * panel over the page showing the image, because a code that navigates is a
- * worse experience than a code that is looked at.
+ * worse experience than a code that is looked at. The external buttons from
+ * Admin → Site content are drawn in the same strip: they are the same kind of
+ * thing, and a seeded forum listing the same destinations in both is showing
+ * the reader the same link twice.
  *
  * The footer follows the language the forum was served in. English is the
  * stored default and Chinese sits beside it, so a column or link with no
@@ -86,12 +89,30 @@ export default class IngenicFooter extends Component {
     return url;
   }
 
-  get hasPlatforms() {
-    return this.socialLinks.length > 0;
+  // The external buttons an administrator lists under Site content → External
+  // buttons. They are the same kind of thing as a partner platform — an icon or
+  // a picture and a destination — so they join the strip rather than getting a
+  // row of their own. A destination already standing in the strip is not drawn
+  // twice, which is what keeps a seeded forum from showing the same GitHub
+  // entry under two spellings.
+  get headerLinks() {
+    const seen = new Set(this.socialLinks.map((link) => this.#hrefKey(link.href)));
+
+    return (this.site.ingenic_header_links ?? []).filter(
+      (link) => !seen.has(this.#hrefKey(link.href)),
+    );
+  }
+
+  get hasLinks() {
+    return this.socialLinks.length > 0 || this.headerLinks.length > 0;
   }
 
   get hasContent() {
-    return this.hasPlatforms || this.columns.length > 0;
+    return this.hasLinks || this.columns.length > 0;
+  }
+
+  #hrefKey(href) {
+    return (href ?? "").trim().replace(/\/+$/, "");
   }
 
   get visible() {
@@ -161,7 +182,7 @@ export default class IngenicFooter extends Component {
               {{i18n (themePrefix "ingenic.footer.slogan")}}
             </p>
 
-            {{#if this.hasPlatforms}}
+            {{#if this.hasLinks}}
               <ul
                 class="ingenic-footer__strip"
                 aria-label={{i18n (themePrefix "ingenic.footer.platforms")}}
@@ -235,6 +256,34 @@ export default class IngenicFooter extends Component {
                         {{/unless}}
                       </a>
                     {{/if}}
+                  </li>
+                {{/each}}
+
+                {{#each this.headerLinks as |link|}}
+                  <li class="ingenic-footer__platform">
+                    <a
+                      class="ingenic-footer__link
+                        {{if link.show_label 'ingenic-footer__link--text' 'ingenic-footer__link--icon'}}"
+                      href={{link.href}}
+                      target={{if link.external "_blank"}}
+                      rel={{if link.external "noopener noreferrer"}}
+                      aria-label={{if link.show_label null link.label}}
+                      title={{if link.show_label null link.label}}
+                    >
+                      {{#if link.image_url}}
+                        <img
+                          class="ingenic-footer__icon"
+                          src={{link.image_url}}
+                          alt=""
+                          loading="lazy"
+                        />
+                      {{else}}
+                        {{dIcon (this.iconFor link)}}
+                      {{/if}}
+                      {{#if link.show_label}}
+                        <span>{{link.label}}</span>
+                      {{/if}}
+                    </a>
                   </li>
                 {{/each}}
               </ul>
