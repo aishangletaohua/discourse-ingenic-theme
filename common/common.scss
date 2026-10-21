@@ -3088,6 +3088,10 @@ body:has(.ingenic-homepage) {
     font-size: 1.25rem;
   }
 
+  &__retry {
+    margin-top: 0.4rem;
+  }
+
   // --- Right rail -----------------------------------------------------------
 
   &__rail {

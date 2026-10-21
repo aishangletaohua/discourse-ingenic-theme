@@ -1,4 +1,5 @@
 import Component from "@glimmer/component";
+import { tracked } from "@glimmer/tracking";
 import { fn } from "@ember/helper";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
@@ -43,6 +44,8 @@ const SELF_NAMES = {
 export default class IngenicLocaleSwitcher extends Component {
   @service siteSettings;
   @service currentUser;
+
+  @tracked switching = false;
 
   get currentLocale() {
     return I18n.currentLocale();
@@ -102,26 +105,41 @@ export default class IngenicLocaleSwitcher extends Component {
   async change(locale) {
     this.menu?.close();
 
-    if (locale === this.currentLocale) {
+    // A second click while the first save is in flight would race it: the
+    // later request could finish first and the earlier one would then win,
+    // leaving the server on a language the reader did not pick last.
+    if (locale === this.currentLocale || this.switching) {
       return;
     }
 
+    if (!this.currentUser) {
+      cookie(LOCALE_COOKIE, locale, {
+        path: getURL("/"),
+        expires: LOCALE_COOKIE_EXPIRY,
+      });
+
+      window.location.reload();
+      return;
+    }
+
+    this.switching = true;
+
     try {
-      if (this.currentUser) {
-        this.currentUser.set("locale", locale);
-        await ajax(`/u/${this.currentUser.username}.json`, {
-          type: "PUT",
-          data: { locale },
-        });
-      } else {
-        cookie(LOCALE_COOKIE, locale, {
-          path: getURL("/"),
-          expires: LOCALE_COOKIE_EXPIRY,
-        });
-      }
+      // The model is what the page's language controls will read afterwards,
+      // so it only takes the new value once the server has accepted it. Set
+      // first, a failed save would leave the interface claiming a language
+      // the reader will not get on the reload and the next click a no-op.
+      await ajax(`/u/${this.currentUser.username}.json`, {
+        type: "PUT",
+        data: { locale },
+      });
+
+      this.currentUser.set("locale", locale);
     } catch (error) {
       popupAjaxError(error);
       return;
+    } finally {
+      this.switching = false;
     }
 
     // A reload rather than a route transition: the interface language is

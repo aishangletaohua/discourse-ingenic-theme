@@ -24,6 +24,13 @@ const SEGMENT = { series: 0, chip: 1, version: 2, page: 3 };
 // step for an h3 and not at all for an h2.
 const HEADING_INDENT = { 2: 0, 3: 1 };
 
+// A page is one request, but the connection carrying it is not always one
+// answer. A held request or a 502 from a proxy is a moment, not a verdict, so
+// the reader gets two more attempts before being told anything went wrong.
+// The waits are short: this is a retry, not a background job.
+const FETCH_TIMEOUT = 20_000;
+const RETRY_DELAYS = [400, 1_200];
+
 /**
  * Documentation reader.
  *
@@ -55,6 +62,7 @@ export default class IngenicDocs extends Component {
   @tracked navigation = { previous: null, next: null };
   @tracked loading = true;
   @tracked notFound = false;
+  @tracked loadError = false;
 
   @tracked pickerOpen = false;
   @tracked openSeriesSlug = null;
@@ -81,6 +89,7 @@ export default class IngenicDocs extends Component {
 
   #searchTimer = null;
   #searchToken = 0;
+  #loadToken = 0;
   #searchInput = null;
   #headingElements = [];
   #scrollFrame = null;
@@ -342,28 +351,43 @@ export default class IngenicDocs extends Component {
 
   @action
   async load() {
+    // Only the newest load may write state. Navigating twice before the first
+    // answer arrives would otherwise let a slower earlier response land on top
+    // of the page the reader is looking at.
+    const token = ++this.#loadToken;
+
     this.loading = true;
     this.notFound = false;
+    this.loadError = false;
     this.pickerOpen = false;
     this.openSeriesSlug = null;
     this.headings = [];
     this.activeHeadingId = null;
 
     try {
-      const response = await fetch(getURL(this.currentPath), {
-        headers: { Accept: "application/json" },
-      });
+      const response = await this.#fetchJson(this.currentPath);
+
+      if (token !== this.#loadToken) {
+        return;
+      }
 
       if (!response.ok) {
-        // A bad address must not take the way out of it with it. The controls
-        // render from the catalogue, so a deep link that resolves to nothing
-        // still leaves the picker usable.
-        await this.#loadCatalogue();
-        this.notFound = true;
+        // A page that does not exist is an answer, not a fault, and retrying
+        // cannot change it. A bad address must not take the way out of it with
+        // it either: the controls render from the catalogue, so a deep link
+        // that resolves to nothing still leaves the picker usable.
+        await this.#loadCatalogue(token);
+        if (token === this.#loadToken) {
+          this.notFound = true;
+        }
         return;
       }
 
       const payload = await response.json();
+
+      if (token !== this.#loadToken) {
+        return;
+      }
 
       this.series = payload.series ?? [];
       this.chip = payload.product ?? null;
@@ -376,31 +400,86 @@ export default class IngenicDocs extends Component {
 
       this.#canonicalize(payload);
     } catch {
-      this.notFound = true;
+      // The retries are spent and this is still not an answer: the connection
+      // failed, timed out, or something between here and the server returned
+      // an error. That is not the same as the page being gone, and it is the
+      // difference a reader needs in order to decide whether to try again.
+      if (token === this.#loadToken) {
+        this.loadError = true;
+      }
     } finally {
-      this.loading = false;
+      if (token === this.#loadToken) {
+        this.loading = false;
+      }
     }
+  }
+
+  @action
+  retry() {
+    this.load();
+  }
+
+  // Fetches JSON with the retries a transient failure deserves. A 4xx is
+  // returned as it is — the address is wrong and repeating it is pointless —
+  // while timeouts, network errors, 5xx and 429 are tried again.
+  async #fetchJson(path) {
+    let failure = null;
+
+    for (let attempt = 0; attempt <= RETRY_DELAYS.length; attempt++) {
+      if (attempt > 0) {
+        await new Promise((resolve) =>
+          window.setTimeout(resolve, RETRY_DELAYS[attempt - 1]),
+        );
+      }
+
+      const controller = new AbortController();
+      const timeout = window.setTimeout(
+        () => controller.abort(),
+        FETCH_TIMEOUT,
+      );
+
+      try {
+        const response = await fetch(getURL(path), {
+          headers: { Accept: "application/json" },
+          signal: controller.signal,
+        });
+
+        if (response.ok || (response.status < 500 && response.status !== 429)) {
+          return response;
+        }
+
+        failure = new Error(`HTTP ${response.status}`);
+      } catch (error) {
+        failure = error;
+      } finally {
+        window.clearTimeout(timeout);
+      }
+    }
+
+    throw failure ?? new Error("request failed");
   }
 
   // Enough state for the controls to work after a 404. The requested address
   // is still wrong and stays in the URL, but the picker, the version dropdown
   // and the contents are drawn from the catalogue's first product, so the
   // reader can leave the broken page without going back.
-  async #loadCatalogue() {
+  async #loadCatalogue(token) {
     if (this.hasProducts) {
       return;
     }
 
     try {
-      const response = await fetch(getURL(ROUTE_PREFIX), {
-        headers: { Accept: "application/json" },
-      });
+      const response = await this.#fetchJson(ROUTE_PREFIX);
 
-      if (!response.ok) {
+      if (!response.ok || token !== this.#loadToken) {
         return;
       }
 
       const payload = await response.json();
+
+      if (token !== this.#loadToken) {
+        return;
+      }
 
       this.series = payload.series ?? [];
       this.chip = payload.product ?? null;
@@ -1216,7 +1295,20 @@ export default class IngenicDocs extends Component {
           </aside>
 
           <main class="ingenic-docs__main">
-            {{#if this.notFound}}
+            {{#if this.loadError}}
+              <div class="ingenic-docs__emptycard">
+                <span class="ingenic-docs__emptyicon">{{dIcon "triangle-exclamation"}}</span>
+                <h2>{{i18n (themePrefix "ingenic.docs.load_failed")}}</h2>
+                <p>{{i18n (themePrefix "ingenic.docs.load_failed_hint")}}</p>
+                <button
+                  type="button"
+                  class="btn btn-primary ingenic-docs__retry"
+                  {{on "click" this.retry}}
+                >
+                  {{i18n (themePrefix "ingenic.docs.retry")}}
+                </button>
+              </div>
+            {{else if this.notFound}}
               <div class="ingenic-docs__emptycard">
                 <span class="ingenic-docs__emptyicon">{{dIcon "triangle-exclamation"}}</span>
                 <h2>{{i18n (themePrefix "ingenic.docs.not_found")}}</h2>
@@ -1359,6 +1451,19 @@ export default class IngenicDocs extends Component {
               </div>
             </aside>
           {{/if}}
+        </div>
+      {{else if this.loadError}}
+        <div class="ingenic-docs__emptycard">
+          <span class="ingenic-docs__emptyicon">{{dIcon "triangle-exclamation"}}</span>
+          <h2>{{i18n (themePrefix "ingenic.docs.load_failed")}}</h2>
+          <p>{{i18n (themePrefix "ingenic.docs.load_failed_hint")}}</p>
+          <button
+            type="button"
+            class="btn btn-primary ingenic-docs__retry"
+            {{on "click" this.retry}}
+          >
+            {{i18n (themePrefix "ingenic.docs.retry")}}
+          </button>
         </div>
       {{else if this.notFound}}
         <p class="ingenic-docs__notice">
