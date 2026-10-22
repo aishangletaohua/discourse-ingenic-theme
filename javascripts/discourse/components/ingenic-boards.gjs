@@ -9,6 +9,7 @@ import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import getURL from "discourse/lib/get-url";
+import { withReadingLocale } from "../ingenic/reading-locale";
 
 const ENDPOINT = "/ingenic/boards";
 
@@ -185,7 +186,7 @@ export default class IngenicBoards extends Component {
     this.loading = true;
 
     try {
-      const response = await fetch(getURL(ENDPOINT), {
+      const response = await fetch(withReadingLocale(getURL(ENDPOINT)), {
         headers: { Accept: "application/json" },
       });
 

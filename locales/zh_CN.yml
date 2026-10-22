@@ -18,6 +18,14 @@ zh_CN:
       # 不带标题的块。这些文字不会显示，只用于侧边栏的搜索匹配。
       sections:
         forum: "Ingenic 社区"
+    page:
+      loading: "正在加载…"
+      updated: "最后更新于 %{date}"
+      not_found_title: "页面不存在"
+      not_found_body: "该页面未发布，或地址已经变更。"
+      failed_title: "无法加载页面"
+      failed_body: "请检查网络连接后重新加载。"
+      back: "返回论坛"
     mcp:
       title: "MCP 服务"
       subtitle: "将 AI 客户端连接到君正开发者社区。"

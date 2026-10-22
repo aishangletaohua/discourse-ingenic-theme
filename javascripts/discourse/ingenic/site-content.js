@@ -1,4 +1,5 @@
 import getURL from "discourse/lib/get-url";
+import { withReadingLocale } from "./reading-locale";
 
 const ENDPOINT = "/ingenic/site";
 
@@ -16,7 +17,7 @@ const ENDPOINT = "/ingenic/site";
 let pending = null;
 
 export function loadSiteContent() {
-  pending ??= fetch(getURL(ENDPOINT), {
+  pending ??= fetch(withReadingLocale(getURL(ENDPOINT)), {
     headers: { Accept: "application/json" },
   })
     .then((response) => (response.ok ? response.json() : {}))

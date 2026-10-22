@@ -11,6 +11,7 @@ import { trustHTML } from "@ember/template";
 import I18n, { i18n } from "discourse-i18n";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import getURL from "discourse/lib/get-url";
+import { readingLocale, withReadingLocale } from "../ingenic/reading-locale";
 
 const ROUTE_PREFIX = "/ingenic/docs";
 const SEARCH_ENDPOINT = "/ingenic/docs-search";
@@ -51,6 +52,7 @@ const RETRY_DELAYS = [400, 1_200];
  */
 export default class IngenicDocs extends Component {
   @service router;
+  @service currentUser;
 
   @tracked series = [];
   @tracked chip = null;
@@ -93,6 +95,13 @@ export default class IngenicDocs extends Component {
   #searchInput = null;
   #headingElements = [];
   #scrollFrame = null;
+
+  // The language this page is being read in. A signed-in reader carries it on
+  // the model, which is tracked, so changing it refetches even when the page
+  // itself is not reloaded. Everyone else changes language by reloading.
+  get activeLocale() {
+    return this.currentUser?.locale || readingLocale();
+  }
 
   get segments() {
     return (this.args.path ?? "").split("/").filter(Boolean).slice(0, 4);
@@ -439,8 +448,11 @@ export default class IngenicDocs extends Component {
       );
 
       try {
-        const response = await fetch(getURL(path), {
+        const response = await fetch(withReadingLocale(getURL(path)), {
           headers: { Accept: "application/json" },
+          // The answer is per language and changes when an editor saves a
+          // page; a cached copy is a page the reader has already been shown.
+          cache: "no-store",
           signal: controller.signal,
         });
 
@@ -582,8 +594,9 @@ export default class IngenicDocs extends Component {
     });
 
     try {
-      const response = await fetch(getURL(base), {
+      const response = await fetch(withReadingLocale(getURL(base)), {
         headers: { Accept: "application/json" },
+        cache: "no-store",
       });
 
       if (response.ok) {
@@ -708,9 +721,13 @@ export default class IngenicDocs extends Component {
     });
 
     try {
-      const response = await fetch(getURL(`${SEARCH_ENDPOINT}?${params}`), {
-        headers: { Accept: "application/json" },
-      });
+      const response = await fetch(
+        withReadingLocale(getURL(`${SEARCH_ENDPOINT}?${params}`)),
+        {
+          headers: { Accept: "application/json" },
+          cache: "no-store",
+        },
+      );
 
       if (token !== this.#searchToken) {
         return;
@@ -1040,7 +1057,7 @@ export default class IngenicDocs extends Component {
       class="ingenic-docs"
       {{didInsert this.setup}}
       {{didInsert this.load}}
-      {{didUpdate this.load @path}}
+      {{didUpdate this.load @path this.activeLocale}}
     >
       {{#if this.loading}}
         <p class="ingenic-docs__notice">

@@ -9,6 +9,7 @@ import { themePrefix } from "virtual:theme";
 import getURL from "discourse/lib/get-url";
 import { ajax } from "discourse/lib/ajax";
 import { i18n } from "discourse-i18n";
+import { withReadingLocale } from "../ingenic/reading-locale";
 
 const ENDPOINT = "/ingenic/downloads";
 
@@ -451,8 +452,10 @@ export default class IngenicDownloads extends Component {
     const query = params.toString();
     const url = getURL(ENDPOINT);
 
+    const target = query ? `${url}?${query}` : url;
+
     try {
-      const response = await fetch(query ? `${url}?${query}` : url, {
+      const response = await fetch(withReadingLocale(target), {
         headers: { Accept: "application/json" },
       });
 

@@ -25,6 +25,7 @@ export default function () {
   this.route("ingenic-docs", { path: "/ingenic/docs/*path" });
   this.route("ingenic-downloads", { path: "/ingenic/downloads" });
   this.route("ingenic-boards", { path: "/ingenic/boards" });
+  this.route("ingenic-page", { path: "/ingenic/pages/:slug" });
   this.route("ingenic-mcp", { path: "/ingenic/mcp" });
   this.route("ingenic-bounties", { path: "/ingenic/bounties" });
   this.route("ingenic-points", { path: "/ingenic/points" });

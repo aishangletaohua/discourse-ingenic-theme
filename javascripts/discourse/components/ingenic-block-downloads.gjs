@@ -5,6 +5,7 @@ import { action } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import { i18n } from "discourse-i18n";
 import getURL from "discourse/lib/get-url";
+import { withReadingLocale } from "../ingenic/reading-locale";
 
 /**
  * Homepage block listing the most recent downloads.
@@ -33,9 +34,10 @@ export default class IngenicBlockDownloads extends Component {
     this.loaded = true;
 
     try {
-      const response = await fetch(getURL("/ingenic/downloads"), {
-        headers: { Accept: "application/json" },
-      });
+      const response = await fetch(
+        withReadingLocale(getURL("/ingenic/downloads")),
+        { headers: { Accept: "application/json" } },
+      );
 
       if (response.ok) {
         const payload = await response.json();

@@ -19,6 +19,14 @@ en:
       # sidebar's filter matches against.
       sections:
         forum: "Ingenic community"
+    page:
+      loading: "Loading…"
+      updated: "Last updated %{date}"
+      not_found_title: "Page not found"
+      not_found_body: "This page is not published, or it has moved."
+      failed_title: "The page could not be loaded"
+      failed_body: "Check your connection and reload the page."
+      back: "Back to the forum"
     mcp:
       title: "MCP server"
       subtitle: "Connect an AI client to the Ingenic community."

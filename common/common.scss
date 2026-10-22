@@ -1698,6 +1698,95 @@ body:has(.ingenic-homepage) {
   font-size: var(--font-down-1);
 }
 
+// A standalone page: the terms, the privacy policy, the rules for points.
+//
+// It is prose rather than a list of records, so the column is set to a
+// comfortable measure and the furniture is kept to the title. The body is
+// rendered Markdown, which means the headings, lists and tables inside it come
+// from the editor and none of them carry this theme's classes — hence the
+// element selectors scoped under the body.
+.ingenic-page {
+  &__title {
+    margin: 0 0 0.35rem;
+    font-size: var(--font-up-2);
+  }
+
+  &__updated {
+    margin: 0 0 0.8rem;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+
+  &__body {
+    max-width: 52rem;
+    color: var(--primary-high);
+    line-height: 1.75;
+
+    h2 {
+      margin: 2rem 0 0.75rem;
+      color: var(--primary);
+      font-size: var(--font-up-1);
+    }
+
+    h3 {
+      margin: 1.5rem 0 0.5rem;
+      color: var(--primary);
+      font-size: var(--font-0);
+    }
+
+    p {
+      margin: 0 0 1rem;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 1rem 1.25rem;
+    }
+
+    li {
+      margin-bottom: 0.35rem;
+    }
+
+    a {
+      color: var(--ingenic-link);
+      text-decoration: underline;
+      text-underline-offset: 0.15em;
+    }
+
+    code {
+      padding: 0.1em 0.35em;
+      border-radius: 0.25rem;
+      background: var(--primary-very-low);
+      font-size: 0.9em;
+    }
+
+    blockquote {
+      margin: 1rem 0;
+      padding: 0.25rem 0 0.25rem 1rem;
+      border-left: 3px solid var(--ingenic-divider);
+      color: var(--primary-medium);
+    }
+
+    table {
+      width: 100%;
+      margin: 1rem 0;
+      border-collapse: collapse;
+
+      th,
+      td {
+        padding: 0.5rem 0.65rem;
+        border: 1px solid var(--ingenic-divider);
+        text-align: left;
+      }
+
+      th {
+        background: var(--primary-very-low);
+        font-weight: 600;
+      }
+    }
+  }
+}
+
 // The MCP page. It is mostly prose, so the page's own furniture is kept to the
 // three things a reader needs to act: the endpoint as one selectable line, the
 // connection steps as a numbered list, and the client examples as their own

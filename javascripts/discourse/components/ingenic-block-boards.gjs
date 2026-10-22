@@ -5,6 +5,7 @@ import { action } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import { i18n } from "discourse-i18n";
 import getURL from "discourse/lib/get-url";
+import { withReadingLocale } from "../ingenic/reading-locale";
 
 /**
  * Homepage block showcasing development boards.
@@ -48,7 +49,7 @@ export default class IngenicBlockBoards extends Component {
     this.loaded = true;
 
     try {
-      const response = await fetch(getURL("/ingenic/boards"), {
+      const response = await fetch(withReadingLocale(getURL("/ingenic/boards")), {
         headers: { Accept: "application/json" },
       });
 
