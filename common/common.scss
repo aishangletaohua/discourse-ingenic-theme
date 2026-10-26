@@ -902,6 +902,19 @@ body:has(#topic-title) .d-header-icons .header-dropdown-toggle.search-dropdown {
     max-width: 100%;
   }
 
+  // Core gives the heading 90% of a container that spans the timeline column
+  // too, so at wide sizes the heading runs under the timeline. The post
+  // column's width is measured at runtime — both grid tracks stretch, so it is
+  // not a fixed share — and published as a custom property. Until that first
+  // measurement the heading keeps core's own 90%, so nothing moves for the
+  // moment before the app has drawn the topic. Below 925px the rail is hidden
+  // and the heading keeps the full width.
+  @media screen and (width >= 925px) {
+    .title-wrapper {
+      width: var(--ingenic-topic-title-width, 90%);
+    }
+  }
+
   h1 {
     overflow-wrap: anywhere;
   }
