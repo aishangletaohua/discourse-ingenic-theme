@@ -903,15 +903,12 @@ body:has(#topic-title) .d-header-icons .header-dropdown-toggle.search-dropdown {
   }
 
   // Core draws the heading over the posts column and the timeline column
-  // together, and gives it 90% of that. The post itself is narrower: core
-  // floats a fixed reading measure beside the 45px avatar, and the wide page
-  // leaves the rest of the column empty between the card and the rail. On a
-  // wide screen the heading therefore overshot the card by that empty gutter.
-  // Ending it where the card ends keeps the two on the same right edge, at
-  // every width, without reflowing the posts themselves. The three measures
-  // are core's own custom properties, so no measurement is needed at runtime.
-  // Once the column is narrow enough that the card goes fluid, the cap hands
-  // the heading back the full width by itself.
+  // together, and gives it 90% of that. The post is narrower: the card sits
+  // beside the avatar inside the posts column. The layout script stretches the
+  // card to the column (it owns `--topic-body-width`), so the heading is set to
+  // avatar plus card and lands on the same right edge. On narrow screens the
+  // script leaves core's measure alone, and the cap hands the heading the full
+  // width by itself.
   .title-wrapper {
     width: calc(
       var(--topic-avatar-width) + var(--topic-body-width) +

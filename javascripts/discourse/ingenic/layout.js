@@ -16,6 +16,101 @@ export function applyIngenicLayout() {
   root.classList.toggle("ingenic-nav-first", settings.ingenic_nav_order === "first");
 }
 
+// The post is core's fixed reading measure (690px) floated beside the avatar.
+// This theme widens the page, so at a wide size the card stopped at its own
+// measure while the heading, topic map and post notices ran on to the column's
+// edge, leaving a wide empty gutter inside the column. Stretching the card to
+// the column closes that gutter and gives the heading something to line up
+// with.
+//
+// Core publishes that measure as `--topic-body-width`, and the card, map,
+// footer, notice and heading all read it, so one value keeps them on the same
+// right edge. The column's width depends on the sidebar and the viewport — it
+// is a stretching grid track, not a fixed share — so it is measured here.
+//
+// Core lays the page out as two `auto` tracks, posts and timeline, and shares
+// the leftover space between them. A wider card therefore also claims the
+// leftover space the timeline track used to hold, and the timeline shrinks to
+// its own width at the far right — the empty gutter moves into the content
+// instead of sitting between it and the timeline. Below the size where the card
+// would actually grow, the property is removed and core's own fluid
+// narrow-screen layout returns untouched.
+export function watchTopicBodyWidth(api) {
+  const root = document.documentElement;
+  let frame = null;
+  let observer = null;
+  let observed = null;
+  let baseWidth = null;
+
+  const measure = () => {
+    frame = null;
+
+    const row = document.querySelector(".container.posts > .row");
+
+    if (!row) {
+      root.style.removeProperty("--topic-body-width");
+      observer?.disconnect();
+      observer = null;
+      observed = null;
+      return;
+    }
+
+    const styles = getComputedStyle(root);
+
+    if (baseWidth === null) {
+      baseWidth = parseFloat(styles.getPropertyValue("--topic-body-width")) || 690;
+    }
+
+    const avatar = parseFloat(styles.getPropertyValue("--topic-avatar-width")) || 45;
+    const card = document.querySelector(".topic-body");
+    const padding = card
+      ? parseFloat(getComputedStyle(card).paddingTop) || 12
+      : 12;
+    // The card's box is the variable plus the padding on both sides; the box
+    // has to end on the column's right edge, which starts after the avatar.
+    const available =
+      row.getBoundingClientRect().width - avatar - padding * 2;
+
+    if (available > baseWidth + 1) {
+      root.style.setProperty(
+        "--topic-body-width",
+        `${Math.round(available)}px`,
+      );
+    } else {
+      root.style.removeProperty("--topic-body-width");
+    }
+
+    if (observed === row) {
+      return;
+    }
+
+    observer?.disconnect();
+    observer = new ResizeObserver(schedule);
+    observer.observe(row);
+    observed = row;
+  };
+
+  const schedule = () => {
+    if (frame === null) {
+      frame = window.requestAnimationFrame(measure);
+    }
+  };
+
+  window.addEventListener("resize", schedule, { passive: true });
+
+  if (api?.onPageChange) {
+    api.onPageChange(schedule);
+  }
+
+  // Opening or closing the sidebar changes the column without a window resize.
+  new MutationObserver(schedule).observe(document.body, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
+
+  measure();
+}
+
 // A page offset that ignores transforms, so it stays the same while the search
 // is being held at the top. `offsetTop` is the layout position; a translate
 // does not move it.
