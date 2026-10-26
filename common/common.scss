@@ -3008,6 +3008,15 @@ body:has(.ingenic-homepage) {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
     gap: 0.75rem;
+
+    // The identity selector is the first question and sits in the same grid as
+    // the text answers; without this it keeps the browser's narrow default and
+    // looks like a different form beside them.
+    input,
+    select,
+    textarea {
+      width: 100%;
+    }
   }
 
   &__panel-actions {

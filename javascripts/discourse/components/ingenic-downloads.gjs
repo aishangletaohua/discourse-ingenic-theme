@@ -61,6 +61,10 @@ export default class IngenicDownloads extends Component {
     category: "",
   };
   @tracked form = { fields: [], values: {}, completed: false };
+  // The answers as they are being edited. The identity in here decides which
+  // conditional questions are drawn, so choosing "Individual developer" takes
+  // the company questions away before anything is submitted.
+  @tracked profileValues = {};
   @tracked signedIn = false;
   @tracked points = 0;
   @tracked pointsEnabled = false;
@@ -141,12 +145,22 @@ export default class IngenicDownloads extends Component {
     return this.signedIn && !this.form.completed;
   }
 
-  get panelFields() {
-    return this.form.fields ?? [];
+  // Questions that belong to one identity carry a condition; the rest are for
+  // everyone. The server applies the same rule to validation, so a hidden
+  // question cannot be submitted and then refused.
+  get visiblePanelFields() {
+    return (this.form.fields ?? []).filter((field) => {
+      const condition = field.when;
+      if (!condition) {
+        return true;
+      }
+
+      return String(this.profileValues[condition.key] ?? "") === String(condition.value);
+    });
   }
 
   get panelValues() {
-    return this.form.values ?? {};
+    return this.profileValues;
   }
 
   // Shown to a signed-in visitor on a forum where points are on, and to nobody
@@ -358,7 +372,17 @@ export default class IngenicDownloads extends Component {
     event?.preventDefault();
     this.notice = null;
     this.error = null;
+    if (kind === "profile") {
+      this.profileValues = { ...(this.form.values ?? {}) };
+    }
     this.panel = { kind, download };
+  }
+
+  // Only the select uses this today, but writing it as a generic handler keeps
+  // a conditional question working if one is ever keyed off a text answer.
+  @action
+  updateProfileValue(key, event) {
+    this.profileValues = { ...this.profileValues, [key]: event.target.value };
   }
 
   @action
@@ -612,13 +636,24 @@ export default class IngenicDownloads extends Component {
             <h2>{{i18n (themePrefix "ingenic.downloads.developer_form")}}</h2>
 
             <div class="ingenic-downloads__fields">
-              {{#each this.panelFields as |field|}}
+              {{#each this.visiblePanelFields as |field|}}
                 <label class="ingenic-docs__field">
                   <span>
                     {{field.label}}
                     {{#if field.required}}<em>*</em>{{/if}}
                   </span>
-                  {{#if (eq field.type "textarea")}}
+                  {{#if (eq field.type "select")}}
+                    <select
+                      name={{field.key}}
+                      value={{get this.panelValues field.key}}
+                      {{on "change" (fn this.updateProfileValue field.key)}}
+                    >
+                      <option value="">{{i18n (themePrefix "ingenic.downloads.choose")}}</option>
+                      {{#each field.options as |option|}}
+                        <option value={{option.value}}>{{option.label}}</option>
+                      {{/each}}
+                    </select>
+                  {{else if (eq field.type "textarea")}}
                     <textarea name={{field.key}} rows="3">{{get this.panelValues field.key}}</textarea>
                   {{else}}
                     <input name={{field.key}} value={{get this.panelValues field.key}} />
