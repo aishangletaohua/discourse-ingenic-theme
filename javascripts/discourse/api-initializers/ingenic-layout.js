@@ -9,11 +9,7 @@ import IngenicFooter from "../components/ingenic-footer";
 import IngenicLocaleSwitcher from "../components/ingenic-locale-switcher";
 import IngenicSignupButton from "../components/ingenic-signup-button";
 import { rebaseLocalUrl } from "../ingenic/asset-url";
-import {
-  applyIngenicLayout,
-  watchHeaderSurface,
-  watchTopicTitle,
-} from "../ingenic/layout";
+import { applyIngenicLayout, watchHeaderSurface } from "../ingenic/layout";
 import {
   registerIngenicCommunityLinks,
   registerIngenicSidebarSections,
@@ -48,7 +44,6 @@ import {
 export default apiInitializer((api) => {
   applyIngenicLayout();
   watchHeaderSurface(api);
-  watchTopicTitle(api);
   registerIngenicSidebarSections(api);
   registerIngenicCommunityLinks(api);
 

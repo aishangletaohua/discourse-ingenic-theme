@@ -16,69 +16,6 @@ export function applyIngenicLayout() {
   root.classList.toggle("ingenic-nav-first", settings.ingenic_nav_order === "first");
 }
 
-// The topic heading is drawn in its own container above the posts/timeline
-// grid, so the stylesheet cannot know how wide the posts column is: both grid
-// tracks stretch with the viewport, and at 1920 the posts column is 1014px
-// while 90% of the heading's container is 1220px. The heading then runs into
-// the timeline's gutter. Measure the row and publish its width as a custom
-// property; the stylesheet uses it, with the timeline's own width as the
-// fallback for the first paint and for a reader without JavaScript.
-export function watchTopicTitle(api) {
-  const root = document.documentElement;
-  let frame = null;
-  let observed = null;
-  let observer = null;
-
-  const measure = () => {
-    frame = null;
-
-    const row = document.querySelector(".container.posts > .row");
-
-    if (!row) {
-      root.style.removeProperty("--ingenic-topic-title-width");
-      observer?.disconnect();
-      observer = null;
-      observed = null;
-      return;
-    }
-
-    root.style.setProperty(
-      "--ingenic-topic-title-width",
-      `${Math.round(row.getBoundingClientRect().width)}px`,
-    );
-
-    if (observed === row) {
-      return;
-    }
-
-    observer?.disconnect();
-    observer = new ResizeObserver(schedule);
-    observer.observe(row);
-    observed = row;
-  };
-
-  const schedule = () => {
-    if (frame === null) {
-      frame = window.requestAnimationFrame(measure);
-    }
-  };
-
-  window.addEventListener("resize", schedule, { passive: true });
-
-  if (api?.onPageChange) {
-    api.onPageChange(schedule);
-  }
-
-  // Opening or closing the sidebar changes the content column without a
-  // window resize.
-  new MutationObserver(schedule).observe(document.body, {
-    attributes: true,
-    attributeFilter: ["class"],
-  });
-
-  measure();
-}
-
 // A page offset that ignores transforms, so it stays the same while the search
 // is being held at the top. `offsetTop` is the layout position; a translate
 // does not move it.
