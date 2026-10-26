@@ -231,10 +231,22 @@
     order: 1;
   }
 
+  // The topic title joins the row only after the page has scrolled past the
+  // heading. Core appends it to the same flex row but gives it no order, so it
+  // defaulted to 0 and moved ahead of the wordmark, pushing the logo to the
+  // right and drawing the title over it. It sits after the logo here and is
+  // the only element allowed to shrink: the icon row and the account controls
+  // keep their width, and the title truncates instead of displacing them.
+  body:has(.sidebar-wrapper) .d-header .extra-info-wrapper {
+    order: 2;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
   body:has(.sidebar-wrapper) .d-header .before-header-panel-outlet {
     display: flex;
     align-items: center;
-    order: 2;
+    order: 3;
     min-width: 0;
   }
 
@@ -243,11 +255,19 @@
   }
 
   body:has(.sidebar-wrapper) .d-header .panel {
-    order: 3;
+    order: 4;
   }
 
   body:has(.sidebar-wrapper) .d-header .after-header-panel-outlet {
-    order: 4;
+    order: 5;
+  }
+
+  // The title is one line with an ellipsis. Both wrappers need `min-width: 0`
+  // for that to work inside a flex row; without it the text's min-content
+  // width wins and the row grows rather than truncating.
+  body:has(.sidebar-wrapper) .d-header .extra-info-wrapper .extra-info,
+  body:has(.sidebar-wrapper) .d-header .extra-info-wrapper .title-wrapper {
+    min-width: 0;
   }
 
   body.has-sidebar-page .sidebar-sections {
@@ -859,6 +879,32 @@ html.ingenic-nav-first
 // matter.
 .d-header-icons .header-dropdown-toggle.search-dropdown {
   display: none;
+}
+
+// A topic is the one page where the header has no search field of its own, and
+// "search in this topic" is the search people actually want there. Core's
+// search menu already knows the topic from the route, so the trigger is the
+// only thing missing; it is restored here and left hidden everywhere else.
+body:has(#topic-title) .d-header-icons .header-dropdown-toggle.search-dropdown {
+  display: flex;
+}
+
+// The heading on the topic page is a block of prose, not a list row. A long
+// title — especially one with no spaces, such as a build name — must wrap
+// inside its column instead of growing the flex row and running under the
+// timeline's date column on the right. The header title above uses the same
+// rule through its own ellipsis.
+#topic-title {
+  min-width: 0;
+
+  .title-wrapper {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  h1 {
+    overflow-wrap: anywhere;
+  }
 }
 
 // The collapse control opens the navigation, but core draws it at the palest

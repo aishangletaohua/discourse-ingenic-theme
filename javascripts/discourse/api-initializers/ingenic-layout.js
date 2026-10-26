@@ -7,6 +7,7 @@ import IngenicBounty from "../components/ingenic-bounty";
 import IngenicComposerBounty from "../components/ingenic-composer-bounty";
 import IngenicFooter from "../components/ingenic-footer";
 import IngenicLocaleSwitcher from "../components/ingenic-locale-switcher";
+import IngenicSignupButton from "../components/ingenic-signup-button";
 import { rebaseLocalUrl } from "../ingenic/asset-url";
 import { applyIngenicLayout, watchHeaderSurface } from "../ingenic/layout";
 import {
@@ -52,6 +53,14 @@ export default apiInitializer((api) => {
 
   api.headerIcons.add("ingenic-locale", IngenicLocaleSwitcher, {
     before: "user-menu",
+  });
+
+  // Sign Up disappears the moment the topic title docks in the header, because
+  // core hides it while the title is there. The right side is supposed to look
+  // the same before and after that scroll, so this draws the same button in
+  // that state and stays silent everywhere else.
+  api.headerButtons.add("ingenic-signup", IngenicSignupButton, {
+    before: "auth",
   });
 
   api.renderInOutlet("topic-above-posts", IngenicBounty);
