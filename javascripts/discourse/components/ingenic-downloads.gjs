@@ -775,12 +775,19 @@ export default class IngenicDownloads extends Component {
                   <div class="ingenic-download-card__meta">{{card.metaLine}}</div>
                 {{/if}}
 
+                {{#if card.description}}
+                  <p class="ingenic-download-card__description">{{card.description}}</p>
+                {{/if}}
+              </div>
+
+              <div class="ingenic-download-card__action">
+                {{! The version belongs to the button, not to the blurb: choosing 2.0
+                    decides which file the button hands over, so it sits directly above
+                    it. `value` on a <select> is only an attribute, so the chosen option
+                    is marked instead of the box being told a value. }}
                 {{#if card.canChooseVersion}}
                   <label class="ingenic-download-card__version">
                     <span>{{i18n (themePrefix "ingenic.downloads.version_label")}}</span>
-                    {{! `value` on a <select> is only an attribute, so it never moved the
-                        chosen option. Marking the option is what keeps the box showing
-                        the version the card is actually pointing at. }}
                     <select
                       name="version"
                       {{on "change" (fn this.pickVersion card.id)}}
@@ -800,12 +807,6 @@ export default class IngenicDownloads extends Component {
                   </div>
                 {{/if}}
 
-                {{#if card.description}}
-                  <p class="ingenic-download-card__description">{{card.description}}</p>
-                {{/if}}
-              </div>
-
-              <div class="ingenic-download-card__action">
                 {{#if card.isLink}}
                   {{#if card.leavesSite}}
                     <a
