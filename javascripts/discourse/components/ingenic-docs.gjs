@@ -107,6 +107,8 @@ export default class IngenicDocs extends Component {
   #headingElements = [];
   #scrollFrame = null;
   #scroller = null;
+  #rail = null;
+  #railRevealFrame = null;
 
   // The language this page is being read in. A signed-in reader carries it on
   // the model, which is tracked, so changing it refetches even when the page
@@ -684,6 +686,10 @@ export default class IngenicDocs extends Component {
   toggleRail() {
     this.railOpen = !this.railOpen;
     this.#rememberRails();
+
+    if (this.railOpen) {
+      this.#scheduleRailReveal();
+    }
   }
 
   @action
@@ -1014,6 +1020,7 @@ export default class IngenicDocs extends Component {
     }
 
     this.#onScroll();
+    this.#scheduleRailReveal();
   }
 
   // The two rails are a reading preference: a manual read with the contents
@@ -1093,26 +1100,53 @@ export default class IngenicDocs extends Component {
 
       if (active !== this.activeHeadingId) {
         this.activeHeadingId = active;
+        this.#scheduleRailReveal();
       }
     });
   };
 
+  // Keep a stable reference to the rail itself. The active row is rendered by
+  // Glimmer after `activeHeadingId` changes, so the reveal is scheduled for the
+  // next frame rather than being tied to each link's modifier lifecycle.
+  @action
+  captureRail(element) {
+    this.#rail = element;
+    this.#scheduleRailReveal();
+  }
+
+  #scheduleRailReveal() {
+    if (this.#railRevealFrame || typeof window === "undefined") {
+      return;
+    }
+
+    this.#railRevealFrame = window.requestAnimationFrame(() => {
+      this.#railRevealFrame = null;
+      this.#revealActiveRailRow();
+    });
+  }
+
   // On a long page the rail is taller than the pane it sits in. Moving the
   // reader's place in the article has to bring that row into view as well,
-  // without the rail jumping around when the row is already visible.
-  @action
-  revealRailRow(element, isActive) {
-    if (!isActive) {
+  // without the rail jumping around when the row is already visible. Only the
+  // rail's own scrollTop is changed; the article pane never moves here.
+  #revealActiveRailRow() {
+    const rail = this.#rail;
+
+    if (
+      !rail ||
+      rail.clientHeight === 0 ||
+      rail.scrollHeight <= rail.clientHeight
+    ) {
       return;
     }
 
-    const rail = element.closest(".ingenic-docs__rail");
+    const active = rail.querySelector(".ingenic-docs__rail-link.is-active");
 
-    if (!rail) {
+    if (!active) {
       return;
     }
 
-    const row = element.getBoundingClientRect();
+    const row = active.getBoundingClientRect();
     const pane = rail.getBoundingClientRect();
     const margin = 12;
 
@@ -1145,8 +1179,13 @@ export default class IngenicDocs extends Component {
       window.cancelAnimationFrame(this.#scrollFrame);
     }
 
+    if (this.#railRevealFrame) {
+      window.cancelAnimationFrame(this.#railRevealFrame);
+    }
+
     this.#scroller?.removeEventListener("scroll", this.#onScroll);
     this.#scroller = null;
+    this.#rail = null;
     window.removeEventListener("keydown", this.#onKeydown);
     window.removeEventListener("scroll", this.#onScroll);
   }
@@ -1585,7 +1624,11 @@ export default class IngenicDocs extends Component {
           </main>
 
           {{#if this.page}}
-            <aside class="ingenic-docs__rail" id="ingenic-docs-rail">
+            <aside
+              class="ingenic-docs__rail"
+              id="ingenic-docs-rail"
+              {{didInsert this.captureRail}}
+            >
               <p class="ingenic-docs__rail-title">
                 {{i18n (themePrefix "ingenic.docs.on_this_page")}}
               </p>
@@ -1594,8 +1637,6 @@ export default class IngenicDocs extends Component {
                 <a
                   class="ingenic-docs__rail-link ingenic-docs__rail-link--{{heading.indent}} {{if heading.isActive 'is-active'}}"
                   href="#{{heading.id}}"
-                  {{didInsert this.revealRailRow heading.isActive}}
-                  {{didUpdate this.revealRailRow heading.isActive}}
                 >
                   {{heading.text}}
                 </a>
