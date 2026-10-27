@@ -778,13 +778,18 @@ export default class IngenicDownloads extends Component {
                 {{#if card.canChooseVersion}}
                   <label class="ingenic-download-card__version">
                     <span>{{i18n (themePrefix "ingenic.downloads.version_label")}}</span>
+                    {{! `value` on a <select> is only an attribute, so it never moved the
+                        chosen option. Marking the option is what keeps the box showing
+                        the version the card is actually pointing at. }}
                     <select
                       name="version"
-                      value={{card.versionId}}
                       {{on "change" (fn this.pickVersion card.id)}}
                     >
                       {{#each card.versions as |version|}}
-                        <option value={{version.id}}>{{this.versionLabel version}}</option>
+                        <option
+                          selected={{eq version.id card.versionId}}
+                          value={{version.id}}
+                        >{{this.versionLabel version}}</option>
                       {{/each}}
                     </select>
                   </label>
