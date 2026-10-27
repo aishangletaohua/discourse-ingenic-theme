@@ -2448,16 +2448,140 @@ body:has(.ingenic-homepage) {
     line-height: 1.5;
   }
 
-  // Cards in one row are rarely the same height — a resource with a checksum
-  // and a release date is taller than one without — so the button is pushed to
-  // the bottom and the row of buttons lines up.
-  &--download {
+}
+
+// The download catalogue, one horizontal card per resource.
+//
+// The picture is on the left, at the ratio the team uploads to; the version
+// selector and the description are in the middle, because choosing a release
+// is what changes both; the one Download button is on the right, where the eye
+// ends after reading the name.
+.ingenic-download-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.ingenic-download-card {
+  display: grid;
+  grid-template-columns: 13.5rem minmax(0, 1fr) 11rem;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--ingenic-surface-border);
+  border-radius: var(--ingenic-radius);
+  background: var(--secondary);
+
+  &__media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--ingenic-sky-100), var(--secondary));
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  // A resource without a picture still shows a frame of the same size, so the
+  // rows below line up and the catalogue does not look half-loaded.
+  &__placeholder {
+    color: var(--tertiary);
+    font-size: 2.4rem;
+    font-weight: 700;
+    opacity: 0.35;
+  }
+
+  &__body {
+    min-width: 0;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  &__meta {
+    margin-top: 0.25rem;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+
+  &__description {
+    margin: 0.55rem 0 0;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    line-height: 1.5;
+  }
+
+  &__version {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+
+    select {
+      max-width: 14rem;
+    }
+  }
+
+  &__version-static {
+    margin-top: 0.6rem;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+
+  &__action {
     display: flex;
     flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
 
-    .ingenic-card__actions {
-      margin-top: auto;
-      padding-top: 0.8rem;
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  &__hint {
+    margin: 0;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    line-height: 1.4;
+  }
+}
+
+// On a phone the card keeps the same order — picture, text, button — but the
+// button moves under the text rather than being squeezed into a third column
+// a few characters wide.
+@media (max-width: 767px) {
+  .ingenic-download-card {
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    align-items: start;
+    gap: 0.9rem;
+
+    &__action {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+
+      .btn {
+        width: auto;
+      }
+    }
+
+    &__hint {
+      flex: 1 1 12rem;
     }
   }
 }

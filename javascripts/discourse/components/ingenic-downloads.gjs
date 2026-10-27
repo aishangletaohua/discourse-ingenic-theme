@@ -21,15 +21,19 @@ const ENDPOINT = "/ingenic/downloads";
  * endpoint disagrees. A new tier means a line here and strings in the locale
  * file, not a new branch in the template.
  */
-const ACTIONS = {
-  sign_in: { label: "sign_in", hint: "sign_in_hint" },
-  profile: { label: "profile_action", hint: "profile_hint" },
-  request: { label: "apply", hint: "apply_hint" },
-  pending: { label: "pending", hint: "pending_hint" },
-  rejected: { label: "rejected", hint: "rejected_hint" },
-  unlock: { label: "unlock", hint: "unlock_hint" },
-  points: { label: "points_short", hint: "points_hint" },
-  download: { label: "download", hint: null },
+// What each state says under the one button. The button itself is always
+// "Download" — the access rule decides what pressing it does, not what it is
+// called, because a visitor reading the catalogue is looking for a file and
+// not for the name of a permission tier.
+const HINTS = {
+  sign_in: "sign_in_hint",
+  profile: "profile_hint",
+  request: "apply_hint",
+  pending: "pending_hint",
+  rejected: "rejected_hint",
+  unlock: "unlock_hint",
+  points: "points_hint",
+  download: null,
 };
 
 const ACTION_FOR = {
@@ -53,7 +57,11 @@ const ACTION_FOR = {
  */
 export default class IngenicDownloads extends Component {
   @tracked downloads = [];
-  @tracked filters = { series: [], chips: [], categories: [], versions: [], platforms: [] };
+  // Which version the visitor picked under a card, by resource id. The card's
+  // description, size and download link all follow this; the access state does
+  // not, because approval belongs to the resource rather than to one release.
+  @tracked versionChoice = {};
+  @tracked filters = { series: [], chips: [], categories: [] };
   @tracked selected = {
     family: "",
     series: "",
@@ -95,13 +103,19 @@ export default class IngenicDownloads extends Component {
   // Every label and decision the card needs, worked out here so the template
   // stays a description of the layout rather than a set of lookups.
   //
-  // A resource that costs points and that this account has not bought yet is
-  // drawn as Unlock rather than Download, and the two are the same link: the
-  // endpoint does the charging, and the card only says what is about to happen.
-  // The label carries the price, which is why it is built here rather than
-  // looked up from the table above.
+  // The button is the same word in every state. What changes is the hint under
+  // it and what pressing it does: a link for a file this account may already
+  // have, the sign-in page for a visitor, a form for a developer the forum has
+  // not met yet, an application for a release made on request.
   get cards() {
     return this.downloads.map((download) => {
+      const versions = download.versions ?? [];
+      const chosen = this.versionChoice[download.id];
+      const version =
+        versions.find((entry) => String(entry.id) === String(chosen)) ??
+        versions[0] ??
+        null;
+
       let action = ACTION_FOR[download.access_state] ?? "pending";
       const price = download.point_cost ?? 0;
 
@@ -109,36 +123,52 @@ export default class IngenicDownloads extends Component {
         action = "unlock";
       }
 
-      const entry = ACTIONS[action] ?? ACTIONS.pending;
+      const hintKey = HINTS[action];
 
       return {
         ...download,
+        versions,
+        version,
+        versionId: version?.id ?? "",
+        canChooseVersion: versions.length > 1,
+        // The description belongs to the selected version: choosing SDK 1.0
+        // after 1.1 has to say what 1.0 is, not what the card said before.
+        description: version?.description,
         action,
-        // Both of these are the same link to the same endpoint: it is the
-        // endpoint that charges, and the card only says what is about to
-        // happen. Told apart by the label rather than by the control.
-        isLink: action === "download" || action === "unlock",
-        actionLabel: this.#label(entry.label, { points: price }),
-        actionHint: entry.hint ? this.#label(entry.hint, { points: price }) : null,
-        linkTarget: "_blank",
-        linkRel: "noopener noreferrer",
-        // What the card says about the file, on one line under its name.
-        // These were a definition list, which put every label above its
-        // value and let a 64-character checksum wrap down the card. A
-        // checksum is what somebody verifying a download needs rather
-        // than what somebody choosing one needs: the admin screen is
-        // where it is shown.
+        actionLabel: this.#label("download"),
+        initial: (download.name || "?").trim().charAt(0).toUpperCase(),
+        actionHint: hintKey ? this.#label(hintKey, { points: price }) : null,
+        // A link is drawn for the three states whose next step is a page: the
+        // file itself, the sign-in form. The rest open an in-page panel so the
+        // visitor does not lose the catalogue they were reading.
+        isLink: action === "download" || action === "unlock" || action === "sign_in",
+        linkPath:
+          action === "sign_in" ? this.loginPath : (version?.file_path ?? "#"),
+        leavesSite: action !== "sign_in",
         metaLine: [
           download.category_name,
-          download.version,
-          download.platform,
-          download.file_size,
-          download.released_on,
+          version?.platform,
+          version?.file_size,
+          version?.released_on,
         ]
           .filter(Boolean)
           .join(" · "),
       };
     });
+  }
+
+  // The option text for a version. A release without a label is still a file,
+  // and the date is what distinguishes it from the next one.
+  versionLabel(version) {
+    return version.version || version.released_on || "—";
+  }
+
+  @action
+  pickVersion(downloadId, event) {
+    this.versionChoice = {
+      ...this.versionChoice,
+      [downloadId]: event.target.value,
+    };
   }
 
   get needsDeveloperForm() {
@@ -406,8 +436,18 @@ export default class IngenicDownloads extends Component {
       });
       this.form = response.form ?? this.form;
       this.notice = this.#label("profile_saved");
+
+      const target = this.panel?.download;
       this.panel = null;
       await this.#fetch();
+
+      // The form was opened by pressing Download, so the download is where the
+      // visitor expects to be taken. If the answers cleared the resource, the
+      // file starts now; if it still needs an application, that panel opens
+      // rather than making them find the card again and press Download twice.
+      if (target) {
+        await this.#continueAfterProfile(target.id);
+      }
     } catch (failure) {
       this.error = this.#failureMessage(failure);
     } finally {
@@ -441,6 +481,27 @@ export default class IngenicDownloads extends Component {
   @action
   dismissNotice() {
     this.notice = null;
+  }
+
+  // What pressing Download leads to once the developer form is saved.
+  async #continueAfterProfile(downloadId) {
+    const download = this.downloads.find((entry) => entry.id === downloadId);
+
+    if (!download) {
+      return;
+    }
+
+    if (download.access_state === "needs_request") {
+      this.panel = { kind: "request", download };
+      return;
+    }
+
+    if (download.access_state === "granted") {
+      const card = this.cards.find((entry) => entry.id === downloadId);
+      if (card?.linkPath) {
+        window.location.assign(card.linkPath);
+      }
+    }
   }
 
   #label(key, params) {
@@ -696,32 +757,65 @@ export default class IngenicDownloads extends Component {
       {{/if}}
 
       {{#if this.cards.length}}
-        <div class="ingenic-card-grid">
+        <div class="ingenic-download-cards">
           {{#each this.cards as |card|}}
-            <article class="ingenic-card ingenic-card--download">
-              <div class="ingenic-card__title">{{card.name}}</div>
-              {{#if card.metaLine}}
-                <div class="ingenic-card__meta">{{card.metaLine}}</div>
-              {{/if}}
+            <article class="ingenic-download-card">
+              <div class="ingenic-download-card__media">
+                {{#if card.image_url}}
+                  <img src={{card.image_url}} alt="" loading="lazy" />
+                {{else}}
+                  <span class="ingenic-download-card__placeholder">{{card.initial}}</span>
+                {{/if}}
+              </div>
 
-              {{#if card.description}}
-                <p>{{card.description}}</p>
-              {{/if}}
+              <div class="ingenic-download-card__body">
+                <h3 class="ingenic-download-card__title">{{card.name}}</h3>
 
-              <div class="ingenic-card__actions">
+                {{#if card.metaLine}}
+                  <div class="ingenic-download-card__meta">{{card.metaLine}}</div>
+                {{/if}}
+
+                {{#if card.canChooseVersion}}
+                  <label class="ingenic-download-card__version">
+                    <span>{{i18n (themePrefix "ingenic.downloads.version_label")}}</span>
+                    <select
+                      name="version"
+                      value={{card.versionId}}
+                      {{on "change" (fn this.pickVersion card.id)}}
+                    >
+                      {{#each card.versions as |version|}}
+                        <option value={{version.id}}>{{this.versionLabel version}}</option>
+                      {{/each}}
+                    </select>
+                  </label>
+                {{else if card.version.version}}
+                  <div class="ingenic-download-card__version-static">
+                    {{i18n (themePrefix "ingenic.downloads.version_label")}}
+                    {{card.version.version}}
+                  </div>
+                {{/if}}
+
+                {{#if card.description}}
+                  <p class="ingenic-download-card__description">{{card.description}}</p>
+                {{/if}}
+              </div>
+
+              <div class="ingenic-download-card__action">
                 {{#if card.isLink}}
-                  <a
-                    class="btn btn-primary"
-                    href={{card.file_path}}
-                    target={{card.linkTarget}}
-                    rel={{card.linkRel}}
-                  >
-                    {{card.actionLabel}}
-                  </a>
-                {{else if (eq card.action "sign_in")}}
-                  <a class="btn btn-primary" href={{this.loginPath}}>
-                    {{card.actionLabel}}
-                  </a>
+                  {{#if card.leavesSite}}
+                    <a
+                      class="btn btn-primary"
+                      href={{card.linkPath}}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {{card.actionLabel}}
+                    </a>
+                  {{else}}
+                    <a class="btn btn-primary" href={{card.linkPath}}>
+                      {{card.actionLabel}}
+                    </a>
+                  {{/if}}
                 {{else if (eq card.action "profile")}}
                   <button
                     class="btn btn-primary"
@@ -739,13 +833,15 @@ export default class IngenicDownloads extends Component {
                     {{card.actionLabel}}
                   </button>
                 {{else}}
-                  <span class="ingenic-card__state">{{card.actionLabel}}</span>
+                  <button class="btn btn-primary" type="button" disabled>
+                    {{card.actionLabel}}
+                  </button>
+                {{/if}}
+
+                {{#if card.actionHint}}
+                  <p class="ingenic-download-card__hint">{{card.actionHint}}</p>
                 {{/if}}
               </div>
-
-              {{#if card.actionHint}}
-                <p class="ingenic-card__hint">{{card.actionHint}}</p>
-              {{/if}}
             </article>
           {{/each}}
         </div>

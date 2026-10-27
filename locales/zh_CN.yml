@@ -185,6 +185,7 @@ zh_CN:
         chip: "芯片资料"
         algorithm: "算法"
       download: "下载"
+      version_label: "版本"
       checksum: "SHA-256"
       size: "大小"
       released: "发布日期"

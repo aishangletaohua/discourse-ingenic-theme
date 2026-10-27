@@ -186,6 +186,7 @@ en:
         chip: "Chip resources"
         algorithm: "Algorithms"
       download: "Download"
+      version_label: "Version"
       checksum: "SHA-256"
       size: "Size"
       released: "Released"
