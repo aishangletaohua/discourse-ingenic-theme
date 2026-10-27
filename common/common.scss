@@ -3186,14 +3186,14 @@ body:has(.ingenic-homepage) {
   // and type. Before this, the chip picker, the version select and the search
   // box were each a few pixels apart, which is what makes a row of controls
   // look assembled rather than designed.
-  --ingenic-control-height: 2.5rem;
+  --ingenic-control-height: 2.25rem;
   --ingenic-control-radius: 8px;
 
   min-height: 70vh;
   // Wide enough for three columns at a desktop width, and no wider: past
   // this the page is a band of text between two margins of empty sky, and
   // the eye has further to travel than the line does.
-  max-width: 1500px;
+  max-width: 1680px;
   margin: -1rem auto 2rem;
   border: 1px solid var(--ingenic-panel-border);
   border-radius: 12px;
@@ -3214,8 +3214,10 @@ body:has(.ingenic-homepage) {
     flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem 0.6rem;
-    min-height: calc(var(--ingenic-control-height) + 1.2rem);
-    padding: 0.6rem 1.1rem;
+    // The controls already size the row; asking for room on top of that only
+    // pushed the toolbar taller than what it holds.
+    min-height: var(--ingenic-control-height);
+    padding: 0.4rem 1rem;
     border-bottom: 1px solid var(--ingenic-panel-border);
     background: color-mix(in srgb, var(--ingenic-sky-50) 55%, var(--secondary));
     border-radius: 12px 12px 0 0;
@@ -3337,22 +3339,109 @@ body:has(.ingenic-homepage) {
   // foot of the page column, in view whatever the length of the article. The
   // subtraction is the site header, this toolbar and the panel's own margins.
   &__panes {
+    // The two rails are named here rather than written into the template, so
+    // folding one is a matter of setting its width to zero and every
+    // dependent measure — the grid, the triangle that sits on the border —
+    // follows from the same two numbers.
+    --ingenic-toc-width: 13.5rem;
+    --ingenic-rail-width: 12rem;
+
+    position: relative;
     display: grid;
-    grid-template-columns: 15.5rem minmax(0, 1fr);
-    height: calc(100dvh - 10.25rem);
+
+    // Named areas, not just named columns. A folded rail is removed from the
+    // flow, and auto-placement would then slide the page one column to the
+    // left into the empty track and hand its width to the rail beside it.
+    // Naming the areas pins each pane to its own track however many of them
+    // are folded.
+    grid-template-areas: "toc main";
+    grid-template-columns: var(--ingenic-toc-width) minmax(0, 1fr);
+    height: calc(100dvh - 9.75rem);
     min-height: 26rem;
 
     &--rail {
-      grid-template-columns: 15.5rem minmax(0, 1fr) 13rem;
+      grid-template-areas: "toc main rail";
+      grid-template-columns:
+        var(--ingenic-toc-width) minmax(0, 1fr)
+        var(--ingenic-rail-width);
+    }
+
+    &.is-toc-hidden {
+      --ingenic-toc-width: 0px;
+    }
+
+    &.is-rail-hidden {
+      --ingenic-rail-width: 0px;
+    }
+
+    .ingenic-doctoc {
+      grid-area: toc;
+
+      &.is-collapsed {
+        display: none;
+      }
+    }
+
+    // A zero-width track is not a hidden rail: the aside keeps its padding and
+    // spills over the page it is supposed to have given its room to.
+    &.is-rail-hidden .ingenic-docs__rail {
+      display: none;
+    }
+
+    // Folding the contents leaves space the text can use — but only a step,
+    // so a paragraph does not become a line the eye chases across the window.
+    &.is-toc-hidden .ingenic-doc {
+      max-width: 76rem;
+    }
+  }
+
+  // One triangle per rail, sitting on the border the rail shares with the
+  // page. Open, it points outward — the way the rail would go; folded, it
+  // points back inward and is the only way to bring the rail home. It is
+  // positioned from the same width variables as the grid, so a folded rail
+  // leaves the control at the edge of the page rather than off it.
+  &__rail-toggle {
+    position: absolute;
+    z-index: 20;
+    top: 38%;
+    display: grid;
+    width: 1.5rem;
+    height: 2.4rem;
+    padding: 0;
+    place-items: center;
+    border: 1px solid var(--ingenic-panel-border);
+    border-radius: 8px;
+    background: var(--secondary);
+    box-shadow: 0 4px 14px rgb(18 38 58 / 12%);
+    color: var(--primary-medium);
+    cursor: pointer;
+
+    .d-icon {
+      font-size: 0.7rem;
+    }
+
+    &--toc {
+      left: max(0px, calc(var(--ingenic-toc-width) - 0.75rem));
+    }
+
+    &--rail {
+      right: max(0px, calc(var(--ingenic-rail-width) - 0.75rem));
+    }
+
+    &:hover,
+    &:focus-visible {
+      border-color: var(--tertiary);
+      color: var(--ingenic-link);
     }
   }
 
   &__main {
     display: flex;
     flex-direction: column;
+    grid-area: main;
     min-width: 0;
     min-height: 0;
-    padding: clamp(1.5rem, 3vw, 2.6rem) clamp(1.25rem, 3vw, 2.75rem) 0;
+    padding: clamp(1.1rem, 2vw, 1.8rem) clamp(1rem, 2vw, 2rem) 0.6rem;
     overflow: hidden;
   }
 
@@ -3397,6 +3486,7 @@ body:has(.ingenic-homepage) {
   // --- Right rail -----------------------------------------------------------
 
   &__rail {
+    grid-area: rail;
     align-self: stretch;
     height: 100%;
     padding: 1.6rem 1rem 2rem 1.1rem;
@@ -4051,7 +4141,7 @@ body:has(.ingenic-homepage) {
   flex: 1 1 auto;
   flex-direction: column;
   width: 100%;
-  max-width: 62rem;
+  max-width: 68rem;
   min-height: 0;
 
   // The article scrolls; the pager below it does not.
@@ -4069,8 +4159,8 @@ body:has(.ingenic-homepage) {
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 0.9rem;
-    padding: 0.95rem 1.1rem;
+    gap: 0.7rem;
+    padding: 0.7rem 0.9rem;
     border: 1px solid var(--ingenic-panel-border);
     border-radius: 12px;
     background:
@@ -4087,7 +4177,7 @@ body:has(.ingenic-homepage) {
     display: flex;
     flex: 1 1 20rem;
     align-items: center;
-    gap: 0.85rem;
+    gap: 0.7rem;
     min-width: 0;
   }
 
@@ -4099,23 +4189,23 @@ body:has(.ingenic-homepage) {
     flex-direction: column;
     align-items: center;
     gap: 0.05rem;
-    width: 3.4rem;
-    padding: 0.5rem 0.3rem;
-    border-radius: 8px;
+    width: 2.9rem;
+    padding: 0.4rem 0.25rem;
+    border-radius: 7px;
     background: linear-gradient(150deg, #1b4770, #0f2c49);
     box-shadow: 0 6px 14px rgb(15 44 73 / 24%);
     color: #fff;
     line-height: 1.1;
 
     b {
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       font-weight: 700;
       letter-spacing: 0.02em;
     }
 
     span {
       color: rgb(255 255 255 / 62%);
-      font-size: 0.55rem;
+      font-size: 0.5rem;
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -4128,7 +4218,7 @@ body:has(.ingenic-homepage) {
     h1 {
       margin: 0;
       color: var(--primary);
-      font-size: clamp(1.2rem, 1.7vw, 1.5rem);
+      font-size: clamp(1.05rem, 1.4vw, 1.25rem);
       font-weight: 700;
       line-height: 1.25;
     }
@@ -4144,15 +4234,15 @@ body:has(.ingenic-homepage) {
   &__pills {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem;
-    margin-top: 0.45rem;
+    gap: 0.3rem;
+    margin-top: 0.35rem;
   }
 
   &__pill {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.12rem 0.5rem;
+    gap: 0.3rem;
+    padding: 0.08rem 0.45rem;
     border: 1px solid var(--ingenic-panel-border);
     border-radius: 999px;
     background: var(--secondary);
@@ -4189,8 +4279,8 @@ body:has(.ingenic-homepage) {
   &__btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.42rem 0.75rem;
+    gap: 0.35rem;
+    padding: 0.32rem 0.6rem;
     border: 1px solid var(--ingenic-panel-border);
     border-radius: 7px;
     background: var(--secondary);
@@ -4203,18 +4293,22 @@ body:has(.ingenic-homepage) {
       text-decoration: none;
     }
 
+    // Both buttons ask the same kind of question — where to go next — so they
+    // are one not two weights. The modifier survives for its place in the
+    // markup, but it no longer paints a filled button beside a white one.
     &--primary {
-      border-color: transparent;
-      background: var(--ingenic-navy);
-      color: #fff;
+      border-color: var(--ingenic-panel-border);
+      background: var(--secondary);
+      color: var(--primary);
 
       .d-icon {
-        color: #fff;
+        color: currentColor;
       }
 
       &:hover {
-        background: color-mix(in srgb, var(--ingenic-navy) 88%, #000);
-        color: #fff;
+        border-color: var(--tertiary);
+        background: var(--secondary);
+        color: var(--primary);
       }
     }
   }
@@ -4519,9 +4613,9 @@ body:has(.ingenic-homepage) {
   &__pager {
     display: flex;
     flex: 0 0 auto;
-    gap: 0.7rem;
+    gap: 0.6rem;
     margin-top: 0;
-    padding: 0.8rem 0 0.9rem;
+    padding: 0.45rem 0 0.5rem;
     border-top: 1px solid var(--ingenic-divider);
     background: var(--secondary);
   }
@@ -4530,16 +4624,17 @@ body:has(.ingenic-homepage) {
     display: flex;
     flex: 1;
     flex-direction: column;
-    gap: 0.2rem;
+    gap: 0.05rem;
     min-width: 0;
-    padding: 0.75rem 0.9rem;
+    padding: 0.4rem 0.65rem;
     border: 1px solid var(--ingenic-panel-border);
-    border-radius: 9px;
+    border-radius: 8px;
+    background: var(--secondary);
     color: var(--primary);
 
     small {
       color: var(--primary-medium);
-      font-size: var(--font-down-2);
+      font-size: 0.6rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.06em;
@@ -4547,6 +4642,7 @@ body:has(.ingenic-homepage) {
 
     b {
       overflow: hidden;
+      font-size: var(--font-down-1);
       font-weight: 700;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -4601,10 +4697,13 @@ body:has(.ingenic-homepage) {
 @media (max-width: 1199px) {
   .ingenic-docs {
     &__panes--rail {
-      grid-template-columns: 15.5rem minmax(0, 1fr);
+      grid-template-areas: "toc main";
+      grid-template-columns: var(--ingenic-toc-width) minmax(0, 1fr);
     }
 
-    &__rail {
+    // No rail to fold, so no triangle to fold it with.
+    &__rail,
+    &__rail-toggle--rail {
       display: none;
     }
   }
@@ -4648,6 +4747,12 @@ body:has(.ingenic-homepage) {
 
     // Folded by default on a phone, opened by the Contents button.
     &__panes .ingenic-doctoc.is-collapsed {
+      display: none;
+    }
+
+    // On a phone the contents are a block above the page, not a column beside
+    // it, so there is no border for a triangle to sit on.
+    &__rail-toggle {
       display: none;
     }
 

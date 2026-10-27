@@ -32,6 +32,11 @@ const HEADING_INDENT = { 2: 0, 3: 1 };
 const FETCH_TIMEOUT = 20_000;
 const RETRY_DELAYS = [400, 1_200];
 
+// Which of the two side rails the reader keeps open. It is a reading
+// preference, so it outlives the page: a manual read with the contents folded
+// should not unfold them on the next page.
+const RAILS_KEY = "ingenic-docs-rails";
+
 /**
  * Documentation reader.
  *
@@ -69,6 +74,7 @@ export default class IngenicDocs extends Component {
   @tracked pickerOpen = false;
   @tracked openSeriesSlug = null;
   @tracked treeOpen = true;
+  @tracked railOpen = true;
   @tracked collapsedGroups = [];
 
   @tracked searchQuery = "";
@@ -82,10 +88,15 @@ export default class IngenicDocs extends Component {
   constructor(owner, args) {
     super(owner, args);
 
-    // The contents sit above the page on a phone, so they start folded there
-    // and the first thing a reader sees is the page they followed a link to.
-    if (typeof window !== "undefined" && window.innerWidth < 768) {
-      this.treeOpen = false;
+    // A reader who folded a rail once keeps it folded; the state is a reading
+    // preference, not something to re-decide on every page. Without a stored
+    // answer the contents start folded on a phone — they sit above the page
+    // there, and the first thing a reader should see is the page they opened.
+    const stored = this.#storedRails();
+
+    if (typeof window !== "undefined") {
+      this.treeOpen = stored.toc ?? window.innerWidth >= 768;
+      this.railOpen = stored.rail ?? true;
     }
   }
 
@@ -656,6 +667,13 @@ export default class IngenicDocs extends Component {
   @action
   toggleTree() {
     this.treeOpen = !this.treeOpen;
+    this.#rememberRails();
+  }
+
+  @action
+  toggleRail() {
+    this.railOpen = !this.railOpen;
+    this.#rememberRails();
   }
 
   @action
@@ -988,6 +1006,27 @@ export default class IngenicDocs extends Component {
     this.#onScroll();
   }
 
+  // The two rails are a reading preference: a manual read with the contents
+  // folded should stay folded on the next page, and on the next visit.
+  #rememberRails() {
+    try {
+      window.localStorage.setItem(
+        RAILS_KEY,
+        JSON.stringify({ toc: this.treeOpen, rail: this.railOpen }),
+      );
+    } catch {
+      // Storage can be refused; the toggles still work for this visit.
+    }
+  }
+
+  #storedRails() {
+    try {
+      return JSON.parse(window.localStorage.getItem(RAILS_KEY) || "{}") ?? {};
+    } catch {
+      return {};
+    }
+  }
+
   #slugify(text) {
     return (
       (text ?? "")
@@ -1247,8 +1286,50 @@ export default class IngenicDocs extends Component {
           </div>
         </div>
 
-        <div class="ingenic-docs__panes {{if this.page 'ingenic-docs__panes--rail'}}">
-          <aside class="ingenic-doctoc {{unless this.treeOpen 'is-collapsed'}}">
+        <div
+          class="ingenic-docs__panes
+            {{if this.page 'ingenic-docs__panes--rail'}}
+            {{unless this.treeOpen 'is-toc-hidden'}}
+            {{unless this.railOpen 'is-rail-hidden'}}"
+        >
+          {{! The two triangles sit on the borders the rails share with the
+              page, so the reader pushes a rail away from the text rather than
+              hunting for a control in a toolbar. They stay put when a rail is
+              folded — a folded rail that could not be brought back would be a
+              one-way door. }}
+          <button
+            aria-controls="ingenic-doctoc"
+            aria-expanded={{if this.treeOpen "true" "false"}}
+            aria-label={{if
+              this.treeOpen
+              (i18n (themePrefix "ingenic.docs.hide_contents"))
+              (i18n (themePrefix "ingenic.docs.show_contents"))
+            }}
+            class="ingenic-docs__rail-toggle ingenic-docs__rail-toggle--toc"
+            type="button"
+            {{on "click" this.toggleTree}}
+          >
+            {{dIcon (if this.treeOpen "chevron-left" "chevron-right")}}
+          </button>
+
+          {{#if this.page}}
+            <button
+              aria-controls="ingenic-docs-rail"
+              aria-expanded={{if this.railOpen "true" "false"}}
+              aria-label={{if
+                this.railOpen
+                (i18n (themePrefix "ingenic.docs.hide_rail"))
+                (i18n (themePrefix "ingenic.docs.show_rail"))
+              }}
+              class="ingenic-docs__rail-toggle ingenic-docs__rail-toggle--rail"
+              type="button"
+              {{on "click" this.toggleRail}}
+            >
+              {{dIcon (if this.railOpen "chevron-right" "chevron-left")}}
+            </button>
+          {{/if}}
+
+          <aside class="ingenic-doctoc {{unless this.treeOpen 'is-collapsed'}}" id="ingenic-doctoc">
             <p class="ingenic-doctoc__title">
               {{i18n (themePrefix "ingenic.docs.contents")}}
             </p>
@@ -1444,7 +1525,7 @@ export default class IngenicDocs extends Component {
           </main>
 
           {{#if this.page}}
-            <aside class="ingenic-docs__rail">
+            <aside class="ingenic-docs__rail" id="ingenic-docs-rail">
               <p class="ingenic-docs__rail-title">
                 {{i18n (themePrefix "ingenic.docs.on_this_page")}}
               </p>
