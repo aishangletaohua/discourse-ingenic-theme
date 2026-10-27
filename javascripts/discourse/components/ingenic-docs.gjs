@@ -106,6 +106,7 @@ export default class IngenicDocs extends Component {
   #searchInput = null;
   #headingElements = [];
   #scrollFrame = null;
+  #scroller = null;
 
   // The language this page is being read in. A signed-in reader carries it on
   // the model, which is tracked, so changing it refetches even when the page
@@ -639,6 +640,15 @@ export default class IngenicDocs extends Component {
 
   @action
   syncScroll(element) {
+    // The article scrolls in this element, not in the window, so this is where
+    // the reader's position has to be watched from. Re-registering on every
+    // update would stack listeners, so only the first sighting of a pane does.
+    if (element !== this.#scroller) {
+      this.#scroller?.removeEventListener("scroll", this.#onScroll);
+      this.#scroller = element;
+      element.addEventListener("scroll", this.#onScroll, { passive: true });
+    }
+
     if (this.page?.slug !== this.#scrollSlug) {
       this.#scrollSlug = this.page?.slug ?? null;
       element.scrollTop = 0;
@@ -1049,14 +1059,36 @@ export default class IngenicDocs extends Component {
         return;
       }
 
+      // A heading counts as read once it has crossed the top of the article
+      // pane. Measuring against the window instead would be measuring against
+      // nothing: the page never scrolls, the pane does.
+      const line = (this.#scroller?.getBoundingClientRect().top ?? 0) + 24;
       let active = this.#headingElements[0].id;
 
       for (const heading of this.#headingElements) {
-        if (heading.getBoundingClientRect().top <= 140) {
+        if (heading.getBoundingClientRect().top <= line) {
           active = heading.id;
         } else {
           break;
         }
+      }
+
+      // A last section shorter than the pane would otherwise never reach the
+      // line, leaving the rail on the section before it while the reader is
+      // looking at the end of the page. An article that fits in the pane is at
+      // both its top and its bottom at once, so it is excluded: there, the
+      // first section is the one being read.
+      const scroller = this.#scroller;
+      const overflows = scroller
+        ? scroller.scrollHeight > scroller.clientHeight + 8
+        : false;
+
+      if (
+        overflows &&
+        scroller.scrollTop + scroller.clientHeight >=
+          scroller.scrollHeight - 8
+      ) {
+        active = this.#headingElements[this.#headingElements.length - 1].id;
       }
 
       if (active !== this.activeHeadingId) {
@@ -1064,6 +1096,32 @@ export default class IngenicDocs extends Component {
       }
     });
   };
+
+  // On a long page the rail is taller than the pane it sits in. Moving the
+  // reader's place in the article has to bring that row into view as well,
+  // without the rail jumping around when the row is already visible.
+  @action
+  revealRailRow(element, isActive) {
+    if (!isActive) {
+      return;
+    }
+
+    const rail = element.closest(".ingenic-docs__rail");
+
+    if (!rail) {
+      return;
+    }
+
+    const row = element.getBoundingClientRect();
+    const pane = rail.getBoundingClientRect();
+    const margin = 12;
+
+    if (row.top < pane.top + margin) {
+      rail.scrollTop -= pane.top + margin - row.top;
+    } else if (row.bottom > pane.bottom - margin) {
+      rail.scrollTop += row.bottom - (pane.bottom - margin);
+    }
+  }
 
   #onKeydown = (event) => {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
@@ -1087,6 +1145,8 @@ export default class IngenicDocs extends Component {
       window.cancelAnimationFrame(this.#scrollFrame);
     }
 
+    this.#scroller?.removeEventListener("scroll", this.#onScroll);
+    this.#scroller = null;
     window.removeEventListener("keydown", this.#onKeydown);
     window.removeEventListener("scroll", this.#onScroll);
   }
@@ -1534,6 +1594,8 @@ export default class IngenicDocs extends Component {
                 <a
                   class="ingenic-docs__rail-link ingenic-docs__rail-link--{{heading.indent}} {{if heading.isActive 'is-active'}}"
                   href="#{{heading.id}}"
+                  {{didInsert this.revealRailRow heading.isActive}}
+                  {{didUpdate this.revealRailRow heading.isActive}}
                 >
                   {{heading.text}}
                 </a>
